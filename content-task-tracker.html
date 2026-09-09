@@ -1364,11 +1364,7 @@ function startApp() {
       if (!cats.length) html += `<div class="empty">🔍 ไม่พบรายการที่ตรงกับตัวกรอง</div>`;
       html += `<div class="catgrid">`;
       cats.forEach((cat) => {
-        const open = filtering || S.organize || S.expanded[cat.name] !== false;
-        if (S.expanded[cat.name] === undefined && !filtering && !S.organize) {
-          /* default collapsed unless organizing */
-        }
-        const isOpen = filtering ? true : S.expanded[cat.name] === true;
+        const isOpen = S.expanded[cat.name] === true;
         const complete = cat.total > 0 && cat.upload === cat.total;
         html += `<div class="catbox ${complete ? "complete" : ""}" data-drop-group="${esc(cat.name)}">
           <div class="cathead">

@@ -606,9 +606,7 @@ function startApp() {
   }
   purgeTrash();
   rescueRenamedFromTrash();
-  (S.sales || []).forEach((s) => { if (!s.month) s.month = "2026-07"; });
   backfillSaleLinks();
-  repairJulyAugustMix();
   const SALE_SHOPS = ["Shopee wararit.th", "Shopee riri.th", "Shopee reallycute.th", "Lazada", "TikTok Shop", "ThaiMart", "Line My Shop"];
   function splitSaleRows(text) {
     const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
@@ -773,18 +771,6 @@ function startApp() {
     const sku = String(it.sku || "").trim();
     const hit = (rows || []).find((s) => s.productId && (salePairKey(s) === k || (sku && String(s.sku || "").trim() === sku)));
     return hit ? hit.productId : "";
-  }
-  function repairJulyAugustMix() {
-    if (load("tuka-repaired-aug-v1", false)) return 0;
-    const rows = S.sales || [];
-    const julLinked = rows.filter((s) => saleMonthOf(s) === "2026-07" && s.productId).length;
-    const julOpen = rows.filter((s) => saleMonthOf(s) === "2026-07" && !s.productId);
-    if (!julLinked || !julOpen.length) return 0;
-    S.sales = rows.map((s) => (saleMonthOf(s) === "2026-07" && !s.productId) ? { ...s, month: "2026-08" } : s);
-    persistSales();
-    save("tuka-repaired-aug-v1", true);
-    S.saleNote = "แยกของที่ยังไม่ผูกออกจากกรกฎาคมไปสิงหาคม " + julOpen.length + " รายการ ของที่ผูกแล้วในกรกฎาคมไม่ได้ถูกย้าย";
-    return julOpen.length;
   }
   function backfillSaleLinks() {
     const rows = S.sales || [];

@@ -174,6 +174,44 @@
       pwInput.focus();
     }
 
+    // ==== บีบอัดข้อมูลก่อนส่งขึ้นคลาวด์ ด้วย CompressionStream ที่มีอยู่ในเบราว์เซอร์เอง ====
+    // (ไม่ต้องโหลด library เพิ่ม รองรับ Chrome/Edge - ถ้าเบราว์เซอร์ไม่รองรับจะส่งแบบไม่บีบอัดแทนอัตโนมัติ)
+    const canCompress = typeof CompressionStream !== "undefined";
+    async function gzipCompress(obj) {
+      const text = JSON.stringify(obj);
+      if (!canCompress) return { compressed: false, data: obj };
+      try {
+        const bytes = new TextEncoder().encode(text);
+        const cs = new CompressionStream("gzip");
+        const writer = cs.writable.getWriter();
+        writer.write(bytes);
+        writer.close();
+        const compressedBytes = new Uint8Array(await new Response(cs.readable).arrayBuffer());
+        let binary = "";
+        compressedBytes.forEach((b) => { binary += String.fromCharCode(b); });
+        return { compressed: true, data: btoa(binary) };
+      } catch (e) {
+        return { compressed: false, data: obj };
+      }
+    }
+    async function gzipDecompress(payload) {
+      if (!payload || !payload.compressed) return payload ? payload.data : payload;
+      try {
+        const binary = atob(payload.data);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const ds = new DecompressionStream("gzip");
+        const writer = ds.writable.getWriter();
+        writer.write(bytes);
+        writer.close();
+        const decompressedBytes = new Uint8Array(await new Response(ds.readable).arrayBuffer());
+        const text = new TextDecoder().decode(decompressedBytes);
+        return JSON.parse(text);
+      } catch (e) {
+        return payload.data;
+      }
+    }
+
     async function bootFromCloud() {
       const badge = document.createElement("div");
       badge.id = "syncBadge";
@@ -203,38 +241,65 @@
         if (typeof supabase === "undefined") throw new Error("โหลดสคริปต์ Supabase ไม่สำเร็จ (เช็คอินเทอร์เน็ต หรือลองเปิดในเบราว์เซอร์ Chrome/Edge)");
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         window.__sb = sb;
-        const { data, error } = await sb.from("app_data").select("key,value");
-        if (error) throw new Error("อ่านข้อมูลจากคลาวด์ไม่สำเร็จ: " + error.message);
 
         const MAP = { products: "tuka-products-v2", sales: "tuka-sales-v1", posts: "tuka-posts-v1" };
+        const TS_PREFIX = "tuka-last-synced-";
+
+        // ขั้นที่ 1: เช็คแค่ "เวลาอัปเดตล่าสุด" ก่อน (ข้อมูลเล็กมาก ไม่กินโควตา)
+        // จะดึงข้อมูลก้อนใหญ่จริงๆ ก็ต่อเมื่อคลาวด์มีของใหม่กว่าที่เรามีอยู่แล้วเท่านั้น
+        const { data: metaRows, error: metaErr } = await sb.from("app_data").select("key,updated_at");
+        if (metaErr) throw new Error("อ่านข้อมูลจากคลาวด์ไม่สำเร็จ: " + metaErr.message);
+
+        const keysToFetch = [];
+        (metaRows || []).forEach((row) => {
+          const lastSynced = localStorage.getItem(TS_PREFIX + row.key) || "";
+          if (!lastSynced || new Date(row.updated_at) > new Date(lastSynced)) {
+            keysToFetch.push(row.key);
+          }
+        });
+
+        let fullRows = [];
+        if (keysToFetch.length) {
+          const { data, error } = await sb.from("app_data").select("key,value,updated_at").in("key", keysToFetch);
+          if (error) throw new Error("อ่านข้อมูลจากคลาวด์ไม่สำเร็จ: " + error.message);
+          fullRows = data || [];
+        }
+
         const toPush = []; // ถ้าข้อมูลในเครื่องเยอะกว่า/มีจริงกว่า ให้ดันขึ้นคลาวด์แทนที่จะโดนทับ
 
-        (data || []).forEach((row) => {
+        for (const row of fullRows) {
           const lsKey = MAP[row.key];
-          if (!lsKey) return;
-          const cloudCount = countOf(row.value);
+          if (!lsKey) continue;
+          const cloudVal = await gzipDecompress(row.value); // คลายบีบอัด (ถ้าข้อมูลถูกบีบไว้)
+          const cloudCount = countOf(cloudVal);
           const localVal = readLocal(lsKey);
           const localCount = countOf(localVal);
           if (cloudCount >= localCount && cloudCount > 0) {
             // คลาวด์มีข้อมูลจริงเท่ากันหรือมากกว่า -> ใช้ของคลาวด์
-            localStorage.setItem(lsKey, JSON.stringify(row.value));
+            localStorage.setItem(lsKey, JSON.stringify(cloudVal));
+            localStorage.setItem(TS_PREFIX + row.key, row.updated_at);
           } else if (localCount > 0) {
             // ในเครื่องมีข้อมูลจริงมากกว่า (เช่น คลาวด์ยังว่างเปล่าจากตอนตั้งค่าครั้งแรก) -> ดันของในเครื่องขึ้นคลาวด์แทน กันไม่ให้ข้อมูลจริงหาย
             toPush.push({ key: row.key, value: localVal });
           }
-        });
+        }
 
-        // debounced push ขึ้น cloud ทุกครั้งที่มีการบันทึกในเครื่อง
+        // debounced push ขึ้น cloud ทุกครั้งที่มีการบันทึกในเครื่อง (หน่วงเวลานานขึ้นเพื่อรวมการแก้ไขหลายจุดเป็นการส่งครั้งเดียว)
         const timers = {};
         window.__cloudSync = (key, value) => {
           window.__setSyncBadge("🔄 กำลังบันทึกขึ้นคลาวด์...", "#7A5C00", "#FFF3CD");
           clearTimeout(timers[key]);
-          timers[key] = setTimeout(() => {
-            sb.from("app_data").upsert({ key, value, updated_at: new Date().toISOString() }).then(({ error }) => {
+          timers[key] = setTimeout(async () => {
+            const packed = await gzipCompress(value); // บีบอัดก่อนส่งเสมอ ลดขนาดข้อมูลได้มาก
+            const nowIso = new Date().toISOString();
+            sb.from("app_data").upsert({ key, value: packed, updated_at: nowIso }).then(({ error }) => {
               if (error) { console.warn("cloud sync error:", error.message); window.__setSyncBadge("⚠️ บันทึกขึ้นคลาวด์ไม่สำเร็จ: " + error.message, "#7A1E1E", "#FADBD8"); }
-              else window.__setSyncBadge("☁️ บันทึกขึ้นคลาวด์แล้ว", "#1E5F3E", "#D4EDDA");
+              else {
+                localStorage.setItem(TS_PREFIX + key, nowIso); // จำไว้ว่า sync ล่าสุดคือตอนนี้ กันดึงข้อมูลตัวเองซ้ำ
+                window.__setSyncBadge("☁️ บันทึกขึ้นคลาวด์แล้ว", "#1E5F3E", "#D4EDDA");
+              }
             });
-          }, 600);
+          }, 3000);
         };
 
         if (toPush.length) {

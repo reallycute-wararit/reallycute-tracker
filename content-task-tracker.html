@@ -73,6 +73,7 @@
     .rowbtns { display: flex; gap: 6px; flex-wrap: wrap; }
     .danger-zone { margin-top: 28px; padding-top: 16px; border-top: 1px dashed #C5D8EE; }
     .btn-danger { background: #C0525A; color: #fff; border: none; border-radius: 12px; padding: 10px 14px; font-size: 13px; font-weight: 600; }
+    .header-sticky { position: sticky; top: 0; z-index: 100; background: #F3F7FC; padding: 12px 0; margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
     .tabs { display: flex; gap: 4px; margin: 0 0 16px; background: #D9E6F5; border-radius: 14px; padding: 4px; height: 48px; flex-shrink: 0; }
     .tab { flex: 1; height: 40px; padding: 0 10px; border-radius: 11px; border: none; font-size: 13px; font-weight: 600; background: transparent; color: #5B6F86; white-space: nowrap; }
     .tab.on { background: #fff; color: #2E6BB7; box-shadow: 0 1px 5px rgba(0,0,0,.08); }
@@ -286,19 +287,55 @@
 
         // debounced push ขึ้น cloud ทุกครั้งที่มีการบันทึกในเครื่อง (หน่วงเวลานานขึ้นเพื่อรวมการแก้ไขหลายจุดเป็นการส่งครั้งเดียว)
         const timers = {};
+        const retryAttempts = {}; // track retry attempts per key
+
+        const syncWithRetry = async (key, value, attempt = 0) => {
+          try {
+            const packed = await gzipCompress(value);
+            const nowIso = new Date().toISOString();
+
+            const { error } = await sb.from("app_data").upsert({ key, value: packed, updated_at: nowIso });
+
+            if (error) {
+              console.warn("cloud sync error:", error.message);
+              const errorMsg = error.message || "ไม่ทราบสาเหตุ";
+
+              // Retry logic for network-like errors
+              if ((error.message?.includes("Failed to fetch") || error.message?.includes("Network")) && attempt < 3) {
+                const delayMs = Math.pow(2, attempt) * 1000; // exponential backoff: 1s, 2s, 4s
+                console.log(`Retrying sync for key "${key}" in ${delayMs}ms (attempt ${attempt + 1}/3)`);
+                window.__setSyncBadge(`🔄 กำลังลองใหม่... (${attempt + 1}/3)`, "#7A5C00", "#FFF3CD");
+                setTimeout(() => syncWithRetry(key, value, attempt + 1), delayMs);
+              } else {
+                window.__setSyncBadge(`⚠️ บันทึกขึ้นคลาวด์ไม่สำเร็จ: ${errorMsg}`, "#7A1E1E", "#FADBD8");
+              }
+            } else {
+              localStorage.setItem(TS_PREFIX + key, nowIso);
+              window.__setSyncBadge("☁️ บันทึกขึ้นคลาวด์แล้ว", "#1E5F3E", "#D4EDDA");
+              retryAttempts[key] = 0; // reset retry counter on success
+            }
+          } catch (networkError) {
+            console.error("Network error during cloud sync:", networkError);
+
+            // Retry logic for network errors thrown by fetch
+            if (attempt < 3) {
+              const delayMs = Math.pow(2, attempt) * 1000;
+              console.log(`Retrying sync for key "${key}" in ${delayMs}ms (attempt ${attempt + 1}/3) - Network error`);
+              window.__setSyncBadge(`🔄 กำลังลองใหม่... (${attempt + 1}/3)`, "#7A5C00", "#FFF3CD");
+              setTimeout(() => syncWithRetry(key, value, attempt + 1), delayMs);
+            } else {
+              const errorMsg = networkError.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์";
+              window.__setSyncBadge(`⚠️ ${errorMsg}`, "#7A1E1E", "#FADBD8");
+            }
+          }
+        };
+
         window.__cloudSync = (key, value) => {
           window.__setSyncBadge("🔄 กำลังบันทึกขึ้นคลาวด์...", "#7A5C00", "#FFF3CD");
           clearTimeout(timers[key]);
           timers[key] = setTimeout(async () => {
-            const packed = await gzipCompress(value); // บีบอัดก่อนส่งเสมอ ลดขนาดข้อมูลได้มาก
-            const nowIso = new Date().toISOString();
-            sb.from("app_data").upsert({ key, value: packed, updated_at: nowIso }).then(({ error }) => {
-              if (error) { console.warn("cloud sync error:", error.message); window.__setSyncBadge("⚠️ บันทึกขึ้นคลาวด์ไม่สำเร็จ: " + error.message, "#7A1E1E", "#FADBD8"); }
-              else {
-                localStorage.setItem(TS_PREFIX + key, nowIso); // จำไว้ว่า sync ล่าสุดคือตอนนี้ กันดึงข้อมูลตัวเองซ้ำ
-                window.__setSyncBadge("☁️ บันทึกขึ้นคลาวด์แล้ว", "#1E5F3E", "#D4EDDA");
-              }
-            });
+            retryAttempts[key] = 0;
+            syncWithRetry(key, value, 0);
           }, 3000);
         };
 
@@ -1295,14 +1332,16 @@ function startApp() {
     const selN = selectedIds().length;
 
     let html = `
-      <div class="title">📌 ติดตามงาน reallyCute</div>
-      <div class="sub">เช็คลิสต์งาน + บันทึกว่าสินค้าชิ้นไหนโพสต์รูป/วิดีโอวันไหน เพื่อรีมาร์เก็ตติ้ง</div>
-      <div class="tabs">
-        <button class="tab ${S.view === "dash" ? "on" : ""}" data-act="view" data-v="dash">ภาพรวม</button>
-        <button class="tab ${S.view === "list" ? "on" : ""}" data-act="view" data-v="list">เช็คลิสต์</button>
-        <button class="tab ${S.view === "cal" ? "on" : ""}" data-act="view" data-v="cal">ปฏิทิน</button>
-        <button class="tab ${S.view === "sales" ? "on" : ""}" data-act="view" data-v="sales">ยอดขาย</button>
-        <button class="tab ${S.view === "trash" ? "on" : ""}" data-act="view" data-v="trash">ถังขยะ</button>
+      <div class="header-sticky">
+        <div class="title">📌 ติดตามงาน reallyCute</div>
+        <div class="sub">เช็คลิสต์งาน + บันทึกว่าสินค้าชิ้นไหนโพสต์รูป/วิดีโอวันไหน เพื่อรีมาร์เก็ตติ้ง</div>
+        <div class="tabs">
+          <button class="tab ${S.view === "dash" ? "on" : ""}" data-act="view" data-v="dash">ภาพรวม</button>
+          <button class="tab ${S.view === "list" ? "on" : ""}" data-act="view" data-v="list">เช็คลิสต์</button>
+          <button class="tab ${S.view === "cal" ? "on" : ""}" data-act="view" data-v="cal">ปฏิทิน</button>
+          <button class="tab ${S.view === "sales" ? "on" : ""}" data-act="view" data-v="sales">ยอดขาย</button>
+          <button class="tab ${S.view === "trash" ? "on" : ""}" data-act="view" data-v="trash">ถังขยะ</button>
+        </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap">
         <div class="tiny">${S.pack.updatedAt ? "อัปเดต " + new Date(S.pack.updatedAt).toLocaleDateString("th-TH") : ""}${S.backupStatus ? " · " + S.backupStatus : ""}</div>

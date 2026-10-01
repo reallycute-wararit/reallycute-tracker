@@ -46,6 +46,14 @@
     .item { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; padding: 10px 10px 10px 8px; border-bottom: 1px solid #EEF4FB; background: #fff; }
     .ibody { flex: 1 1 200px; min-width: 180px; }
     .ithumb { position: relative; flex: 0 0 auto; display: block; width: 44px; height: 44px; border-radius: 10px; overflow: hidden; background: #EEF4FB; line-height: 0; }
+    .ithumb.edit { cursor: pointer; }
+    .ie-prev { width: 140px; height: 140px; border-radius: 14px; background: #EEF4FB; border: 1px solid #D7E4F2; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; color: #8AA0B5; flex: 0 0 auto; line-height: 1.3; }
+    .ie-prev img { width: 100%; height: 100%; object-fit: contain; display: block; background: #fff; }
+    .ie-xs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .ie-x { width: 76px; text-align: center; }
+    .ie-x .ie-xi { width: 76px; height: 76px; border-radius: 10px; background: #EEF4FB; border: 1px solid #D7E4F2; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #8AA0B5; }
+    .ie-x .ie-xi img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ie-x .ghost { padding: 3px 6px; font-size: 11px; margin-top: 4px; justify-content: center; }
     .ithumb img { width: 44px; height: 44px; object-fit: cover; border-radius: 10px; display: block; }
     .ithumb .igen { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(28,53,84,.72); color: #fff; font-size: 9px; line-height: 12px; text-align: center; white-space: nowrap; }
     .acts { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -496,6 +504,7 @@ function startApp() {
     confirmClearSales: false,
     confirmSale: "",
     deleteId: "",
+    imgEdit: null,
     deleteCat: "",
     deleteCatIds: [],
     trash: (function () {
@@ -1296,8 +1305,13 @@ function startApp() {
     let thumb = "";
     if (item.img && typeof item.img === "string") {
       let u = item.img;
-      try { if (!/%[0-9A-Fa-f]{2}/.test(item.img)) u = encodeURI(item.img); } catch (e) { u = item.img; }
-      thumb = `<a class="ithumb" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${item.imgGeneric ? "รูปหมู่ (อาจไม่ใช่แบบนี้เป๊ะ) — เปิดรูปใหญ่" : "เปิดรูปใหญ่"}"><img src="${esc(u)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onerror="this.parentNode.style.display='none'">${item.imgGeneric ? `<span class="igen">รูปหมู่</span>` : ""}</a>`;
+      const isData = /^data:/i.test(u);
+      try { if (!isData && !/%[0-9A-Fa-f]{2}/.test(item.img)) u = encodeURI(item.img); } catch (e) { u = item.img; }
+      const ttl = item.imgGeneric ? "รูปหมู่ (อาจไม่ใช่แบบนี้เป๊ะ) — เปิดรูปใหญ่" : "เปิดรูปใหญ่";
+      const inner = `<img src="${esc(u)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onerror="this.parentNode.style.display='none'">${item.imgGeneric ? `<span class="igen">รูปหมู่</span>` : ""}`;
+      thumb = isData
+        ? `<span class="ithumb edit" data-act="edit-img" data-id="${item.id}" title="รูปที่อัปโหลดจากเครื่อง — แตะเพื่อแก้ไขรูป">${inner}</span>`
+        : `<a class="ithumb" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${ttl}">${inner}</a>`;
     }
     return `<div class="item ${done ? "done" : ""} ${skipped ? "skip" : ""} ${S.selected[item.id] ? "selected" : ""}" draggable="${S.organize ? "true" : "false"}" data-drag-item="${item.id}" data-from-group="${esc(catName)}">
       ${S.organize ? `<button class="sel ${S.selected[item.id] ? "on" : ""}" data-act="sel" data-id="${item.id}"></button>
@@ -1319,6 +1333,7 @@ function startApp() {
       <div class="acts">
       <button class="sq off" data-act="open-post" data-id="${item.id}" title="บันทึกการโพสต์">✈</button>
       <button class="sq off" data-act="edit-item" data-id="${item.id}" title="แก้ไข">✎</button>
+      <button class="sq ${item.img ? "ok-vd" : "off"}" data-act="edit-img" data-id="${item.id}" title="${item.img ? "แก้ไขรูปสินค้า" : "เพิ่มรูปสินค้า"}">🖼</button>
       <button class="sq off" data-act="copy-item" data-id="${item.id}" title="คัดลอกสินค้า">⧉</button>
       <button class="sq ${item.ph ? "ok-ph" : "off"}" data-act="tog" data-f="ph" data-id="${item.id}" title="ถ่ายภาพแล้ว">📷</button>
       <button class="sq ${item.vd ? "ok-vd" : "off"}" data-act="tog" data-f="vd" data-id="${item.id}" title="ถ่ายวิดีโอแล้ว">🎥</button>
@@ -1563,6 +1578,7 @@ function startApp() {
     if (S.showPost) html += postSheet();
     if (S.showImport) html += importSheet();
     if (S.showMulti) html += multiSheet();
+    if (S.imgEdit) html += imgEditSheet();
     if (S.showRights) html += `<div class="overlay" data-act="close-pop"><div class="sheet" data-stop="1">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:17px;font-weight:700;color:#2E6BB7">ตั้งลิขสิทธิ์ ${selN} รายการ</div>
@@ -1954,6 +1970,149 @@ function startApp() {
       <button class="btn on" data-act="${act}">บันทึก</button>
     </div></div>`;
   }
+
+  // ==== แก้ไขรูปสินค้า (img / imgs / imgGeneric) ====
+  const IMG_MAX_PX = 1000;
+  const IMG_JPEG_Q = 0.82;
+  const IMG_MAX_DATA = 120 * 1024; // ตัวอักษรของ data URL — ทั้งรายการสินค้าซิงก์ขึ้นคลาวด์เป็นก้อนเดียว จึงไม่ให้ใหญ่
+  function isOkImgUrl(u) {
+    return /^https?:\/\/\S+$/i.test(u) || /^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(u);
+  }
+  function imgSrcOf(u) {
+    if (!u) return "";
+    if (/^data:/i.test(u)) return u;
+    try { if (!/%[0-9A-Fa-f]{2}/.test(u)) return encodeURI(u); } catch (e) {}
+    return u;
+  }
+  function openImgEdit(id) {
+    const p = findProduct(id);
+    if (!p) return;
+    S.imgEdit = {
+      id: p.id,
+      main: typeof p.img === "string" ? p.img : "",
+      extras: Array.isArray(p.imgs) ? p.imgs.filter((x) => typeof x === "string" && x) : [],
+      generic: !!p.imgGeneric,
+      newExtra: "",
+      note: "",
+    };
+  }
+  function imgPrevInner(u) {
+    if (!u) return "ยังไม่มีรูปหลัก";
+    if (!isOkImgUrl(u)) return "ลิงก์ไม่ถูกต้อง<br>(ต้องขึ้นต้น http/https)";
+    return `<img src="${esc(imgSrcOf(u))}" referrerpolicy="no-referrer" alt="" onerror="this.outerHTML='โหลดรูปไม่ได้<br>(เช็คลิงก์)'">`;
+  }
+  function imgEditSheet() {
+    const e = S.imgEdit;
+    const p = findProduct(e.id);
+    const isData = /^data:/i.test(e.main);
+    const kb = (n) => Math.round(n / 1024);
+    return `<div class="overlay" data-act="close-img"><div class="sheet" data-stop="1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:17px;font-weight:700;color:#2E6BB7">แก้ไขรูปสินค้า</div>
+        <button class="iconbtn" data-act="close-img">✕</button>
+      </div>
+      <div class="muted" style="margin-bottom:10px">${p ? esc(labelOf(p)) : ""}</div>
+      ${e.note ? `<div class="warn">${esc(e.note)}</div>` : ""}
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:6px">
+        <div class="ie-prev" id="iePrev">${imgPrevInner(e.main)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="tiny">รูปหลัก (ลิงก์ URL)</div>
+          <input class="field" id="ieMain" placeholder="https://..." value="${esc(isData ? "" : e.main)}" style="margin-bottom:6px" />
+          ${isData ? `<div class="tiny" style="margin-bottom:6px">รูปที่อัปโหลดจากเครื่อง (${kb(e.main.length)} KB) — พิมพ์ URL เพื่อแทนที่</div>` : ""}
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="ghost" style="color:#C0525A;border-color:#E8C4C4" data-act="ie-clear-main"${e.main ? "" : " disabled"}>ลบรูปหลัก</button>
+            <button class="ghost ${e.generic ? "on" : ""}" data-act="ie-gen" title="รูปกลุ่ม/รูปหมู่ — อาจไม่ใช่แบบนี้เป๊ะ">${e.generic ? "✓ " : ""}รูปหมู่</button>
+          </div>
+        </div>
+      </div>
+      <div class="tiny" style="margin:10px 0 4px">รูปเสริม (${e.extras.length})</div>
+      <div class="ie-xs">
+        ${e.extras.length ? e.extras.map((u, i) => `<div class="ie-x">
+          <div class="ie-xi"><img src="${esc(imgSrcOf(u))}" referrerpolicy="no-referrer" alt="" loading="lazy" onerror="this.outerHTML='เปิดรูปไม่ได้'"></div>
+          <button class="ghost" style="width:100%" data-act="ie-swap" data-v="${i}" title="ตั้งเป็นรูปหลัก (สลับกับรูปหลักเดิม)">ตั้งเป็นหลัก</button>
+          <button class="ghost" style="width:100%;color:#C0525A;border-color:#E8C4C4" data-act="ie-del-x" data-v="${i}">✕ ลบ</button>
+        </div>`).join("") : `<div class="tiny">ยังไม่มีรูปเสริม</div>`}
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input class="field" id="ieAdd" placeholder="เพิ่มลิงก์รูปเสริม https://..." value="${esc(e.newExtra)}" style="margin:0;flex:1" />
+        <button class="ghost" data-act="ie-add-x" style="flex:0 0 auto">+ เพิ่ม</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">
+        <label class="ghost" style="cursor:pointer">📁 อัปโหลดเป็นรูปหลัก<input type="file" id="ieFileMain" accept="image/*" style="display:none"></label>
+        <label class="ghost" style="cursor:pointer">📁 อัปโหลดเป็นรูปเสริม<input type="file" id="ieFileExtra" accept="image/*" style="display:none"></label>
+      </div>
+      <div class="tiny" style="margin-bottom:12px">ไฟล์จากเครื่องจะย่อเหลือไม่เกิน ${IMG_MAX_PX}px (JPEG) และเก็บได้เฉพาะรูปที่เล็กกว่า ~${kb(IMG_MAX_DATA)} KB — ถ้าใหญ่กว่านี้ให้ใช้ลิงก์ URL แทน (รายการสินค้าทั้งหมดซิงก์ขึ้นคลาวด์เป็นก้อนเดียว)</div>
+      <button class="btn on" data-act="ie-save" id="ieSaveBtn">บันทึกรูป</button>
+      <button class="ghost" style="width:100%;margin-top:8px;justify-content:center" data-act="close-img">ยกเลิก</button>
+    </div></div>`;
+  }
+  function resizeImageFile(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          let w = img.naturalWidth, h = img.naturalHeight;
+          if (!w || !h) throw new Error("size");
+          const k = Math.min(1, IMG_MAX_PX / Math.max(w, h));
+          w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k));
+          const cv = document.createElement("canvas");
+          cv.width = w; cv.height = h;
+          const ctx = cv.getContext("2d");
+          ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(cv.toDataURL("image/jpeg", IMG_JPEG_Q));
+        } catch (err) { reject(err); }
+        finally { URL.revokeObjectURL(url); }
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("load")); };
+      img.src = url;
+    });
+  }
+  async function ingestImgFile(file, target) {
+    const e = S.imgEdit;
+    if (!file || !e) return;
+    if (!/^image\//.test(file.type || "")) { e.note = "ไฟล์นี้ไม่ใช่รูปภาพ"; render(); return; }
+    try {
+      const data = await resizeImageFile(file);
+      if (S.imgEdit !== e) return;
+      if (data.length > IMG_MAX_DATA) {
+        e.note = "รูปนี้ใหญ่เกินไปแม้ย่อแล้ว (" + Math.round(data.length / 1024) + " KB > " + Math.round(IMG_MAX_DATA / 1024) + " KB) — เพื่อไม่ให้ข้อมูลที่ซิงก์ขึ้นคลาวด์บวม กรุณาใช้ลิงก์ URL แทน";
+      } else if (target === "extra") {
+        e.extras = e.extras.concat([data]);
+        e.note = "";
+      } else {
+        e.main = data;
+        e.note = "";
+      }
+    } catch (err) {
+      e.note = "เปิดรูปนี้ไม่ได้ (รูปแบบไฟล์ไม่รองรับ) — ลองไฟล์ JPG/PNG หรือใช้ลิงก์ URL";
+    }
+    render();
+  }
+  function saveImgEdit() {
+    const e = S.imgEdit;
+    if (!e) return false;
+    const main = (e.main || "").trim();
+    let extras = [];
+    (e.extras || []).forEach((u) => { u = (u || "").trim(); if (u && u !== main && extras.indexOf(u) < 0) extras.push(u); });
+    const bad = [main].concat(extras).filter((u) => u && !isOkImgUrl(u));
+    if (bad.length) { e.note = "ลิงก์รูปต้องขึ้นต้นด้วย http:// หรือ https:// — ตรวจสอบ: " + bad[0].slice(0, 60); return false; }
+    const big = [main].concat(extras).filter((u) => /^data:/i.test(u) && u.length > IMG_MAX_DATA);
+    if (big.length) { e.note = "มีรูปแบบฝังข้อมูลที่ใหญ่เกิน " + Math.round(IMG_MAX_DATA / 1024) + " KB — กรุณาใช้ลิงก์ URL แทน"; return false; }
+    S.pack.list = products().map((p) => {
+      if (String(p.id) !== String(e.id)) return p;
+      const next = { ...p };
+      if (main) next.img = main; else delete next.img;
+      if (extras.length || Array.isArray(p.imgs)) next.imgs = extras; else delete next.imgs;
+      if (e.generic && (main || extras.length)) next.imgGeneric = true;
+      else if (p.imgGeneric != null) next.imgGeneric = false;
+      return next;
+    });
+    persist(true);
+    return true;
+  }
+
   function multiSheet() {
     const g = S.multiGroup || "";
     return `<div class="overlay" data-act="close-multi"><div class="sheet" data-stop="1">
@@ -2449,6 +2608,28 @@ function startApp() {
       else if (act === "f-tog") { grabManualForm(); S.formItem[v] = !S.formItem[v]; }
       else if (act === "reset-form") { S.formItem = emptyForm(); S.importNote = ""; }
       else if (act === "save-item") { grabManualForm(); saveManualItem(); }
+      else if (act === "edit-img") { openImgEdit(id); }
+      else if (act === "close-img") S.imgEdit = null;
+      else if (act === "ie-clear-main" && S.imgEdit) { S.imgEdit.main = ""; S.imgEdit.note = ""; }
+      else if (act === "ie-gen" && S.imgEdit) S.imgEdit.generic = !S.imgEdit.generic;
+      else if (act === "ie-swap" && S.imgEdit) {
+        const e = S.imgEdit, i = Number(v);
+        if (i >= 0 && i < e.extras.length) {
+          const picked = e.extras[i];
+          const ex = e.extras.slice();
+          if (e.main) ex[i] = e.main; else ex.splice(i, 1);
+          e.extras = ex; e.main = picked; e.note = "";
+        }
+      }
+      else if (act === "ie-del-x" && S.imgEdit) { S.imgEdit.extras = S.imgEdit.extras.filter((_, i) => i !== Number(v)); S.imgEdit.note = ""; }
+      else if (act === "ie-add-x" && S.imgEdit) {
+        const e = S.imgEdit, u = (e.newExtra || "").trim();
+        if (!u) e.note = "ใส่ลิงก์รูปเสริมก่อน";
+        else if (!isOkImgUrl(u)) e.note = "ลิงก์รูปต้องขึ้นต้นด้วย http:// หรือ https://";
+        else if (u === e.main || e.extras.indexOf(u) >= 0) e.note = "มีรูปนี้อยู่แล้ว";
+        else { e.extras = e.extras.concat([u]); e.newExtra = ""; e.note = ""; }
+      }
+      else if (act === "ie-save") { if (saveImgEdit()) S.imgEdit = null; }
       else if (act === "edit-item") { openEditItem(id); }
       else if (act === "copy-item") copyProduct(id);
       else if (act === "copy-sel") {
@@ -2649,6 +2830,26 @@ function startApp() {
         }, 150);
       };
     }
+
+    const ieMain = document.getElementById("ieMain");
+    if (ieMain) ieMain.oninput = () => {
+      if (!S.imgEdit) return;
+      S.imgEdit.main = ieMain.value;
+      clearTimeout(ieMain._t);
+      ieMain._t = setTimeout(() => {
+        const pv = document.getElementById("iePrev");
+        if (pv && S.imgEdit) pv.innerHTML = imgPrevInner((S.imgEdit.main || "").trim());
+      }, 250);
+    };
+    const ieAdd = document.getElementById("ieAdd");
+    if (ieAdd) {
+      ieAdd.oninput = () => { if (S.imgEdit) S.imgEdit.newExtra = ieAdd.value; };
+      ieAdd.onkeydown = (ev) => { if (ev.key === "Enter") { ev.preventDefault(); const b = document.querySelector('[data-act="ie-add-x"]'); if (b) b.click(); } };
+    }
+    const ieFileMain = document.getElementById("ieFileMain");
+    if (ieFileMain) ieFileMain.onchange = () => { const f = ieFileMain.files && ieFileMain.files[0]; ieFileMain.value = ""; ingestImgFile(f, "main"); };
+    const ieFileExtra = document.getElementById("ieFileExtra");
+    if (ieFileExtra) ieFileExtra.onchange = () => { const f = ieFileExtra.files && ieFileExtra.files[0]; ieFileExtra.value = ""; ingestImgFile(f, "extra"); };
 
     const multiBox = document.getElementById("multiBox");
     if (multiBox) multiBox.oninput = () => { S.multiRaw = multiBox.value; };

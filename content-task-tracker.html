@@ -45,6 +45,9 @@
     .handle { flex: 0 0 auto; width: 22px; color: #A9BDD4; font-size: 16px; line-height: 1; cursor: grab; user-select: none; text-align: center; }
     .item { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; padding: 10px 10px 10px 8px; border-bottom: 1px solid #EEF4FB; background: #fff; }
     .ibody { flex: 1 1 200px; min-width: 180px; }
+    .ithumb { position: relative; flex: 0 0 auto; display: block; width: 44px; height: 44px; border-radius: 10px; overflow: hidden; background: #EEF4FB; line-height: 0; }
+    .ithumb img { width: 44px; height: 44px; object-fit: cover; border-radius: 10px; display: block; }
+    .ithumb .igen { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(28,53,84,.72); color: #fff; font-size: 9px; line-height: 12px; text-align: center; white-space: nowrap; }
     .acts { display: flex; flex-wrap: wrap; gap: 4px; }
     .cathead { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 10px 12px 8px; background: none; border: none; text-align: left; }
     .item.done { opacity: .72; }
@@ -1290,10 +1293,17 @@ function startApp() {
       if (lp && lp.video) bits += `<span class="tiny">🎥 ${fmtDate(lp.video)}</span>`;
       if (done) bits += `<span class="chip">อัปโหลดแล้ว</span>`;
     }
+    let thumb = "";
+    if (item.img && typeof item.img === "string") {
+      let u = item.img;
+      try { if (!/%[0-9A-Fa-f]{2}/.test(item.img)) u = encodeURI(item.img); } catch (e) { u = item.img; }
+      thumb = `<a class="ithumb" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${item.imgGeneric ? "รูปหมู่ (อาจไม่ใช่แบบนี้เป๊ะ) — เปิดรูปใหญ่" : "เปิดรูปใหญ่"}"><img src="${esc(u)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onerror="this.parentNode.style.display='none'">${item.imgGeneric ? `<span class="igen">รูปหมู่</span>` : ""}</a>`;
+    }
     return `<div class="item ${done ? "done" : ""} ${skipped ? "skip" : ""} ${S.selected[item.id] ? "selected" : ""}" draggable="${S.organize ? "true" : "false"}" data-drag-item="${item.id}" data-from-group="${esc(catName)}">
       ${S.organize ? `<button class="sel ${S.selected[item.id] ? "on" : ""}" data-act="sel" data-id="${item.id}"></button>
         <span class="handle" title="ลากไปหมวดอื่น">⋮⋮</span>` : ""}
       <button class="st ${done ? "done" : "wait"}" data-act="tog" data-f="up" data-id="${item.id}" title="อัปโหลดงานเสร็จ — ขีดชื่อออก">${done ? "✓" : "○"}</button>
+      ${thumb}
       <div class="ibody">
         <div class="iname">${esc(labelOf(item))}</div>
         <div class="tiny" style="display:flex;gap:6px;margin-top:1px;flex-wrap:wrap">
@@ -2809,6 +2819,9 @@ function startApp() {
         sku: oldP && oldP.sku ? oldP.sku : "",
         aka: oldP && oldP.aka ? oldP.aka : "",
         ex: !!(oldP && oldP.ex),
+        ...(oldP && oldP.img ? { img: oldP.img } : {}),
+        ...(oldP && Array.isArray(oldP.imgs) ? { imgs: oldP.imgs } : {}),
+        ...(oldP && oldP.imgGeneric != null ? { imgGeneric: oldP.imgGeneric } : {}),
       });
     });
     let list;

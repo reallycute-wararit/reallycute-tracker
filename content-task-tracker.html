@@ -88,18 +88,6 @@
     .tabs { display: flex; gap: 4px; margin: 0 0 16px; background: #D9E6F5; border-radius: 14px; padding: 4px; height: 48px; flex-shrink: 0; }
     .tab { flex: 1; height: 40px; padding: 0 10px; border-radius: 11px; border: none; font-size: 13px; font-weight: 600; background: transparent; color: #5B6F86; white-space: nowrap; }
     .tab.on { background: #fff; color: #2E6BB7; box-shadow: 0 1px 5px rgba(0,0,0,.08); }
-    .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #D7E4F2; border: 1px solid #D7E4F2; border-radius: 12px; overflow: hidden; }
-    .cal .hd { text-align: center; font-size: 11px; color: #5B6F86; padding: 8px 0; background: #F7FBFF; }
-    .cell { min-height: 96px; min-width: 0; border-radius: 0; border: none; background: #fff; padding: 6px 4px 8px; text-align: left; display: flex; flex-direction: column; gap: 3px; align-items: stretch; }
-    .cell.on { background: #EAF3FF; box-shadow: inset 0 0 0 2px #2E6BB7; color: #1C3554; }
-    .cell.mute { background: #F7FBFF; color: #A9BDD4; }
-    .cell .dnum { font-size: 12px; font-weight: 600; color: #5B6F86; padding: 0 2px; }
-    .cell.on .dnum { color: #2E6BB7; }
-    .ev { display: block; width: 100%; min-width: 0; border: none; border-radius: 4px; padding: 2px 5px; font-size: 10.5px; line-height: 1.3; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-    .ev.ph { background: #FFF0B8; color: #8A6E20; }
-    .ev.vd { background: #D6E7FA; color: #2E6BB7; }
-    .ev.both { background: #E8F5E9; color: #2E6A3A; }
-    .morev { font-size: 10px; color: #2E6BB7; background: none; border: none; text-align: left; padding: 0 3px; }
     .bars { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
     .barbit { height: 7px; border-radius: 4px; width: 100%; display: block; }
     .barbit.ph { background: #F0C53A; }
@@ -169,13 +157,138 @@
       .overlay { align-items: center; padding: 24px; }
       .iname { font-size: 14.5px; }
       .item { padding: 11px 12px; }
-      .cell { min-height: 120px; }
-      .ev { font-size: 12px; }
     }
     @media (min-width: 1280px) {
       .wrap { max-width: 1100px; }
       .catgrid { grid-template-columns: 1fr; }
       .toolbar-inner { max-width: 1320px; }
+    }
+    /* ==== Calendar UX (cx-*) — ปฏิทินใหม่ ==== */
+    .cx-card { background: #fff; border-radius: 18px; padding: 14px 16px 16px; box-shadow: 0 2px 10px rgba(46,107,183,.10); margin-bottom: 16px; }
+    .cx-top { display: flex; align-items: center; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap; margin-bottom: 12px; }
+    .cx-nav { display: flex; align-items: center; gap: 8px; }
+    .cx-nb { width: 40px; height: 40px; padding: 0; border-radius: 12px; border: 1px solid #C5D8EE; background: #fff; color: #2E6BB7; font-size: 22px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .cx-nb:hover { background: #EAF3FF; }
+    .cx-title { font-size: 21px; font-weight: 700; color: #1C3554; min-width: 168px; text-align: center; white-space: nowrap; }
+    .cx-today { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid #C5D8EE; background: #fff; color: #2E6BB7; font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .cx-today:hover { background: #EAF3FF; }
+    .cx-today[disabled] { opacity: .45; cursor: default; background: #fff; }
+    .cx-right { display: flex; align-items: center; gap: 8px; }
+    .cx-seg { display: inline-flex; background: #EEF4FB; border-radius: 12px; padding: 3px; }
+    .cx-seg button { border: none; background: none; height: 34px; padding: 0 13px; border-radius: 9px; font-size: 13px; font-weight: 600; color: #5B6F86; white-space: nowrap; }
+    .cx-seg button.on { background: #fff; color: #2E6BB7; box-shadow: 0 1px 4px rgba(0,0,0,.10); }
+    .cx-add { height: 40px; padding: 0 16px; border-radius: 12px; border: none; background: #2E6BB7; color: #fff; font-size: 14px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 6px rgba(46,107,183,.30); }
+    .cx-add:hover { background: #2760A8; }
+    .cx-filters { display: flex; align-items: center; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 2px 0 4px; margin-bottom: 10px; }
+    .cx-f { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #D7E4F2; background: #fff; color: #3B5373; font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .cx-f:hover { background: #F4F9FF; }
+    .cx-f b { font-weight: 700; }
+    .cx-f.on { background: #2E6BB7; border-color: #2E6BB7; color: #fff; }
+    .cx-f.on .cx-dot { box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+    .cx-sum { flex: 0 0 auto; margin-left: auto; padding-left: 8px; font-size: 12.5px; color: #5B6F86; white-space: nowrap; }
+    .cx-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; display: inline-block; background: #8AA0B5; }
+    .cx-dot.all { background: conic-gradient(#F0C53A 0 33%, #2E6BB7 0 66%, #5DB071 0); }
+    .cx-dot.ph { background: #F0C53A; }
+    .cx-dot.vd { background: #2E6BB7; }
+    .cx-dot.both { background: #5DB071; }
+    .cx-hint { font-size: 12px; color: #8AA0B5; margin: 0 2px 10px; }
+    .cx-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: #DCE7F4; border: 1px solid #DCE7F4; border-radius: 14px; overflow: hidden; }
+    .cx-hd { text-align: center; font-size: 12px; font-weight: 700; color: #5B6F86; padding: 9px 0; background: #F4F8FD; }
+    .cx-hd.sat { color: #7B66C0; }
+    .cx-hd.sun { color: #C0525A; }
+    .cx-cell { position: relative; min-height: 116px; min-width: 0; background: #fff; padding: 6px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
+    .cx-cell.sat { background: #FAF8FF; }
+    .cx-cell.sun { background: #FFF8F8; }
+    .cx-cell:hover { background: #EEF6FF; }
+    .cx-cell:focus-visible { box-shadow: inset 0 0 0 2px #2E6BB7; }
+    .cx-cell.out { background: #F5F8FC; cursor: default; }
+    .cx-cell.out:hover { background: #F5F8FC; }
+    .cx-cell.out .cx-n { color: #B8C8DB; font-weight: 500; }
+    .cx-cell.today { background: #F0F7FF; box-shadow: inset 0 0 0 2px #9CC3F0; }
+    .cx-cell.on { background: #E3EFFD; box-shadow: inset 0 0 0 2px #2E6BB7; }
+    .cx-ch { display: flex; align-items: center; justify-content: space-between; min-height: 26px; }
+    .cx-n { min-width: 26px; height: 26px; padding: 0 3px; display: inline-flex; align-items: center; justify-content: center; border-radius: 13px; font-size: 13px; font-weight: 700; color: #3B5373; }
+    .cx-cell.sun .cx-n { color: #C0525A; }
+    .cx-cell.today .cx-n { background: #2E6BB7; color: #fff; }
+    .cx-cnt { min-width: 22px; height: 20px; padding: 0 6px; border-radius: 999px; background: #DCEBFC; color: #2E6BB7; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+    .cx-addh { position: absolute; right: 5px; top: 5px; width: 26px; height: 26px; padding: 0; border-radius: 50%; border: none; background: #DCEBFC; color: #2E6BB7; font-size: 17px; line-height: 1; opacity: 0; transition: opacity .12s; display: inline-flex; align-items: center; justify-content: center; }
+    .cx-cell:hover .cx-addh, .cx-addh:focus-visible { opacity: 1; }
+    .cx-chips { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .cx-chip { display: flex; align-items: center; gap: 5px; min-width: 0; padding: 2px 6px 2px 3px; border-radius: 7px; border-left: 3px solid; font-size: 12px; line-height: 1.35; overflow: hidden; }
+    .cx-chip .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cx-chip .g { flex: 0 0 auto; font-size: 11px; line-height: 1; }
+    .cx-chip.ph { background: #FFF3C4; border-color: #F0C53A; color: #6F560E; }
+    .cx-chip.vd { background: #DCEBFC; border-color: #2E6BB7; color: #1F4F8F; }
+    .cx-chip.both { background: #E3F4E6; border-color: #5DB071; color: #25623A; }
+    .cx-th { position: relative; flex: 0 0 auto; width: 18px; height: 18px; border-radius: 5px; background: #fff; overflow: hidden; display: inline-block; }
+    .cx-th img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cx-more { font-size: 11.5px; font-weight: 700; color: #2E6BB7; padding: 0 4px; }
+    .cx-dots { display: none; }
+    .cx-empty { text-align: center; padding: 26px 12px; color: #8AA0B5; font-size: 14px; line-height: 1.7; }
+    .cx-empty b { color: #5B6F86; }
+    /* รายการ (agenda) */
+    .cx-day { margin-top: 6px; }
+    .cx-dh { position: sticky; top: var(--hdr-h, 0px); z-index: 4; display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 4px; margin: 8px 0 6px; background: #fff; border: none; border-bottom: 1.5px solid #E1ECF8; text-align: left; font-size: 14px; font-weight: 700; color: #1C3554; }
+    .cx-dh .tag { font-size: 11px; font-weight: 700; color: #fff; background: #2E6BB7; border-radius: 999px; padding: 2px 9px; }
+    .cx-dh .n { margin-left: auto; font-size: 12px; font-weight: 600; color: #5B6F86; }
+    .cx-pr { display: flex; align-items: stretch; gap: 6px; margin-bottom: 8px; }
+    .cx-pm { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 1px solid #E1ECF8; border-left: 5px solid #8AA0B5; border-radius: 14px; padding: 10px 12px; min-height: 66px; color: #1C3554; }
+    .cx-pm:hover { background: #F7FBFF; }
+    .cx-pm.ph { border-left-color: #F0C53A; }
+    .cx-pm.vd { border-left-color: #2E6BB7; }
+    .cx-pm.both { border-left-color: #5DB071; }
+    .cx-ths { display: flex; flex: 0 0 auto; }
+    .cx-th2 { position: relative; width: 48px; height: 48px; border-radius: 12px; background: #EAF3FF; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(28,53,84,.22); margin-left: -16px; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; color: #A9BDD4; }
+    .cx-th2:first-child { margin-left: 0; }
+    .cx-th2 img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #fff; }
+    .cx-th2.more { background: #2E6BB7; color: #fff; font-size: 13px; font-weight: 700; }
+    .cx-pb { min-width: 0; flex: 1; }
+    .cx-pt { font-size: 14.5px; font-weight: 600; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    .cx-pmeta { margin-top: 5px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 11.5px; color: #5B6F86; }
+    .cx-badge { padding: 1px 9px; border-radius: 999px; font-weight: 700; font-size: 11.5px; }
+    .cx-badge.ph { background: #FFF3C4; color: #6F560E; }
+    .cx-badge.vd { background: #DCEBFC; color: #1F4F8F; }
+    .cx-badge.both { background: #E3F4E6; color: #25623A; }
+    .cx-pd { flex: 0 0 48px; min-height: 48px; border: 1px solid #F3D3D5; background: #FFF6F6; color: #C0525A; border-radius: 14px; font-size: 18px; padding: 0; }
+    .cx-pd:hover { background: #FDECEC; }
+    .cx-ask { flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+    .cx-ask button { min-height: 38px; border-radius: 11px; font-size: 13px; font-weight: 700; padding: 0 12px; border: 1px solid #C5D8EE; background: #fff; color: #5B6F86; white-space: nowrap; }
+    .cx-ask button.yes { background: #C0525A; border-color: #C0525A; color: #fff; }
+    /* ชีตรายละเอียดวัน */
+    .cx-sheet { padding-top: 14px; }
+    .cx-sh { position: sticky; top: -14px; z-index: 3; display: flex; align-items: center; gap: 8px; margin: -14px -18px 10px; padding: 12px 14px 10px; background: #fff; border-bottom: 1px solid #EEF4FB; }
+    .cx-sd { flex: 1; min-width: 0; text-align: center; }
+    .cx-sd b { display: block; font-size: 16px; color: #1C3554; line-height: 1.35; }
+    .cx-sd .tag { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; background: #2E6BB7; border-radius: 999px; padding: 1px 9px; margin-top: 3px; }
+    .cx-sbad { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin: 0 0 12px; }
+    .cx-foot { position: sticky; bottom: -24px; z-index: 3; margin: 12px -18px -24px; padding: 12px 18px calc(18px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #EEF4FB; }
+    .cx-foot .cx-add { width: 100%; height: 50px; font-size: 15.5px; }
+    @media (max-width: 899px) { .cx-title { min-width: 0; } .cx-chip { font-size: 11px; } }
+    @media (max-width: 699px) {
+      .cx-card { padding: 12px 10px 14px; border-radius: 16px; }
+      .cx-top { gap: 8px; }
+      .cx-nav { width: 100%; justify-content: space-between; }
+      .cx-nb { width: 44px; height: 44px; }
+      .cx-today { height: 44px; }
+      .cx-title { flex: 1; font-size: 19px; }
+      .cx-right { width: 100%; }
+      .cx-seg { flex: 0 0 auto; }
+      .cx-seg button { height: 40px; padding: 0 12px; }
+      .cx-add { flex: 1; height: 44px; padding: 0 10px; }
+      .cx-sum { display: none; }
+      .cx-filters { gap: 6px; }
+      .cx-f { padding: 0 10px; gap: 5px; font-size: 12.5px; }
+      .cx-hd { padding: 8px 0; font-size: 11.5px; }
+      .cx-cell { min-height: 62px; padding: 4px 2px 5px; align-items: center; gap: 4px; }
+      .cx-ch { justify-content: center; }
+      .cx-cnt, .cx-addh, .cx-chips { display: none; }
+      .cx-dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; align-items: center; min-height: 9px; padding: 0 2px; }
+      .cx-dots .cx-dot { width: 8px; height: 8px; }
+      .cx-dots i { font-style: normal; font-size: 10px; font-weight: 700; color: #2E6BB7; line-height: 1; }
+      .cx-pm { padding: 9px 10px; gap: 10px; }
+      .cx-th2 { width: 44px; height: 44px; margin-left: -14px; }
+      .cx-pd { flex-basis: 44px; }
+      .cx-sh { margin-left: -18px; margin-right: -18px; }
     }
     /* ==== Checklist UX (ck-* / rm-*) — เช็คลิสต์ใหม่ ==== */
     [hidden] { display: none !important; }
@@ -989,9 +1102,11 @@ function startApp() {
     saleNote: "",
     showPost: false,
     postForm: { productIds: [], q: "", date: "", photo: true, video: false, platforms: {}, caption: "", note: "", editId: null },
-    calCursor: new Date().toISOString().slice(0, 7),
-    calMode: "month",
-    calDay: "",
+    calCursor: (function () { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); })(),
+    calMode: "month", // month = ตารางเดือน, list = รายการ
+    calFilter: "all", // all | ph | vd | both
+    calSheet: "", // วันที่ (YYYY-MM-DD) ที่เปิดชีตรายละเอียดวัน
+    calDelAsk: "", // id โพสต์ที่กำลังถามยืนยันลบ
     backupOn: !!load("tuka-backup-on", false),
     backupStatus: "",
   };
@@ -1571,7 +1686,9 @@ function startApp() {
     S.backupStatus = "สำรองล่าสุด " + new Date().toLocaleTimeString("th-TH");
   }
   restoreBackupHandle();
-  function todayISO() { return new Date().toISOString().slice(0, 10); }
+  // วันที่ตามเวลาเครื่อง (เดิมใช้ UTC ทำให้ตี 0–7 โมงไทยได้ "เมื่อวาน")
+  function localISO(d) { const x = d || new Date(); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); }
+  function todayISO() { return localISO(); }
   function fmtDate(iso) {
     if (!iso) return "";
     const d = new Date(iso + "T00:00:00");
@@ -2174,7 +2291,7 @@ function startApp() {
         <div class="tiny">${S.pack.updatedAt ? "อัปเดต " + new Date(S.pack.updatedAt).toLocaleDateString("th-TH") : ""}${S.backupStatus ? " · " + S.backupStatus : ""}</div>
         <div class="rowbtns menu">
           <button class="ghost" data-act="open-import">นำเข้า/อัปเดต</button>
-          <button class="ghost ${S.showMenu ? "on" : ""}" data-act="toggle-menu">⋯</button>
+          <button class="ghost ${S.showMenu ? "on" : ""}" data-act="toggle-menu" aria-label="เมนูเพิ่มเติม" title="เมนูเพิ่มเติม">⋯ เพิ่มเติม</button>
           ${S.showMenu ? `<div class="menupop">
             <button class="ghost" data-act="export-all">ส่งออก CSV</button>
             <button class="ghost" data-act="export-json">ส่งไฟล์ให้พนักงาน</button>
@@ -2319,7 +2436,10 @@ function startApp() {
     if (S.showStrip) html += textSheet("ลบคำในชื่อสินค้า (หมวด " + S.renameTarget + ")", "strip-ok", "", "คำที่จะลบ เช่น เคโระ");
     if (S.showNewGroup) html += textSheet("สร้างหมวดใหม่", "create-group", S.textInput, "เช่น ตุ๊กตา 15 นิ้ว / ผ้าห่มฮู้ด");
 
+    const csOld = app.querySelector(".cx-sheet");
+    const csTop = csOld ? csOld.scrollTop : 0, csKey = csOld ? csOld.getAttribute("data-day") : "";
     app.innerHTML = html;
+    if (csTop) { const csNew = app.querySelector(".cx-sheet"); if (csNew && csNew.getAttribute("data-day") === csKey) csNew.scrollTop = csTop; }
     bind();
     lastSearchKey = S.search.trim().toLowerCase();
     syncChrome();
@@ -2424,61 +2544,153 @@ function startApp() {
       </div>
     </button>`;
   }
+  // ==== ปฏิทิน (cx-*) ====
+  const CAL_KIND = { ph: "รูป", vd: "วิดีโอ", both: "รูป + วิดีโอ" };
+  const CAL_GLYPH = { ph: "📷", vd: "🎥", both: "📷🎥" };
+  const THAI_DOW = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+  function postKind(po) { return po.photo && po.video ? "both" : (po.video ? "vd" : "ph"); }
+  function calImg(p) { return p && typeof p.img === "string" && p.img ? imgSrcOf(p.img) : ""; }
+  function calInfo(po, look) {
+    const prods = postProductIds(po).map((pid) => look(pid));
+    const names = prods.filter(Boolean).map(labelOf);
+    const title = names.length ? names.join(" · ") : (po.label || "สินค้าที่ถูกลบ");
+    const first = names.length ? names[0] : (po.label ? String(po.label).split(" · ")[0] : "โพสต์");
+    const n = Math.max(postProductIds(po).length, 1);
+    return { prods, title, short: first + (n > 1 ? " +" + (n - 1) : ""), kind: postKind(po) };
+  }
+  function calThumbs(prods, max) {
+    const list = prods.length ? prods : [null];
+    const shown = list.slice(0, max);
+    let h = shown.map((p) => { const u = calImg(p); return `<span class="cx-th2">${u ? `<img src="${esc(u)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onerror="this.style.display='none'">` : ""}🖼</span>`; }).join("");
+    if (list.length > max) h += `<span class="cx-th2 more">+${list.length - max}</span>`;
+    return `<span class="cx-ths">${h}</span>`;
+  }
+  function calPostRow(po, look) {
+    const info = calInfo(po, look);
+    const plats = (po.platforms || []).length;
+    const asking = String(S.calDelAsk) === String(po.id);
+    return `<div class="cx-pr">
+      <button class="cx-pm ${info.kind}" data-act="edit-post" data-id="${po.id}" aria-label="ดูหรือแก้ไขโพสต์: ${esc(info.title)}">
+        ${calThumbs(info.prods, 3)}
+        <span class="cx-pb">
+          <span class="cx-pt">${esc(info.title)}</span>
+          <span class="cx-pmeta"><span class="cx-badge ${info.kind}">${CAL_GLYPH[info.kind]} ${CAL_KIND[info.kind]}</span>${plats ? `<span>${plats} ช่องทาง</span>` : ""}${(po.caption || po.captions) ? `<span>มีแคปชั่น</span>` : ""}</span>
+        </span>
+      </button>
+      ${asking
+        ? `<div class="cx-ask"><button class="yes" data-act="del-post" data-id="${po.id}">ลบเลย</button><button data-act="cal-del-no">ยกเลิก</button></div>`
+        : `<button class="cx-pd" data-act="cal-del-ask" data-id="${po.id}" title="ลบโพสต์นี้" aria-label="ลบโพสต์นี้">🗑</button>`}
+    </div>`;
+  }
+  function calDayLabel(iso, long) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString("th-TH", long ? { weekday: "long", day: "numeric", month: "long", year: "numeric" } : { weekday: "short", day: "numeric", month: "short" });
+  }
+  function calShiftDay(iso, delta) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return localISO(new Date(y, m - 1, d + delta));
+  }
+  function calSheetHTML(look) {
+    const iso = S.calSheet;
+    const list = S.posts.filter((po) => po.date === iso);
+    const c = { ph: 0, vd: 0, both: 0 };
+    list.forEach((po) => { c[postKind(po)]++; });
+    const isToday = iso === todayISO();
+    const short = calDayLabel(iso, false);
+    return `<div class="overlay" data-act="cal-close"><div class="sheet cx-sheet" data-stop="1" data-day="${iso}" role="dialog" aria-modal="true" aria-label="รายละเอียดวัน ${esc(calDayLabel(iso, true))}">
+      <div class="cx-sh">
+        <button class="cx-nb" data-act="cal-day" data-v="${calShiftDay(iso, -1)}" aria-label="วันก่อนหน้า">‹</button>
+        <div class="cx-sd"><b>${esc(calDayLabel(iso, true))}</b>${isToday ? `<span class="tag">วันนี้</span>` : ""}</div>
+        <button class="cx-nb" data-act="cal-day" data-v="${calShiftDay(iso, 1)}" aria-label="วันถัดไป">›</button>
+        <button class="cx-nb" data-act="cal-close" aria-label="ปิด" style="font-size:18px">✕</button>
+      </div>
+      ${list.length ? `<div class="cx-sbad"><span class="cx-badge" style="background:#EEF4FB;color:#3B5373">${list.length} โพสต์</span>${["ph", "vd", "both"].filter((k) => c[k]).map((k) => `<span class="cx-badge ${k}">${CAL_GLYPH[k]} ${CAL_KIND[k]} ${c[k]}</span>`).join("")}</div>` : ""}
+      ${list.length ? list.map((po) => calPostRow(po, look)).join("") : `<div class="cx-empty"><div style="font-size:34px">🗓️</div><b>ยังไม่มีโพสต์ในวันนี้</b><br>กดปุ่มด้านล่างเพื่อบันทึกโพสต์ของวันนี้</div>`}
+      <div class="cx-foot"><button class="cx-add" data-act="cal-add" data-v="${iso}">+ เพิ่มโพสต์ ${esc(short)}</button></div>
+    </div></div>`;
+  }
   function calendarHTML() {
     const [yy, mm] = S.calCursor.split("-").map(Number);
     const first = new Date(yy, mm - 1, 1);
     const startPad = (first.getDay() + 6) % 7;
     const daysIn = new Date(yy, mm, 0).getDate();
-    const byDay = {};
-    S.posts.forEach((po) => {
-      if (!po.date || po.date.slice(0, 7) !== S.calCursor) return;
-      if (!byDay[po.date]) byDay[po.date] = { ph: 0, vd: 0, list: [] };
-      if (po.photo) byDay[po.date].ph++;
-      if (po.video) byDay[po.date].vd++;
-      byDay[po.date].list.push(po);
-    });
+    const prevIn = new Date(yy, mm - 1, 0).getDate();
+    const today = todayISO();
     const monthLabel = first.toLocaleDateString("th-TH", { month: "long", year: "numeric" });
-    const selected = S.calDay && byDay[S.calDay] ? byDay[S.calDay].list : (S.calDay ? [] : S.posts.filter((p) => p.date && p.date.slice(0, 7) === S.calCursor).sort((a, b) => b.date.localeCompare(a.date)));
-    const dates = Object.keys(byDay).sort().reverse();
-    let cells = "";
-    for (let i = 0; i < startPad; i++) cells += `<div class="cell mute"></div>`;
-    const shownN = window.innerWidth >= 900 ? 4 : 2;
-    for (let d = 1; d <= daysIn; d++) {
-      const iso = S.calCursor + "-" + String(d).padStart(2, "0");
-      const info = byDay[iso];
-      const evs = info ? info.list : [];
-      const extra = Math.max(0, evs.length - shownN);
-      cells += `<div class="cell ${S.calDay === iso ? "on" : ""}">
-        <button class="dnum" data-act="cal-day" data-v="${iso}">${d}</button>
-        ${evs.slice(0, shownN).map((po) => {
-          const names = postProductIds(po).map((pid) => { const p = findProduct(pid); return p ? labelOf(p) : ""; }).filter(Boolean);
-          const title = names[0] || po.label || "โพสต์";
-          const kind = po.photo && po.video ? "both" : (po.video ? "vd" : "ph");
-          return `<button class="ev ${kind}" data-act="edit-post" data-id="${po.id}">${esc(title)}</button>`;
-        }).join("")}
-        ${extra ? `<button class="morev" data-act="cal-day" data-v="${iso}">+${extra} รายการ</button>` : ""}
-      </div>`;
+    // ค้นหาสินค้าด้วย Map ครั้งเดียว (สินค้าหลักหมื่น) แทนการไล่หาทีละโพสต์
+    let pmap = null;
+    const look = (pid) => { if (!pmap) { pmap = new Map(); products().forEach((p) => pmap.set(String(p.id), p)); } return pmap.get(String(pid)); };
+    const monthPosts = S.posts.filter((po) => po.date && po.date.slice(0, 7) === S.calCursor);
+    const cnt = { all: monthPosts.length, ph: 0, vd: 0, both: 0 };
+    monthPosts.forEach((po) => { cnt[postKind(po)]++; });
+    const filt = S.calFilter in cnt ? S.calFilter : "all";
+    const shown = filt === "all" ? monthPosts : monthPosts.filter((po) => postKind(po) === filt);
+    const byDay = {};
+    shown.forEach((po) => { (byDay[po.date] = byDay[po.date] || []).push(po); });
+    const days = new Set(monthPosts.map((po) => po.date)).size;
+    const isList = S.calMode === "list";
+
+    let body = "";
+    if (!isList) {
+      let cells = "";
+      for (let i = 0; i < startPad; i++) cells += `<div class="cx-cell out"><div class="cx-ch"><span class="cx-n">${prevIn - startPad + 1 + i}</span></div></div>`;
+      for (let d = 1; d <= daysIn; d++) {
+        const iso = S.calCursor + "-" + String(d).padStart(2, "0");
+        const col = (startPad + d - 1) % 7;
+        const evs = byDay[iso] || [];
+        const MAXC = 3;
+        const cls = ["cx-cell", col === 5 ? "sat" : "", col === 6 ? "sun" : "", iso === today ? "today" : "", S.calSheet === iso ? "on" : ""].filter(Boolean).join(" ");
+        const chips = evs.slice(0, MAXC).map((po) => {
+          const info = calInfo(po, look);
+          const u = calImg(info.prods[0]);
+          const lead = u ? `<span class="cx-th"><img src="${esc(u)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onerror="this.style.display='none'"></span>` : `<span class="g">${CAL_GLYPH[info.kind]}</span>`;
+          return `<span class="cx-chip ${info.kind}" title="${esc(info.title)}">${lead}<span class="t">${esc(info.short)}</span></span>`;
+        }).join("");
+        const more = evs.length > MAXC ? `<span class="cx-more">+${evs.length - MAXC} อีก</span>` : "";
+        const dots = evs.slice(0, 4).map((po) => `<span class="cx-dot ${postKind(po)}"></span>`).join("") + (evs.length > 4 ? `<i>+${evs.length - 4}</i>` : "");
+        const aria = "วันที่ " + d + (evs.length ? " มี " + evs.length + " โพสต์" : " ยังไม่มีโพสต์") + (iso === today ? " (วันนี้)" : "");
+        cells += `<div class="${cls}" data-act="cal-day" data-v="${iso}" role="button" tabindex="0" aria-label="${aria}">
+          <div class="cx-ch"><span class="cx-n">${d}</span>${evs.length ? `<span class="cx-cnt">${evs.length}</span>` : `<button class="cx-addh" data-act="cal-add" data-v="${iso}" tabindex="-1" aria-label="เพิ่มโพสต์วันที่ ${d}" title="เพิ่มโพสต์วันนี้">+</button>`}</div>
+          ${evs.length ? `<div class="cx-chips">${chips}${more}</div><div class="cx-dots">${dots}</div>` : ""}
+        </div>`;
+      }
+      const trail = (7 - ((startPad + daysIn) % 7)) % 7;
+      for (let i = 1; i <= trail; i++) cells += `<div class="cx-cell out"><div class="cx-ch"><span class="cx-n">${i}</span></div></div>`;
+      body = `<div class="cx-grid">${THAI_DOW.slice(1).concat(THAI_DOW[0]).map((h, i) => `<div class="cx-hd ${i === 5 ? "sat" : i === 6 ? "sun" : ""}">${h}</div>`).join("")}${cells}</div>`;
+    } else {
+      const dates = Object.keys(byDay).sort().reverse();
+      body = dates.length ? dates.map((iso) => `<div class="cx-day">
+          <button class="cx-dh" data-act="cal-day" data-v="${iso}"><span>${esc(calDayLabel(iso, false))}</span>${iso === today ? `<span class="tag">วันนี้</span>` : ""}<span class="n">${byDay[iso].length} โพสต์ ›</span></button>
+          ${byDay[iso].map((po) => calPostRow(po, look)).join("")}
+        </div>`).join("") : "";
     }
-    const listBlock = S.calDay
-      ? `<div class="muted" style="margin:12px 0 6px;font-weight:600">${fmtDate(S.calDay)}</div>${selected.length ? selected.map(postCardHTML).join("") : `<div class="empty">ไม่มีโพสต์วันนี้</div>`}`
+    const emptyMsg = !shown.length
+      ? `<div class="cx-empty"><div style="font-size:34px">🗓️</div>${monthPosts.length ? `<b>ไม่มีโพสต์ชนิดนี้ในเดือนนี้</b><br>ลองกด "ทั้งหมด" เพื่อดูทุกโพสต์` : `<b>เดือนนี้ยังไม่มีโพสต์</b><br>แตะวันที่ในปฏิทิน หรือกด "+ บันทึกการโพสต์" เพื่อเริ่มบันทึก`}</div>`
       : "";
-    return `<div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <button class="ghost" data-act="cal-prev">‹</button>
-        <div style="font-weight:600">${esc(monthLabel)}</div>
-        <button class="ghost" data-act="cal-next">›</button>
+    const fchip = (id, lb) => `<button class="cx-f ${filt === id ? "on" : ""}" data-act="cal-filter" data-v="${id}" aria-pressed="${filt === id}"><span class="cx-dot ${id}"></span>${lb} <b>${cnt[id]}</b></button>`;
+    return `<div class="cx-card">
+      <div class="cx-top">
+        <div class="cx-nav">
+          <button class="cx-nb" data-act="cal-prev" aria-label="เดือนก่อนหน้า">‹</button>
+          <div class="cx-title" aria-live="polite">${esc(monthLabel)}</div>
+          <button class="cx-nb" data-act="cal-next" aria-label="เดือนถัดไป">›</button>
+          <button class="cx-today" data-act="cal-today" ${S.calCursor === today.slice(0, 7) ? "disabled" : ""}>วันนี้</button>
+        </div>
+        <div class="cx-right">
+          <div class="cx-seg" role="group" aria-label="มุมมอง">
+            <button class="${isList ? "" : "on"}" data-act="cal-mode" data-v="month" aria-pressed="${!isList}">📅 เดือน</button>
+            <button class="${isList ? "on" : ""}" data-act="cal-mode" data-v="list" aria-pressed="${isList}">☰ รายการ</button>
+          </div>
+          <button class="cx-add" data-act="cal-add" data-v="">+ บันทึกการโพสต์</button>
+        </div>
       </div>
-      <div class="tiny" style="margin-bottom:8px">เหลือง = รูป · ฟ้า = วิดีโอ · เขียว = ทั้งคู่ · กดช่องเพื่อดูทั้งวัน</div>
-      <div class="rowbtns" style="margin-bottom:10px">
-        <button class="ghost" data-act="open-post" data-id="">+ บันทึกการโพสต์</button>
-        ${S.calDay ? `<button class="ghost" data-act="cal-day" data-v="">ปิดรายละเอียดวัน</button>` : ""}
+      <div class="cx-filters" role="group" aria-label="กรองชนิดโพสต์">
+        ${fchip("all", "ทั้งหมด")}${fchip("ph", "รูป")}${fchip("vd", "วิดีโอ")}${fchip("both", "ทั้งคู่")}
+        <span class="cx-sum">โพสต์ใน ${days} วัน</span>
       </div>
-      <div class="cal">
-        ${["จ","อ","พ","พฤ","ศ","ส","อา"].map((h) => `<div class="hd">${h}</div>`).join("")}
-        ${cells}
-      </div>
-    </div>
-    ${listBlock}`;
+      ${!isList && monthPosts.length ? `<div class="cx-hint">แตะวันที่เพื่อดูรายการของวันนั้นและเพิ่มโพสต์</div>` : ""}
+      ${body}${emptyMsg}
+    </div>${S.calSheet ? calSheetHTML(look) : ""}`;
   }
   function trashHTML() {
     const rows = S.trash || [];
@@ -3116,7 +3328,8 @@ function startApp() {
     const [y, m] = S.calCursor.split("-").map(Number);
     const dt = new Date(y, m - 1 + delta, 1);
     S.calCursor = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0");
-    S.calDay = "";
+    S.calSheet = "";
+    S.calDelAsk = "";
   }
   function savePost() {
     grabPostForm();
@@ -3153,7 +3366,9 @@ function startApp() {
     S.showPost = false;
     S.view = "cal";
     S.calCursor = (f.date || todayISO()).slice(0, 7);
-    S.calDay = f.date || todayISO();
+    S.calFilter = "all";
+    S.calDelAsk = "";
+    S.calSheet = f.date || todayISO(); // เปิดรายละเอียดวันนั้นให้เห็นว่าโพสต์ลงตรงไหน
   }
   function grabManualForm() {
     const g = document.getElementById("fGroup");
@@ -3242,6 +3457,10 @@ function startApp() {
   }
   function bind() {
     const app = document.getElementById("app");
+    app.onkeydown = (e) => {
+      const t = e.target;
+      if ((e.key === "Enter" || e.key === " ") && t && t.classList && t.classList.contains("cx-cell") && t.getAttribute("data-act")) { e.preventDefault(); app.onclick({ target: t }); }
+    };
     app.onclick = (e) => {
       if (e.target.classList && e.target.classList.contains("rm-back")) { closeRowMenu(true); return; }
       const btn = e.target.closest("[data-act]");
@@ -3264,7 +3483,7 @@ function startApp() {
       let skipRender = false;
       if (act !== "row-menu" && act !== "cat-menu") closeRowMenu();
 
-      if (act === "view") { S.view = v; S.showMenu = false; }
+      if (act === "view") { S.view = v; S.showMenu = false; S.calSheet = ""; S.calDelAsk = ""; }
       else if (act === "row-menu") { openRowMenu(btn); return; }
       else if (act === "cat-menu") { openCatMenu(btn); return; }
       else if (act === "rm-close") { skipRender = true; }
@@ -3327,9 +3546,15 @@ function startApp() {
         if (allowed.has(v)) S.postForm.platforms[v] = !S.postForm.platforms[v];
       }
       else if (act === "save-post") savePost();
-      else if (act === "del-post") { S.posts = S.posts.filter((p) => String(p.id) !== String(id)); persistPosts(); S.showPost = false; S.postForm.editId = null; }
-      else if (act === "cal-day") { S.calDay = v; if (v) S.calMode = "list"; }
-      else if (act === "cal-mode") { S.calMode = v; if (v === "list") S.calDay = ""; }
+      else if (act === "del-post") { S.posts = S.posts.filter((p) => String(p.id) !== String(id)); persistPosts(); S.showPost = false; S.postForm.editId = null; S.calDelAsk = ""; }
+      else if (act === "cal-day") { S.calSheet = v || ""; S.calDelAsk = ""; if (v) S.calCursor = v.slice(0, 7); }
+      else if (act === "cal-close") { S.calSheet = ""; S.calDelAsk = ""; }
+      else if (act === "cal-add") { openPostForm(""); if (v) S.postForm.date = v; }
+      else if (act === "cal-today") { S.calCursor = todayISO().slice(0, 7); S.calSheet = ""; S.calDelAsk = ""; }
+      else if (act === "cal-filter") S.calFilter = v || "all";
+      else if (act === "cal-mode") { S.calMode = v === "list" ? "list" : "month"; S.calDelAsk = ""; }
+      else if (act === "cal-del-ask") S.calDelAsk = id;
+      else if (act === "cal-del-no") S.calDelAsk = "";
       else if (act === "cal-prev") shiftMonth(-1);
       else if (act === "cal-next") shiftMonth(1);
       else if (act === "toggle-org") { S.organize = !S.organize; S.selected = {}; }
@@ -3894,7 +4119,11 @@ function startApp() {
     S.pasteRaw = ""; S.fileName = ""; S.headers = []; S.rows = [];
   }
 
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeRowMenu(true); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    closeRowMenu(true);
+    if (S.view === "cal" && S.calSheet && !S.showPost) { S.calSheet = ""; S.calDelAsk = ""; render(); }
+  });
   window.addEventListener("resize", () => { const r = document.getElementById("rmRoot"); if (r && r._place) r._place(); }, { passive: true });
   window.addEventListener("scroll", () => { const r = document.getElementById("rmRoot"); if (r && r._place) r._place(); }, { passive: true });
 

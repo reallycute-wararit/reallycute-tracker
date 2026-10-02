@@ -177,6 +177,149 @@
       .catgrid { grid-template-columns: 1fr; }
       .toolbar-inner { max-width: 1320px; }
     }
+    /* ==== Checklist UX (ck-* / rm-*) — เช็คลิสต์ใหม่ ==== */
+    [hidden] { display: none !important; }
+    .wrap { padding-bottom: 170px; }
+    @media (min-width: 900px) { .wrap { padding-bottom: 170px; } }
+    /* ค้นหา + ตัวกรองด่วน */
+    .ck-filter { background: #fff; border-radius: 18px; padding: 12px 14px 12px; box-shadow: 0 2px 10px rgba(46,107,183,.10); margin-bottom: 12px; }
+    .ck-search { position: relative; }
+    .ck-search .field { margin: 0; padding: 12px 42px 12px 40px; font-size: 15px; border-radius: 14px; background: #F7FBFF; border: 1px solid #D7E4F2; }
+    .ck-search .field:focus { outline: none; border-color: #2E6BB7; background: #fff; box-shadow: 0 0 0 3px rgba(46,107,183,.15); }
+    .ck-s-ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; opacity: .65; }
+    .ck-clear { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border: none; background: none; color: #8AA0B5; font-size: 16px; border-radius: 50%; }
+    .ck-clear:hover { background: #EEF4FB; color: #1C3554; }
+    .ck-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+    .ck-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 5px 12px; border-radius: 999px; border: 1px solid #D7E4F2; background: #fff; color: #5B6F86; font-size: 13px; font-weight: 600; }
+    .ck-pill b { font-size: 11.5px; font-weight: 700; background: #EEF4FB; color: #5B6F86; padding: 1px 7px; border-radius: 999px; }
+    .ck-pill:hover { border-color: #2E6BB7; }
+    .ck-pill.on { background: #2E6BB7; border-color: #2E6BB7; color: #fff; }
+    .ck-pill.on b { background: rgba(255,255,255,.24); color: #fff; }
+    .ck-pill.alt { border-style: dashed; color: #2E6BB7; background: #F7FBFF; }
+    .ck-pills.more { padding-top: 10px; margin-top: 10px; border-top: 1px dashed #D7E4F2; }
+    .ck-result { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 13px; color: #5B6F86; margin: 2px 2px 10px; }
+    .ck-result b { color: #1C3554; }
+    /* การ์ดหมวด */
+    .catgrid { gap: 12px; }
+    .catbox { border-radius: 16px; box-shadow: 0 2px 10px rgba(46,107,183,.10); border: 1px solid #E6EFF9; }
+    @supports (overflow: clip) { .catbox { overflow: clip; } }
+    .catbox:not(.open) { content-visibility: auto; contain-intrinsic-size: auto 96px; }
+    .catbox.complete { background: #FFFBEA; border-color: #F0D48A; }
+    .ck-cat { display: flex; align-items: flex-start; gap: 8px; padding: 12px 12px 12px 10px; background: #fff; }
+    .ck-cat > .handle { margin-top: 6px; }
+    .catbox.complete .ck-cat { background: #FFF6D6; }
+    .catbox.open > .ck-cat { border-bottom: 1px solid #E6EFF9; }
+    @media (min-width: 1000px) and (min-height: 700px) {
+      .catbox.open > .ck-cat { position: sticky; top: calc(var(--hdr-h, 0px) - 1px); z-index: 5; }
+    }
+    .ck-cat-body { flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "main btns" "prog prog" "cnts cnts"; column-gap: 8px; align-items: center; }
+    .ck-cat-main { grid-area: main; min-width: 0; display: flex; align-items: flex-start; gap: 10px; background: none; border: none; padding: 0; text-align: left; color: inherit; min-height: 44px; }
+    .ck-cat-main::before { content: "▸"; flex: 0 0 auto; width: 30px; height: 30px; border-radius: 10px; background: #EAF3FF; color: #2E6BB7; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-top: 1px; }
+    .ck-cat-main[aria-expanded="true"]::before { content: "▾"; }
+    .ck-cat-info { flex: 1 1 auto; min-width: 0; display: block; }
+    .ck-cat-name { display: block; font-size: 15.5px; font-weight: 700; color: #1C3554; line-height: 1.35; overflow-wrap: anywhere; }
+    .catbox.complete .ck-cat-name { color: #8A6E20; }
+    .ck-cat-meta { display: block; font-size: 12px; color: #5B6F86; margin-top: 1px; }
+    .ck-prog { grid-area: prog; display: block; height: 7px; border-radius: 7px; background: linear-gradient(90deg, #7FC98E var(--p, 0%), #D9E6F5 0); margin: 8px 0 7px; }
+    .catbox.complete .ck-prog { background: linear-gradient(90deg, #F0C53A var(--p, 0%), #D9E6F5 0); }
+    .ck-cnts { grid-area: cnts; display: flex; flex-wrap: wrap; gap: 5px; }
+    .ck-cnt { font-size: 11.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: #EEF4FB; color: #5B6F86; white-space: nowrap; }
+    .ck-cnt.ph { background: #FFF0B8; color: #8A6E20; }
+    .ck-cnt.vd { background: #D6E7FA; color: #2E6BB7; }
+    .ck-cnt.up { background: #E8F5E9; color: #2E6A3A; }
+    .ck-cat-btns { grid-area: btns; display: flex; gap: 6px; align-items: center; }
+    .ck-add { min-height: 40px; padding: 6px 12px; font-size: 13px; font-weight: 600; border-radius: 12px; background: #EAF3FF; }
+    .ck-cmore { min-height: 40px; min-width: 40px; justify-content: center; font-size: 18px; line-height: 1; padding: 4px 8px; border-radius: 12px; }
+    @media (min-width: 1000px) {
+      .ck-cat-body { grid-template-columns: minmax(220px, 1fr) minmax(220px, 340px) auto; grid-template-areas: "main prog btns" "main cnts btns"; column-gap: 18px; row-gap: 0; }
+      .ck-prog { margin: 0 0 6px; align-self: end; }
+      .ck-cnts { align-self: start; }
+      .ck-cat { align-items: center; }
+      .ck-cat > .handle { margin-top: 0; }
+    }
+    @media (max-width: 520px) {
+      .ck-cat { padding: 8px 8px 10px 8px; gap: 4px; }
+      .ck-cat-btns .ck-add { padding: 6px 10px; }
+      .ck-cnt { padding: 2px 8px; }
+    }
+    /* แถวสินค้า */
+    .item.ck-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 12px; padding: 12px 12px 12px 10px; border-bottom: 1px solid #EEF4FB; background: #fff; content-visibility: auto; contain-intrinsic-size: auto 176px; }
+    .item.ck-row:hover { background: #FAFCFF; }
+    .item.ck-row.selected { background: #EAF3FF; }
+    .item.ck-row.done { opacity: 1; }
+    .item.ck-row.done .iname { text-decoration: line-through; color: #8AA0B5; }
+    .item.ck-row.done .ithumb { opacity: .7; }
+    .item.ck-row.skip { opacity: .62; background: #F2F6FB; }
+    .ck-lead { flex: 0 0 26px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 4px; }
+    .ck-lead .sel { width: 22px; height: 22px; border-radius: 7px; }
+    .ck-lead .handle { width: auto; }
+    .ithumb { width: 56px; height: 56px; border-radius: 12px; }
+    .ithumb img { width: 56px; height: 56px; border-radius: 12px; }
+    .ithumb .igen { font-size: 10px; line-height: 14px; }
+    .ithumb.broken::after { content: "🖼"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; line-height: 1; color: #8AA0B5; }
+    .ithumb.ck-empty { border: 1.5px dashed #C5D8EE; background: #F7FBFF; color: #8AA0B5; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; line-height: 1.15; font-size: 10.5px; gap: 1px; }
+    .ithumb.ck-empty .g { font-size: 19px; }
+    .ithumb.ck-empty:hover { border-color: #2E6BB7; color: #2E6BB7; }
+    .item .ibody.ck-main { flex: 1 1 0; min-width: 0; }
+    .item .iname { font-size: 15px; font-weight: 600; line-height: 1.4; }
+    .ck-sub { font-size: 12.5px; color: #8AA0B5; margin-top: 1px; overflow-wrap: anywhere; }
+    .ck-chips { display: flex; flex-wrap: wrap; gap: 5px 6px; margin-top: 6px; align-items: center; }
+    .ck-c { display: inline-flex; align-items: center; font-size: 12px; line-height: 1.35; padding: 2px 9px; border-radius: 999px; font-weight: 600; background: #EEF4FB; color: #5B6F86; white-space: nowrap; }
+    .ck-c.price { color: #1C3554; }
+    .ck-c.in { background: #E8F5E9; color: #2E6A3A; }
+    .ck-c.out { background: #FDECEC; color: #C0525A; }
+    .ck-c.r-official { background: #D6E7FA; color: #2E6BB7; }
+    .ck-c.r-original { background: #fff; color: #2E6BB7; box-shadow: inset 0 0 0 1px #2E6BB7; }
+    .ck-c.r-review { background: #FFF0B8; color: #8A6E20; }
+    .ck-c.r-none { background: #fff; color: #8AA0B5; box-shadow: inset 0 0 0 1px #D7E4F2; font-weight: 500; }
+    .ck-c.skip { background: #D9E6F5; color: #5B6F86; }
+    .ck-c.last { background: none; color: #5B6F86; font-weight: 500; padding: 2px 0; }
+    .ck-ctl { flex: 1 0 100%; display: flex; flex-direction: column; gap: 8px; }
+    .ck-tog { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .ck-act { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .ck-t, .ck-a { min-height: 44px; border-radius: 12px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 0 6px; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .ck-t { border: 1.5px solid #D7E4F2; background: #fff; color: #5B6F86; }
+    .ck-t.on::after { content: "✓"; font-weight: 800; margin-left: 2px; }
+    .ck-t.ph.on { background: #FFF0B8; border-color: #F0C53A; color: #8A6E20; }
+    .ck-t.vd.on { background: #D6E7FA; border-color: #2E6BB7; color: #2E6BB7; }
+    .ck-t.up.on { background: #E8F5E9; border-color: #7FC98E; color: #2E6A3A; }
+    .ck-a { border: 1px solid #C5D8EE; background: #F7FBFF; color: #2E6BB7; }
+    .ck-a.has { background: #EAF3FF; }
+    .ck-t:hover, .ck-a:hover { filter: brightness(.96); }
+    .ck-t:focus-visible, .ck-a:focus-visible, .ck-pill:focus-visible, .ck-add:focus-visible, .ck-cmore:focus-visible, .ck-cat-main:focus-visible, .rm-i:focus-visible { outline: 2px solid #2E6BB7; outline-offset: 2px; }
+    @media (min-width: 1000px) {
+      .item.ck-row { align-items: center; contain-intrinsic-size: auto 92px; }
+      .ck-lead { padding-top: 0; }
+      .ck-ctl { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 14px; }
+      .ck-tog { display: flex; gap: 6px; }
+      .ck-t { min-width: 90px; min-height: 40px; }
+      .ck-act { display: flex; gap: 6px; }
+      .ck-a { min-height: 40px; padding: 0 11px; }
+      .ck-a.ck-more { padding: 0; width: 40px; }
+      .ck-a.ck-more .tx { display: none; }
+      .ck-a.ck-more { font-size: 20px; line-height: 1; }
+    }
+    /* เมนู ⋯ */
+    .rm-back { position: fixed; inset: 0; z-index: 250; background: rgba(28,53,84,.12); }
+    .rm { position: fixed; z-index: 251; width: 270px; max-width: calc(100vw - 16px); background: #fff; border-radius: 16px; box-shadow: 0 12px 34px rgba(28,53,84,.24); padding: 6px; }
+    .rm-title { padding: 8px 12px 6px; font-size: 12px; font-weight: 600; color: #5B6F86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rm-i { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 12px; border: none; background: none; border-radius: 10px; font-size: 14px; color: #1C3554; text-align: left; }
+    .rm-i:hover { background: #EAF3FF; }
+    .rm-i .g { flex: 0 0 22px; text-align: center; font-size: 16px; }
+    .rm-i.rm-danger { color: #C0525A; }
+    .rm-i.rm-danger:hover { background: #FDECEC; }
+    .rm-sep { height: 1px; background: #EEF4FB; margin: 4px 8px; }
+    .rm-hint { padding: 8px 12px 10px; font-size: 12px; color: #8AA0B5; line-height: 1.5; }
+    .rm-x { display: none; }
+    @media (max-width: 699px) {
+      .rm-back { background: rgba(28,53,84,.38); }
+      .rm { left: 0; right: 0; bottom: 0; top: auto; width: auto; max-width: none; border-radius: 22px 22px 0 0; padding: 8px 10px calc(14px + env(safe-area-inset-bottom)); }
+      .rm-i { min-height: 52px; font-size: 15.5px; }
+      .rm-x { display: block; width: 100%; margin-top: 6px; min-height: 48px; border: none; border-radius: 14px; background: #EEF4FB; color: #5B6F86; font-size: 15px; font-weight: 600; }
+      .toolbar { padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); }
+      .toolbar .rowbtns { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+      .toolbar .ghost { flex: 0 0 auto; white-space: nowrap; min-height: 38px; }
+    }
   </style>
 </head>
 <body>
@@ -228,6 +371,49 @@
       pwInput.focus();
     }
 
+    // ==== ถามรหัสผ่านซ้ำก่อนทำสิ่งที่ลบ/ล้างข้อมูลจำนวนมาก (ใช้รหัสเดียวกับหน้าเข้าใช้งาน APP_PASSWORD) ====
+    // วิธีใช้: requirePassword(() => { ...ทำงานจริง... });  ถูก = รัน action, ผิด = แจ้งเตือนและไม่ทำ, ยกเลิก = ไม่ทำอะไร
+    // ป๊อปอัปนี้สร้างนอก #app (ไม่ถูก render() ล้าง) และไม่เก็บ/ไม่แสดงรหัสผ่านที่ไหนเลย
+    function requirePassword(action, opts) {
+      if (document.getElementById("pwAskOverlay")) return;
+      const o = opts || {};
+      const ov = document.createElement("div");
+      ov.id = "pwAskOverlay";
+      ov.className = "overlay";
+      ov.style.zIndex = "99990";
+      ov.innerHTML = `<div class="sheet" data-stop="1" role="dialog" aria-modal="true" aria-labelledby="pwAskTitle">
+        <div id="pwAskTitle" style="font-size:17px;font-weight:700;color:#C0525A;margin-bottom:6px">ใส่รหัสผ่านเพื่อยืนยัน</div>
+        <div class="muted" style="margin-bottom:12px;font-size:13px;line-height:1.5">การกระทำนี้ลบหรือล้างข้อมูลหลายรายการ ใส่รหัสผ่านเดียวกับตอนเข้าใช้งาน</div>
+        <input type="password" id="pwAskInput" class="field" placeholder="รหัสผ่าน" autocomplete="new-password" style="width:100%;box-sizing:border-box" />
+        <div id="pwAskMsg" role="alert" style="color:#C0392B;font-size:13px;min-height:18px;margin:6px 0 10px"></div>
+        <button class="btn" id="pwAskOk" style="background:#C0525A;color:#fff;margin-bottom:8px">ยืนยัน</button>
+        <button class="ghost" id="pwAskCancel" style="width:100%;justify-content:center">ยกเลิก</button>
+      </div>`;
+      document.body.appendChild(ov);
+      const input = ov.querySelector("#pwAskInput");
+      const msg = ov.querySelector("#pwAskMsg");
+      const close = () => { ov.remove(); };
+      const cancel = () => { close(); if (typeof o.onCancel === "function") o.onCancel(); };
+      const submit = () => {
+        if (input.value === APP_PASSWORD) {
+          close();
+          action();
+        } else {
+          msg.textContent = "รหัสผ่านไม่ถูกต้อง";
+          input.value = "";
+          input.focus();
+        }
+      };
+      ov.querySelector("#pwAskOk").onclick = submit;
+      ov.querySelector("#pwAskCancel").onclick = cancel;
+      ov.onclick = (e) => { if (e.target === ov) cancel(); };
+      input.onkeydown = (e) => {
+        if (e.key === "Enter") { e.preventDefault(); submit(); }
+        else if (e.key === "Escape") { e.preventDefault(); cancel(); }
+      };
+      setTimeout(() => input.focus(), 0);
+    }
+
     // ==== บีบอัดข้อมูลก่อนส่งขึ้นคลาวด์ ด้วย CompressionStream ที่มีอยู่ในเบราว์เซอร์เอง ====
     // (ไม่ต้องโหลด library เพิ่ม รองรับ Chrome/Edge - ถ้าเบราว์เซอร์ไม่รองรับจะส่งแบบไม่บีบอัดแทนอัตโนมัติ)
     const canCompress = typeof CompressionStream !== "undefined";
@@ -266,6 +452,192 @@
       }
     }
 
+    // ==== แถบเตือนเมื่อบันทึกในเครื่องไม่สำเร็จ (เช่น พื้นที่เบราว์เซอร์เต็ม) — ข้อมูลในหน้านี้ยังอยู่ครบ ====
+    const __storageWarns = {};
+    window.__storageWarn = (key, msg) => {
+      if (msg) __storageWarns[key] = msg; else delete __storageWarns[key];
+      let el = document.getElementById("storageWarn");
+      const text = Object.keys(__storageWarns).map((k) => __storageWarns[k]).filter((v, i, a) => a.indexOf(v) === i).join(" · ");
+      if (!text) { if (el) el.remove(); return; }
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "storageWarn";
+        el.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:999999;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.5;font-family:sans-serif;background:#FADBD8;color:#7A1E1E;box-shadow:0 2px 10px rgba(0,0,0,.2);cursor:pointer";
+        el.onclick = () => el.remove();
+        document.body.appendChild(el);
+      }
+      el.textContent = "⚠️ " + text + " (แตะเพื่อปิด)";
+    };
+    const STORAGE_FULL_MSG = "บันทึกในเครื่องไม่สำเร็จ (พื้นที่เก็บข้อมูลของเบราว์เซอร์เต็ม) ข้อมูลที่แก้ยังอยู่ในหน้านี้และจะส่งขึ้นคลาวด์ — อย่าปิดแท็บจนกว่าจะขึ้น ☁️ บันทึกขึ้นคลาวด์แล้ว";
+
+    // ==== ที่เก็บข้อมูลสินค้า: ย้ายจาก localStorage (เต็มง่าย ~5MB) ไป IndexedDB + ตัวสำรองแบบบีบข้อมูลโดยไม่สูญเสีย ====
+    // - ข้อมูลที่ส่งขึ้นคลาวด์ยังเป็นรูปแบบเดิมทุกอย่าง (ไม่ผ่านการย่อ) แท็บ/เครื่องที่ยังเป็นโค้ดเก่าอ่านได้ตามปกติ
+    // - TukaCompact ใช้เฉพาะตอนต้องเก็บใน localStorage (กรณี IndexedDB ใช้ไม่ได้): ตัด prefix URL รูป และตัดฟิลด์ c ที่ซ้ำกับ g
+    const TukaCompact = (() => {
+      const PRE = "https://tukatacenter.com/wp-content/uploads/";
+      const A = "\u00a4", B = "\u00a6"; // A = แทน PRE, B = escape (ข้อความเดิมที่ขึ้นต้นด้วย A/B)
+      const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+      const encU = (s) => {
+        if (typeof s !== "string") return s;
+        if (s.startsWith(PRE)) return A + s.slice(PRE.length);
+        return (s[0] === A || s[0] === B) ? B + s : s;
+      };
+      const decU = (s) => {
+        if (typeof s !== "string" || !s) return s;
+        return s[0] === A ? PRE + s.slice(1) : s[0] === B ? s.slice(1) : s;
+      };
+      const encItem = (p) => {
+        if (!p || typeof p !== "object" || Array.isArray(p)) return p;
+        if (has(p, "~c")) throw new Error("reserved key ~c");
+        const o = {};
+        const dropC = has(p, "c") && has(p, "g") && p.c === p.g;
+        for (const k in p) {
+          if (!has(p, k)) continue;
+          const v = p[k];
+          if (k === "c" && dropC) continue;
+          o[k] = k === "img" ? encU(v) : (k === "imgs" && Array.isArray(v)) ? v.map(encU) : v;
+        }
+        if (has(p, "g") && !has(p, "c")) o["~c"] = 1; // ของเดิมมี g แต่ไม่มี c
+        return o;
+      };
+      const decItem = (o) => {
+        if (!o || typeof o !== "object" || Array.isArray(o)) return o;
+        const p = {};
+        for (const k in o) {
+          if (!has(o, k) || k === "~c") continue;
+          const v = o[k];
+          p[k] = k === "img" ? decU(v) : (k === "imgs" && Array.isArray(v)) ? v.map(decU) : v;
+        }
+        if (has(o, "g") && !has(o, "c") && !has(o, "~c")) p.c = o.g;
+        return p;
+      };
+      const mapPack = (pack, f) => {
+        const q = Object.assign({}, pack);
+        if (Array.isArray(pack.list)) q.list = pack.list.map(f);
+        if (Array.isArray(pack.trash)) q.trash = pack.trash.map(f);
+        return q;
+      };
+      // pack -> ข้อความ JSON สำหรับเก็บใน localStorage
+      const encode = (pack) => {
+        let env;
+        try { env = { fmt: "tuka-compact-1", pack: mapPack(pack, encItem) }; }
+        catch (e) { env = { fmt: "tuka-raw-1", pack }; }
+        return JSON.stringify(env);
+      };
+      // ข้อความ/ออบเจ็กต์ที่เก็บไว้ (หรือรูปแบบเดิมที่ไม่มี fmt) -> pack รูปแบบเดิมเต็ม
+      const decodeObj = (v) => {
+        if (v && v.fmt === "tuka-compact-1" && v.pack) return mapPack(v.pack, decItem);
+        if (v && v.fmt === "tuka-raw-1" && v.pack) return v.pack;
+        return v;
+      };
+      const decode = (text) => decodeObj(JSON.parse(text));
+      return { encode, decode, decodeObj, encItem, decItem };
+    })();
+
+    const ProductStore = (() => {
+      const LS_V2 = "tuka-products-v2";   // รูปแบบเดิม (ข้อมูลเต็ม)
+      const LS_C = "tuka-products-v3c";   // สำรอง: บีบด้วย TukaCompact (ใช้เมื่อ IndexedDB ใช้ไม่ได้)
+      const DB_NAME = "tuka-store", ST = "kv", KEY = "products-v2";
+      let dbp = null, mode = "", queue = Promise.resolve(), seq = 0, savedSeq = 0, lastOk = true, pendingJson = "";
+      const api = { cache: null, lastError: null };
+
+      const openDb = () => dbp || (dbp = new Promise((res, rej) => {
+        if (typeof indexedDB === "undefined" || !indexedDB) return rej(new Error("IndexedDB ไม่พร้อมใช้งาน"));
+        let r, done = false;
+        const timer = setTimeout(() => { if (!done) { done = true; rej(new Error("เปิด IndexedDB ไม่ทัน")); } }, 5000);
+        const fin = (f, v) => { if (done) return; done = true; clearTimeout(timer); f(v); };
+        try { r = indexedDB.open(DB_NAME, 1); } catch (e) { return fin(rej, e); }
+        r.onupgradeneeded = () => { try { r.result.createObjectStore(ST); } catch (e) {} };
+        r.onsuccess = () => { r.result.onversionchange = () => { try { r.result.close(); } catch (e) {} dbp = null; }; fin(res, r.result); };
+        r.onerror = () => fin(rej, r.error || new Error("เปิด IndexedDB ไม่สำเร็จ"));
+        r.onblocked = () => fin(rej, new Error("IndexedDB ถูกบล็อก"));
+      }).catch((e) => { dbp = null; throw e; }));
+      const idbGet = async () => {
+        const d = await openDb();
+        return new Promise((res, rej) => {
+          const q = d.transaction(ST, "readonly").objectStore(ST).get(KEY);
+          q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+        });
+      };
+      const idbPut = async (val) => {
+        const d = await openDb();
+        return new Promise((res, rej) => {
+          const tx = d.transaction(ST, "readwrite");
+          tx.objectStore(ST).put(val, KEY);
+          tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error || new Error("IndexedDB abort"));
+        });
+      };
+      const lsRead = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+      const lsRemove = (k) => { try { localStorage.removeItem(k); } catch (e) {} };
+
+      // เขียนลง localStorage แบบบีบ (ทางสำรอง) — ไม่ทิ้งข้อมูลเดิมถ้าเขียนไม่สำเร็จ
+      const writeLs = (json) => {
+        const text = TukaCompact.encode(JSON.parse(json));
+        try { localStorage.setItem(LS_C, text); lsRemove(LS_V2); return true; } catch (e1) {
+          const oldV2 = lsRead(LS_V2);
+          if (oldV2 == null) { api.lastError = e1; return false; }
+          lsRemove(LS_V2); // รูปแบบเดิมใหญ่กว่า ต้องเอาออกก่อนถึงจะมีที่พอ
+          try { localStorage.setItem(LS_C, text); return true; } catch (e2) {
+            try { localStorage.setItem(LS_V2, oldV2); } catch (e3) {} // คืนของเดิม
+            api.lastError = e2; return false;
+          }
+        }
+      };
+      const write = async (json) => {
+        if (mode !== "ls") {
+          try { await idbPut({ json, savedAt: Date.now() }); mode = "idb"; lsRemove(LS_C); return true; }
+          catch (e) { api.lastError = e; mode = ""; }
+        }
+        try { const ok = writeLs(json); if (ok) mode = "ls"; return ok; } catch (e) { api.lastError = e; return false; }
+      };
+      // บันทึก pack (รูปแบบเดิมเต็ม) — เก็บสแนปช็อตทันที ไม่กระทบถ้า pack ถูกแก้ต่อ; คืน Promise<boolean>
+      api.save = (pack) => {
+        let json;
+        try { json = JSON.stringify(pack); } catch (e) { api.lastError = e; return Promise.resolve(false); }
+        const my = ++seq; pendingJson = json;
+        queue = queue.then(async () => {
+          if (savedSeq >= my) return lastOk;
+          const j = pendingJson, upto = seq;
+          const ok = await write(j);
+          savedSeq = upto; lastOk = ok; return ok;
+        }).catch(() => false);
+        return queue;
+      };
+      const parseSafe = (text) => { try { return text ? TukaCompact.decode(text) : null; } catch (e) { return null; } };
+      const okPack = (p) => p && typeof p === "object" && Array.isArray(p.list);
+      // อ่านจากทุกที่ที่อาจมีข้อมูล เลือกชุดที่ updatedAt ใหม่สุด แล้วย้ายเข้าที่เก็บหลักครั้งแรก
+      api.init = async () => {
+        const cands = [];
+        let idbOk = true;
+        try { const v = await idbGet(); if (v && v.json) { const p = parseSafe(v.json); if (okPack(p)) cands.push({ src: "idb", pack: p, json: v.json }); } }
+        catch (e) { idbOk = false; api.lastError = e; }
+        { const p = parseSafe(lsRead(LS_C)); if (okPack(p)) cands.push({ src: "lsc", pack: p }); }
+        { const p = parseSafe(lsRead(LS_V2)); if (okPack(p)) cands.push({ src: "lsv2", pack: p }); }
+        let best = null;
+        cands.forEach((c) => { if (!best || (c.pack.updatedAt || 0) > (best.pack.updatedAt || 0)) best = c; });
+        mode = idbOk ? "idb" : "ls";
+        api.cache = best ? best.pack : null;
+        // ย้ายข้อมูลครั้งแรก: เขียนเข้า IndexedDB -> อ่านกลับมาเทียบ -> ค่อยลบของเดิมใน localStorage
+        const leftovers = cands.filter((c) => c.src !== "idb").length > 0 || (lsRead(LS_V2) != null) || (idbOk && lsRead(LS_C) != null);
+        if (best && (best.src !== "idb" || leftovers)) {
+          try {
+            const json = JSON.stringify(best.pack);
+            if (idbOk) {
+              if (best.src !== "idb") await idbPut({ json, savedAt: Date.now() });
+              const back = await idbGet();
+              if (back && back.json === (best.src !== "idb" ? json : best.json)) { lsRemove(LS_V2); lsRemove(LS_C); api.migrated = best.src; }
+            } else if (best.src === "lsv2" || best.src === "lsc") {
+              if (writeLs(json)) { mode = "ls"; api.migrated = "ls-compact"; }
+            }
+          } catch (e) { api.lastError = e; }
+        }
+        return api.cache;
+      };
+      api.mode = () => mode;
+      api.takeInitial = () => { const c = api.cache; api.cache = null; return c; };
+      return api;
+    })();
+
     async function bootFromCloud() {
       const badge = document.createElement("div");
       badge.id = "syncBadge";
@@ -291,6 +663,9 @@
       };
       const readLocal = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
 
+      // ย้ายข้อมูลสินค้าจาก localStorage -> IndexedDB (ครั้งแรก) และโหลดข้อมูลสินค้าในเครื่องขึ้นหน่วยความจำ
+      try { await ProductStore.init(); } catch (e) { console.warn("ProductStore.init:", e); }
+
       try {
         if (typeof supabase === "undefined") throw new Error("โหลดสคริปต์ Supabase ไม่สำเร็จ (เช็คอินเทอร์เน็ต หรือลองเปิดในเบราว์เซอร์ Chrome/Edge)");
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -306,7 +681,8 @@
 
         const keysToFetch = [];
         (metaRows || []).forEach((row) => {
-          const lastSynced = localStorage.getItem(TS_PREFIX + row.key) || "";
+          // ถ้าในเครื่องไม่มีข้อมูลสินค้าเลย ให้ถือว่ายังไม่เคยซิงก์ (กันใช้ข้อมูลตั้งต้นแทนของจริง)
+          const lastSynced = (row.key === "products" && !ProductStore.cache) ? "" : (localStorage.getItem(TS_PREFIX + row.key) || "");
           if (!lastSynced || new Date(row.updated_at) > new Date(lastSynced)) {
             keysToFetch.push(row.key);
           }
@@ -326,12 +702,21 @@
           if (!lsKey) continue;
           const cloudVal = await gzipDecompress(row.value); // คลายบีบอัด (ถ้าข้อมูลถูกบีบไว้)
           const cloudCount = countOf(cloudVal);
-          const localVal = readLocal(lsKey);
+          const localVal = row.key === "products" ? ProductStore.cache : readLocal(lsKey);
           const localCount = countOf(localVal);
           if (cloudCount >= localCount && cloudCount > 0) {
             // คลาวด์มีข้อมูลจริงเท่ากันหรือมากกว่า -> ใช้ของคลาวด์
-            localStorage.setItem(lsKey, JSON.stringify(cloudVal));
-            localStorage.setItem(TS_PREFIX + row.key, row.updated_at);
+            // เก็บลงเครื่อง; ถ้าเก็บไม่สำเร็จ (พื้นที่เต็ม) ให้ใช้ข้อมูลคลาวด์ในหน่วยความจำต่อ และไม่ตีตราว่าซิงก์แล้ว
+            let stored = true;
+            if (row.key === "products") {
+              ProductStore.cache = cloudVal;
+              stored = await ProductStore.save(cloudVal);
+            } else {
+              try { localStorage.setItem(lsKey, JSON.stringify(cloudVal)); }
+              catch (e) { stored = false; (window.__tukaMem = window.__tukaMem || {})[lsKey] = cloudVal; }
+            }
+            if (stored) { window.__storageWarn(lsKey, null); try { localStorage.setItem(TS_PREFIX + row.key, row.updated_at); } catch (e) {} }
+            else window.__storageWarn(lsKey, STORAGE_FULL_MSG);
           } else if (localCount > 0) {
             // ในเครื่องมีข้อมูลจริงมากกว่า (เช่น คลาวด์ยังว่างเปล่าจากตอนตั้งค่าครั้งแรก) -> ดันของในเครื่องขึ้นคลาวด์แทน กันไม่ให้ข้อมูลจริงหาย
             toPush.push({ key: row.key, value: localVal });
@@ -473,8 +858,8 @@ function startApp() {
     return o;
   }
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  const load = (k, fb) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } };
-  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+  const load = (k, fb) => { try { if (window.__tukaMem && k in window.__tukaMem) return window.__tukaMem[k]; const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); window.__storageWarn(k, null); return true; } catch (e) { window.__storageWarn(k, STORAGE_FULL_MSG); return false; } };
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   function splitLine(line, sep) {
     if (sep === "\t") return line.split("\t").map((c) => c.trim());
@@ -514,10 +899,17 @@ function startApp() {
     return ["true", "1", "yes", "ใช่", "เสร็จ", "เสร็จแล้ว", "y", "✓", "✔"].includes(v);
   }
   function labelOf(p) { return p.v && p.v !== p.n ? p.v : p.n; }
-  function groupOf(p) { return String((p && (p.g || p.c)) || "ไม่ระบุหมวดหมู่").replace(/\s+/g, " ").trim() || "ไม่ระบุหมวดหมู่"; }
+  const _groupNorm = new Map(); // แคชผลทำความสะอาดชื่อหมวด (คีย์คือข้อความดิบ จึงถูกต้องเสมอแม้ข้อมูลเปลี่ยน)
+  function groupOf(p) {
+    const raw = p && (p.g || p.c);
+    if (typeof raw !== "string") return String(raw || "ไม่ระบุหมวดหมู่").replace(/\s+/g, " ").trim() || "ไม่ระบุหมวดหมู่";
+    let g = _groupNorm.get(raw);
+    if (g === undefined) { g = raw.replace(/\s+/g, " ").trim() || "ไม่ระบุหมวดหมู่"; _groupNorm.set(raw, g); }
+    return g;
+  }
 
   const old = load("tuka-products-v1", null);
-  let initial = load(TUKA_KEY, null);
+  let initial = ProductStore.takeInitial() || load(TUKA_KEY, null);
   if (!initial && old) {
     const list = (old.list || []).map((p) => ({ ...p, g: p.g || p.c, up: !!p.up }));
     initial = { list, order: [], updatedAt: old.updatedAt || Date.now() };
@@ -543,6 +935,7 @@ function startApp() {
     showGuide: false,
     showMenu: false,
     expandedSkip: {},
+    showMoreFilters: false,
     confirmClear: false,
     confirmClearSales: false,
     confirmSale: "",
@@ -610,8 +1003,7 @@ function startApp() {
     S.pack.updatedAt = Date.now();
     S.pack.trash = S.trash || [];
     const run = () => {
-      const ok = save(TUKA_KEY, S.pack);
-      if (!ok) S.importNote = "รายการใหญ่เกินที่เบราว์เซอร์จะจำได้ทั้งหมด — ลองแบ่งนำเข้า หรือปิดแท็บอื่นแล้วลองใหม่";
+      ProductStore.save(S.pack).then((ok) => window.__storageWarn(TUKA_KEY, ok ? null : STORAGE_FULL_MSG));
       if (window.__cloudSync) window.__cloudSync("products", S.pack);
     };
     if (now) { clearTimeout(persistTimer); run(); scheduleBackup(); return; }
@@ -1270,42 +1662,94 @@ function startApp() {
     S.expanded[groupOf(copy)] = true;
     if (setOf(copy)) S.expandedSet[groupOf(copy) + "||" + setOf(copy)] = true;
   }
+  function setTogState(b, f, on) {
+    const m = TOG_META[f];
+    if (!m) return;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+    const t = on ? m.on : m.off;
+    b.title = t;
+    b.setAttribute("aria-label", m.tx + ": " + t);
+  }
+  // อัปเดตเฉพาะแถวที่กด (ไม่ render ใหม่ทั้งหน้า) + ตัวเลข/แถบความคืบหน้าของหมวดนั้น
   function patchItemRow(row, p) {
     if (!row || !p) return;
     const done = !!p.up;
     row.classList.toggle("done", done);
-    const st = row.querySelector(".st");
-    if (st) { st.className = "st " + (done ? "done" : "wait"); st.textContent = done ? "✓" : "○"; }
-    const ph = row.querySelector('[data-f="ph"]');
-    if (ph) ph.className = "sq " + (p.ph ? "ok-ph" : "off");
-    const vd = row.querySelector('[data-f="vd"]');
-    if (vd) vd.className = "sq " + (p.vd ? "ok-vd" : "off");
-    let chip = row.querySelector(".chip");
-    if (done && !chip) {
-      const box = row.querySelector(".iname");
-      if (box && box.parentNode) {
+    [["ph", !!p.ph], ["vd", !!p.vd], ["up", done]].forEach(([f, on]) => {
+      const b = row.querySelector('.ck-t[data-f="' + f + '"]');
+      if (b) setTogState(b, f, on);
+    });
+    patchCatHead(row);
+  }
+  function patchCatHead(row) {
+    const box = row && row.closest(".catbox");
+    if (!box) return;
+    const name = box.getAttribute("data-drop-group");
+    const items = (groupMap().get(name) || []).filter((i) => !i.ex);
+    let ph = 0, vd = 0, up = 0;
+    items.forEach((i) => { if (i.ph) ph++; if (i.vd) vd++; if (i.up) up++; });
+    const total = items.length;
+    const complete = total > 0 && up === total;
+    box.classList.toggle("complete", complete);
+    let chip = box.querySelector(".ck-done");
+    if (complete && !chip) {
+      const nm = box.querySelector(".ck-cat-name");
+      if (nm) {
         chip = document.createElement("span");
-        chip.className = "chip";
-        chip.textContent = "อัปโหลดแล้ว";
-        box.parentNode.appendChild(chip);
+        chip.className = "chip ck-done";
+        chip.textContent = "ครบแล้ว";
+        nm.appendChild(document.createTextNode(" "));
+        nm.appendChild(chip);
       }
-    } else if (!done && chip) chip.remove();
+    } else if (!complete && chip) chip.remove();
+    const prog = box.querySelector(".ck-prog");
+    if (prog) { prog.style.setProperty("--p", pct(up, total) + "%"); prog.title = "อัปโหลดแล้ว " + pct(up, total) + "%"; }
+    const set = (k, txt) => { const el = box.querySelector('.ck-cnt[data-k="' + k + '"]'); if (el) el.textContent = txt; };
+    set("upload", "☁️ อัปโหลด " + up + "/" + total);
+    set("photo", "📷 รูป " + ph + "/" + total);
+    set("video", "🎥 วิดีโอ " + vd + "/" + total);
   }
   function products() { return S.pack.list || []; }
   function sortThai(a, b) {
     return String(a).localeCompare(String(b), "th", { sensitivity: "base", numeric: true });
   }
+  // แคชลำดับหมวด/แผนผังหมวด: ทุกจุดที่แก้รายการสินค้าใช้ S.pack.list = ... (อาร์เรย์ใหม่) หรือ S.pack.order = ... จึงใช้ตัวตนของอาร์เรย์+ความยาวเป็นคีย์ได้
+  let _goKey = null, _goVal = null, _gmKey = null, _gmVal = null;
   function groupOrder() {
-    const have = new Set(products().map(groupOf));
+    const list = products(), order = S.pack.order;
+    const olen = order ? order.length : -1;
+    if (_goKey && _goKey.list === list && _goKey.len === list.length && _goKey.order === order && _goKey.olen === olen) return _goVal.slice();
     const names = [];
     const seen = new Set();
-    (S.pack.order || []).forEach((n) => {
+    (order || []).forEach((n) => {
       const g = String(n || "").replace(/\s+/g, " ").trim();
       if (g && !seen.has(g)) { seen.add(g); names.push(g); }
     });
-    products().forEach((p) => { const g = groupOf(p); if (!seen.has(g)) { seen.add(g); names.push(g); } });
+    list.forEach((p) => { const g = groupOf(p); if (!seen.has(g)) { seen.add(g); names.push(g); } });
     names.sort(sortThai);
-    return names;
+    _goKey = { list, len: list.length, order, olen };
+    _goVal = names;
+    return names.slice();
+  }
+  function groupMap() {
+    const list = products();
+    if (_gmKey && _gmKey.list === list && _gmKey.len === list.length) return _gmVal;
+    const m = new Map();
+    list.forEach((p) => { const g = groupOf(p); let a = m.get(g); if (!a) m.set(g, a = []); a.push(p); });
+    _gmKey = { list, len: list.length };
+    _gmVal = m;
+    return m;
+  }
+  const _hayCache = new WeakMap(); // ข้อความค้นหาแบบตัวพิมพ์เล็กต่อสินค้า (ตรวจฟิลด์ซ้ำก่อนใช้ จึงไม่ค้าง)
+  function hayOf(i) {
+    let e = _hayCache.get(i);
+    if (!e || e.n !== i.n || e.v !== i.v || e.sku !== i.sku || e.aka !== i.aka || e.set !== i.set) {
+      e = { n: i.n, v: i.v, sku: i.sku, aka: i.aka, set: i.set,
+        h: [i.n || "", i.v || "", i.sku || "", i.aka || "", setOf(i)].join("\u0001").toLowerCase() };
+      _hayCache.set(i, e);
+    }
+    return e.h;
   }
   function syncGroupOrder() {
     S.pack.order = groupOrder();
@@ -1339,62 +1783,90 @@ function startApp() {
   }
   function pct(n, d) { return d ? Math.round((n / d) * 100) : 0; }
 
-  function grouped() {
-    const q = S.search.trim().toLowerCase();
-    const map = new Map();
-    groupOrder().forEach((n) => map.set(n, []));
+  function filterCounts() {
+    const c = { all: 0, photo: 0, video: 0, upload: 0, outstock: 0, noimg: 0 };
     products().forEach((p) => {
-      const g = groupOf(p);
-      if (!map.has(g)) map.set(g, []);
-      map.get(g).push(p);
+      if (p.ex) return;
+      c.all++;
+      if (!p.ph) c.photo++;
+      if (!p.vd) c.video++;
+      if (!p.up) c.upload++;
+      if (p.s !== "in") c.outstock++;
+      if (!p.img || typeof p.img !== "string") c.noimg++;
     });
-    return groupOrder().map((name) => {
-      let items = map.get(name) || [];
-      let skipped = items.filter((i) => i.ex);
+    return c;
+  }
+  function grouped(only) {
+    const q = S.search.trim().toLowerCase();
+    const gm = groupMap();
+    const last = (S.filter === "never" || S.filter === "stale") ? lastPostMap() : null;
+    return (only != null ? [only] : groupOrder()).map((name) => {
+      const base = gm.get(name) || [];
+      const all = [];
+      let skipped = [];
+      let photo = 0, video = 0, upload = 0;
+      for (let k = 0; k < base.length; k++) {
+        const i = base[k];
+        if (i.ex) { skipped.push(i); continue; }
+        all.push(i);
+        if (i.ph) photo++;
+        if (i.vd) video++;
+        if (i.up) upload++;
+      }
+      let items = all;
       if (S.filter === "excluded") items = [];
       else {
-        items = items.filter((i) => !i.ex);
         if (S.filter === "photo") items = items.filter((i) => !i.ph);
         else if (S.filter === "video") items = items.filter((i) => !i.vd);
         else if (S.filter === "upload") items = items.filter((i) => !i.up);
         else if (S.filter === "either") items = items.filter((i) => !i.ph || !i.vd || !i.up);
         else if (S.filter === "done") items = items.filter((i) => i.up);
-        else if (S.filter === "never" || S.filter === "stale") {
-          const last = lastPostMap();
-          if (S.filter === "never") items = items.filter((i) => !last[i.id] || !last[i.id].any);
-          else items = items.filter((i) => !last[i.id] || !last[i.id].any || daysSince(last[i.id].any) >= 30);
-        } else if (S.filter === "official" || S.filter === "original" || S.filter === "review") {
+        else if (S.filter === "outstock") items = items.filter((i) => i.s !== "in");
+        else if (S.filter === "noimg") items = items.filter((i) => !i.img || typeof i.img !== "string");
+        else if (S.filter === "never") items = items.filter((i) => !last[i.id] || !last[i.id].any);
+        else if (S.filter === "stale") items = items.filter((i) => !last[i.id] || !last[i.id].any || daysSince(last[i.id].any) >= 30);
+        else if (S.filter === "official" || S.filter === "original" || S.filter === "review") {
           items = items.filter((i) => rightsOf(i) === S.filter);
         }
       }
       if (q) {
-        const hit = (i) => (i.n || "").toLowerCase().includes(q) || (i.v || "").toLowerCase().includes(q) || name.toLowerCase().includes(q) || (i.sku || "").toLowerCase().includes(q) || (i.aka || "").toLowerCase().includes(q) || setOf(i).toLowerCase().includes(q);
+        const nameHit = name.toLowerCase().includes(q);
+        const hit = (i) => nameHit || hayOf(i).includes(q);
         items = items.filter(hit);
         skipped = skipped.filter(hit);
       }
-      const all = (map.get(name) || []).filter((i) => !i.ex);
-      return {
-        name,
-        items,
-        skipped,
-        total: all.length,
-        photo: all.filter((i) => i.ph).length,
-        video: all.filter((i) => i.vd).length,
-        upload: all.filter((i) => i.up).length,
-      };
+      return { name, items, skipped, total: all.length, photo, video, upload };
     }).filter((c) => (S.search || S.filter !== "all") ? (c.items.length > 0 || (S.filter === "excluded" && c.skipped.length > 0)) : true);
   }
 
+  // ==== แถวสินค้าในเช็คลิสต์ (ดีไซน์ใหม่) ====
+  const TOG_META = {
+    ph: { ic: "📷", tx: "ถ่ายรูป", on: "ถ่ายรูปแล้ว — แตะเพื่อยกเลิก", off: "ยังไม่ได้ถ่ายรูป — แตะเพื่อทำเครื่องหมายว่าถ่ายแล้ว" },
+    vd: { ic: "🎥", tx: "วิดีโอ", on: "ทำวิดีโอแล้ว — แตะเพื่อยกเลิก", off: "ยังไม่ได้ทำวิดีโอ — แตะเพื่อทำเครื่องหมายว่าทำแล้ว" },
+    up: { ic: "☁️", tx: "อัปโหลด", on: "อัปโหลดแล้ว — แตะเพื่อยกเลิก (เอาขีดชื่อออก)", off: "ยังไม่อัปโหลด — แตะเพื่อทำเครื่องหมายว่าอัปโหลดเสร็จ (ขีดชื่อออก)" },
+  };
+  function togBtnHTML(item, f) {
+    const m = TOG_META[f];
+    const on = !!item[f];
+    const t = on ? m.on : m.off;
+    return `<button class="ck-t ${f} ${on ? "on" : ""}" data-act="tog" data-f="${f}" data-id="${esc(item.id)}" aria-pressed="${on}" title="${t}" aria-label="${m.tx}: ${t}">${m.ic} ${m.tx}</button>`;
+  }
   function itemRowHTML(item, catName, lasts) {
     const done = isDone(item);
     const skipped = !!item.ex;
     const lp = lasts[item.id];
-    let bits = "";
-    if (skipped) bits = `<span class="chip-skip">คัดออก — ไม่ทำรูปโปรโมท</span>`;
+    const id = esc(item.id);
+    const r = rightsOf(item);
+    let chips = "";
+    if (item.p != null) chips += `<span class="ck-c price" title="ราคา">฿${Number(item.p).toLocaleString()}</span>`;
+    chips += item.s === "in" ? `<span class="ck-c in" title="สถานะสต็อก">มีสินค้า</span>` : `<span class="ck-c out" title="สถานะสต็อก">หมด/ปิด</span>`;
+    chips += `<span class="ck-c ${r === "official" || r === "original" || r === "review" ? "r-" + r : "r-none"}" title="สถานะลิขสิทธิ์">${esc(rightsLabel(r))}</span>`;
+    if (item.sku) chips += `<span class="ck-c" title="รหัส SKU">SKU ${esc(item.sku)}</span>`;
+    if (item.aka) chips += `<span class="ck-c" title="มีชื่อเรียกในร้านค้า">มีชื่อในร้าน</span>`;
+    if (skipped) chips += `<span class="ck-c skip">คัดออก — ไม่ทำรูปโปรโมท</span>`;
     else {
-      if (lp && lp.photo) bits += `<span class="tiny">📷 ${fmtDate(lp.photo)}</span>`;
-      if (lp && lp.video) bits += `<span class="tiny">🎥 ${fmtDate(lp.video)}</span>`;
-      if (done) bits += `<span class="chip">อัปโหลดแล้ว</span>`;
+      if (lp && lp.photo) chips += `<span class="ck-c last" title="โพสต์รูปล่าสุด">📷 ${fmtDate(lp.photo)}</span>`;
+      if (lp && lp.video) chips += `<span class="ck-c last" title="โพสต์วิดีโอล่าสุด">🎥 ${fmtDate(lp.video)}</span>`;
     }
     let thumb = "";
     if (item.img && typeof item.img === "string") {
@@ -1402,37 +1874,29 @@ function startApp() {
       const isData = /^data:/i.test(u);
       try { if (!isData && !/%[0-9A-Fa-f]{2}/.test(item.img)) u = encodeURI(item.img); } catch (e) { u = item.img; }
       const ttl = item.imgGeneric ? "รูปหมู่ (อาจไม่ใช่แบบนี้เป๊ะ) — เปิดรูปใหญ่" : "เปิดรูปใหญ่";
-      const inner = `<img src="${esc(u)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onerror="this.parentNode.style.display='none'">${item.imgGeneric ? `<span class="igen">รูปหมู่</span>` : ""}`;
+      const inner = `<img src="${esc(u)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onerror="this.style.display='none';this.parentNode.classList.add('broken')">${item.imgGeneric ? `<span class="igen">รูปหมู่</span>` : ""}`;
       thumb = isData
-        ? `<span class="ithumb edit" data-act="edit-img" data-id="${item.id}" title="รูปที่อัปโหลดจากเครื่อง — แตะเพื่อแก้ไขรูป">${inner}</span>`
-        : `<a class="ithumb" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${ttl}">${inner}</a>`;
+        ? `<span class="ithumb edit" data-act="edit-img" data-id="${id}" title="รูปที่อัปโหลดจากเครื่อง — แตะเพื่อแก้ไขรูป">${inner}</span>`
+        : `<a class="ithumb" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${ttl}" aria-label="${ttl}">${inner}</a>`;
+    } else {
+      thumb = `<button class="ithumb ck-empty" data-act="edit-img" data-id="${id}" title="ยังไม่มีรูป — แตะเพื่อเพิ่มรูปสินค้า" aria-label="เพิ่มรูปสินค้า"><span class="g" aria-hidden="true">🖼</span><span>เพิ่มรูป</span></button>`;
     }
-    return `<div class="item ${done ? "done" : ""} ${skipped ? "skip" : ""} ${S.selected[item.id] ? "selected" : ""}" draggable="${S.organize ? "true" : "false"}" data-drag-item="${item.id}" data-from-group="${esc(catName)}">
-      ${S.organize ? `<button class="sel ${S.selected[item.id] ? "on" : ""}" data-act="sel" data-id="${item.id}"></button>
-        <span class="handle" title="ลากไปหมวดอื่น">⋮⋮</span>` : ""}
-      <button class="st ${done ? "done" : "wait"}" data-act="tog" data-f="up" data-id="${item.id}" title="อัปโหลดงานเสร็จ — ขีดชื่อออก">${done ? "✓" : "○"}</button>
+    return `<div class="item ck-row ${done ? "done" : ""} ${skipped ? "skip" : ""} ${S.selected[item.id] ? "selected" : ""}" draggable="${S.organize ? "true" : "false"}" data-drag-item="${id}" data-from-group="${esc(catName)}">
+      ${S.organize ? `<div class="ck-lead"><button class="sel ${S.selected[item.id] ? "on" : ""}" data-act="sel" data-id="${id}" title="เลือกสินค้านี้ (ไว้ทำหลายรายการพร้อมกัน)" aria-label="เลือกสินค้านี้"></button><span class="handle" title="ลากไปหมวดอื่น">⋮⋮</span></div>` : ""}
       ${thumb}
-      <div class="ibody">
+      <div class="ibody ck-main">
         <div class="iname">${esc(labelOf(item))}</div>
-        <div class="tiny" style="display:flex;gap:6px;margin-top:1px;flex-wrap:wrap">
-          ${item.n && item.v && item.v !== item.n ? `<span>${esc(item.n)}</span>` : ""}
-          ${item.p != null ? `<span>฿${Number(item.p).toLocaleString()}</span>` : ""}
-          <span style="color:${item.s === "in" ? "#7FC98E" : "#D8938E"}">${item.s === "in" ? "มีสินค้า" : "หมด/ปิด"}</span>
-          <span>${rightsLabel(rightsOf(item))}</span>
-          ${item.sku ? `<span>SKU ${esc(item.sku)}</span>` : ""}
-          ${item.aka ? `<span>มีชื่อในร้าน</span>` : ""}
-        </div>
-        ${bits}
+        ${item.n && item.v && item.v !== item.n ? `<div class="ck-sub">${esc(item.n)}</div>` : ""}
+        <div class="ck-chips">${chips}</div>
       </div>
-      <div class="acts">
-      <button class="sq off" data-act="open-post" data-id="${item.id}" title="บันทึกการโพสต์">✈</button>
-      <button class="sq off" data-act="edit-item" data-id="${item.id}" title="แก้ไข">✎</button>
-      <button class="sq ${item.img ? "ok-vd" : "off"}" data-act="edit-img" data-id="${item.id}" title="${item.img ? "แก้ไขรูปสินค้า" : "เพิ่มรูปสินค้า"}">🖼</button>
-      <button class="sq off" data-act="copy-item" data-id="${item.id}" title="คัดลอกสินค้า">⧉</button>
-      <button class="sq ${item.ph ? "ok-ph" : "off"}" data-act="tog" data-f="ph" data-id="${item.id}" title="ถ่ายภาพแล้ว">📷</button>
-      <button class="sq ${item.vd ? "ok-vd" : "off"}" data-act="tog" data-f="vd" data-id="${item.id}" title="ถ่ายวิดีโอแล้ว">🎥</button>
-      <button class="sq ${skipped ? "ok-ex" : "off"}" data-act="tog" data-f="ex" data-id="${item.id}" title="คัดออก ไม่ทำรูปโปรโมทใหม่">✕</button>
-      <button class="sq off" style="color:#C0525A" data-act="ask-del-item" data-id="${item.id}" title="ลบสินค้านี้">🗑</button>
+      <div class="ck-ctl">
+        <div class="ck-tog" role="group" aria-label="สถานะงานของสินค้านี้">${togBtnHTML(item, "ph")}${togBtnHTML(item, "vd")}${togBtnHTML(item, "up")}</div>
+        <div class="ck-act">
+          <button class="ck-a" data-act="edit-item" data-id="${id}" title="แก้ไขข้อมูลสินค้า" aria-label="แก้ไขข้อมูลสินค้า">✎ แก้ไข</button>
+          <button class="ck-a ${item.img ? "has" : ""}" data-act="edit-img" data-id="${id}" title="${item.img ? "แก้ไขรูปสินค้า" : "เพิ่มรูปสินค้า"}" aria-label="${item.img ? "แก้ไขรูปสินค้า" : "เพิ่มรูปสินค้า"}">🖼 ${item.img ? "รูป" : "เพิ่มรูป"}</button>
+          <button class="ck-a" data-act="open-post" data-id="${id}" title="บันทึกการโพสต์" aria-label="บันทึกการโพสต์">✈ โพสต์</button>
+          <button class="ck-a ck-more" data-act="row-menu" data-id="${id}" aria-haspopup="menu" title="เมนูเพิ่มเติม: คัดลอก / คัดออก / ลบ" aria-label="เมนูเพิ่มเติม: คัดลอก คัดออก ลบ">⋯<span class="tx"> เพิ่มเติม</span></button>
+        </div>
       </div>
     </div>`;
   }
@@ -1442,12 +1906,256 @@ function startApp() {
     return products().filter((p) => ids.has(String(p.id)));
   }
 
+  // ==== เมนู ⋯ (ป๊อปอัปมีข้อความกำกับ) ====
+  let lastSearchKey = "";
+  function menuItemHTML(it) {
+    if (it.sep) return `<div class="rm-sep" role="separator"></div>`;
+    if (it.hint) return `<div class="rm-hint">${it.hint}</div>`;
+    return `<button class="rm-i ${it.danger ? "rm-danger" : ""}" role="menuitem" data-act="${it.act}"${it.id != null ? ` data-id="${esc(it.id)}"` : ""}${it.f ? ` data-f="${it.f}"` : ""}${it.v != null ? ` data-v="${esc(it.v)}"` : ""}><span class="g" aria-hidden="true">${it.g}</span><span>${it.t}</span></button>`;
+  }
+  function closeRowMenu(refocus) {
+    const root = document.getElementById("rmRoot");
+    if (!root) return false;
+    const a = root._anchor;
+    root.remove();
+    if (refocus && a && document.body.contains(a)) a.focus({ preventScroll: true });
+    return true;
+  }
+  function openMenu(anchor, title, items) {
+    closeRowMenu();
+    const root = document.createElement("div");
+    root.id = "rmRoot";
+    root.innerHTML = `<div class="rm-back"></div><div class="rm" role="menu" aria-label="${esc(title)}"><div class="rm-title">${esc(title)}</div>${items.map(menuItemHTML).join("")}<button class="rm-x" data-act="rm-close">ปิด</button></div>`;
+    root._anchor = anchor;
+    document.getElementById("app").appendChild(root);
+    const m = root.querySelector(".rm");
+    root._place = (initial) => {
+      if (window.matchMedia("(max-width: 699px)").matches) { m.style.left = m.style.top = ""; return; }
+      const r = anchor.getBoundingClientRect();
+      if (!initial && (r.bottom < 0 || r.top > window.innerHeight)) { closeRowMenu(); return; }
+      const w = m.offsetWidth, h = m.offsetHeight;
+      const left = Math.min(Math.max(8, r.right - w), window.innerWidth - w - 8);
+      let top = r.bottom + 6;
+      if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6);
+      m.style.left = left + "px";
+      m.style.top = top + "px";
+    };
+    root._place(true);
+    const first = m.querySelector(".rm-i");
+    if (first) first.focus({ preventScroll: true });
+  }
+  function openRowMenu(btn) {
+    const id = btn.getAttribute("data-id");
+    const p = findProduct(id);
+    if (!p) return;
+    openMenu(btn, labelOf(p), [
+      { g: "⧉", t: "คัดลอกสินค้า (ทำสำเนา)", act: "copy-item", id },
+      { g: p.ex ? "↩" : "✕", t: p.ex ? "นำกลับมาทำ (ยกเลิกคัดออก)" : "คัดออก — ไม่ทำรูปโปรโมท", act: "tog", f: "ex", id },
+      { sep: true },
+      { g: "🗑", t: "ลบสินค้านี้ (ย้ายไปถังขยะ)", act: "ask-del-item", id, danger: true },
+    ]);
+  }
+  function openCatMenu(btn) {
+    const v = btn.getAttribute("data-v");
+    const items = [{ g: "＋", t: "เพิ่มหลายรายการในหมวดนี้", act: "add-multi-group", v }];
+    if (S.organize) {
+      items.push(
+        { sep: true },
+        { g: "✎", t: "เปลี่ยนชื่อหมวด", act: "rename-open", v },
+        { g: "⇄", t: "รวมหมวดนี้เข้ากับหมวดอื่น", act: "merge-open", v },
+        { g: "✂", t: "ลบคำออกจากชื่อสินค้าทั้งหมวด", act: "strip-open", v },
+        { sep: true },
+        { g: "🗑", t: "ลบหมวด (ย้ายไปถังขยะ)", act: "ask-del-cat", v, danger: true }
+      );
+    } else {
+      items.push({ sep: true }, { hint: "กด “เปิดจัดหมวด” ที่แถบล่างเพื่อเปลี่ยนชื่อ / รวม / ลบหมวด" });
+    }
+    openMenu(btn, "หมวด: " + v, items);
+  }
+  function patchToolbar() {
+    const n = selectedIds().length;
+    const tb = document.querySelector(".toolbar");
+    if (!tb) return;
+    tb.querySelectorAll('[data-act="move-open"],[data-act="exclude-sel"],[data-act="rights-open"],[data-act="set-open"],[data-act="copy-sel"]').forEach((b) => { b.disabled = !n; b.style.opacity = n ? "" : ".4"; });
+    const c = tb.querySelector("#selCount");
+    if (c) c.textContent = "เลือกแล้ว " + n + " รายการ";
+  }
+  // ความสูงแถบหัวติดจอ -> ตัวแปร --hdr-h (ใช้ให้หัวหมวดติดจอใต้แถบหัวพอดี) ใช้ ResizeObserver เพื่อไม่บังคับ layout ระหว่างวาดหน้า
+  let _hdrRO = null;
+  function syncChrome() {
+    const h = document.querySelector(".header-sticky");
+    if (!h) return;
+    const setVar = () => { const el = document.querySelector(".header-sticky"); if (el) document.documentElement.style.setProperty("--hdr-h", el.offsetHeight + "px"); };
+    if (typeof ResizeObserver === "undefined") { setVar(); return; }
+    if (!_hdrRO) _hdrRO = new ResizeObserver(setVar);
+    _hdrRO.disconnect();
+    _hdrRO.observe(h);
+  }
+  // ==== ค้นหา + ตัวกรองด่วน ====
+  const QUICK_FILTERS = [
+    ["all", "ทั้งหมด"],
+    ["photo", "ยังไม่ถ่ายรูป"],
+    ["video", "ยังไม่ทำวิดีโอ"],
+    ["upload", "ยังไม่อัปโหลด"],
+    ["outstock", "หมดสต็อก"],
+    ["noimg", "ไม่มีรูปสินค้า"],
+  ];
+  const MORE_FILTERS = [
+    ["either", "ยังไม่ครบ"],
+    ["done", "อัปโหลดแล้ว"],
+    ["excluded", "คัดออก"],
+    ["never", "ยังไม่เคยโพสต์"],
+    ["stale", "ไม่ได้โพสต์ 30 วัน"],
+    ["official", "ลิขสิทธิ์แท้"],
+    ["original", "Original"],
+    ["review", "รอตรวจสอบ"],
+  ];
+  function filterCardHTML() {
+    const c = filterCounts();
+    const moreActive = MORE_FILTERS.some(([id]) => id === S.filter);
+    const moreOpen = S.showMoreFilters || moreActive;
+    const pill = ([id, lb]) => `<button class="ck-pill ${S.filter === id ? "on" : ""}" data-act="filter" data-v="${id}" aria-pressed="${S.filter === id}">${lb}${c[id] != null ? ` <b>${c[id].toLocaleString()}</b>` : ""}</button>`;
+    return `<div class="ck-filter">
+      <div class="ck-search">
+        <span class="ck-s-ic" aria-hidden="true">🔍</span>
+        <input class="field" id="searchBox" type="search" placeholder="ค้นหาชื่อสินค้า / หมวด / SKU..." aria-label="ค้นหาสินค้า" value="${esc(S.search)}" autocomplete="off" />
+        <button class="ck-clear" id="searchClear" data-act="search-clear" title="ล้างคำค้น" aria-label="ล้างคำค้น" ${S.search ? "" : "hidden"}>✕</button>
+      </div>
+      <div class="ck-pills" role="group" aria-label="ตัวกรองด่วน">
+        ${QUICK_FILTERS.map(pill).join("")}
+        <button class="ck-pill alt" data-act="toggle-more-filters" aria-expanded="${moreOpen}" title="ตัวกรองอื่น ๆ เช่น ยังไม่เคยโพสต์ ลิขสิทธิ์ คัดออก">${moreOpen ? "ซ่อนตัวกรองอื่น ▴" : "ตัวกรองอื่น ▾"}</button>
+      </div>
+      ${moreOpen ? `<div class="ck-pills more" role="group" aria-label="ตัวกรองอื่น ๆ">${MORE_FILTERS.map(pill).join("")}</div>` : ""}
+    </div>`;
+  }
+  // ==== รายการหมวด + สินค้า (ส่วนที่เปลี่ยนตอนค้นหา) ====
+  function catHeadHTML(cat, isOpen, filtering) {
+    const n = esc(cat.name);
+    const complete = cat.total > 0 && cat.upload === cat.total;
+    const p = pct(cat.upload, cat.total);
+    return `<div class="cathead ck-cat">
+      ${S.organize ? `<span class="handle" draggable="true" data-drag-group="${n}" title="ลากสลับลำดับหมวด">⋮⋮</span>` : ""}
+      <div class="ck-cat-body">
+        <button class="ck-cat-main" data-act="toggle-cat" data-v="${n}" aria-expanded="${isOpen}" title="${isOpen ? "พับหมวดนี้" : "เปิดดูสินค้าในหมวดนี้"}">
+          <span class="ck-cat-info">
+            <span class="ck-cat-name">${esc(cat.name)}${complete ? ` <span class="chip ck-done">ครบแล้ว</span>` : ""}</span>
+            <span class="ck-cat-meta">${filtering ? `พบ ${cat.items.length.toLocaleString()} จาก ${cat.total.toLocaleString()} รายการ` : `${cat.total.toLocaleString()} รายการ`}</span>
+          </span>
+        </button>
+        <span class="ck-prog" style="--p:${p}%" title="อัปโหลดแล้ว ${p}%"></span>
+        <div class="ck-cnts"><span class="ck-cnt up" data-k="upload">☁️ อัปโหลด ${cat.upload}/${cat.total}</span><span class="ck-cnt ph" data-k="photo">📷 รูป ${cat.photo}/${cat.total}</span><span class="ck-cnt vd" data-k="video">🎥 วิดีโอ ${cat.video}/${cat.total}</span></div>
+        <div class="ck-cat-btns">
+          <button class="ghost ck-add" data-act="add-in-group" data-v="${n}" title="เพิ่มสินค้าในหมวดนี้">+ สินค้า</button>
+          <button class="ghost ck-cmore" data-act="cat-menu" data-v="${n}" aria-haspopup="menu" aria-label="เมนูหมวด: เพิ่มหลายรายการ เปลี่ยนชื่อ รวม ลบ" title="เมนูหมวด: เพิ่มหลายรายการ / เปลี่ยนชื่อ / รวม / ลบ">⋯</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  function catBoxHTML(cat, filtering, lasts) {
+    let html = "";
+      const isOpen = S.expanded[cat.name] === true;
+      const complete = cat.total > 0 && cat.upload === cat.total;
+      html += `<div class="catbox ${isOpen ? "open" : ""} ${complete ? "complete" : ""}" data-drop-group="${esc(cat.name)}">${catHeadHTML(cat, isOpen, filtering)}`;
+      if (isOpen) {
+        const clustered = clusterSets(cat.items);
+        clustered.sets.forEach(([setName, setItems]) => {
+          const up = setItems.filter((i) => i.up).length;
+          const setKey = cat.name + "||" + setName;
+          const setOpen = S.expandedSet[setKey] === true;
+          const vars = setItems.map((i) => i.v || i.n).filter(Boolean).slice(0, 6).join(" · ");
+          html += `<div class="setbox" data-drop-set="${esc(setName)}" data-drop-set-group="${esc(cat.name)}">
+              <div class="sethead">
+                <button class="iconbtn" data-act="toggle-set" data-v="${esc(setKey)}" style="width:22px">${setOpen ? "▾" : "▸"}</button>
+                <button style="flex:1;min-width:0;background:none;border:none;text-align:left;padding:0" data-act="toggle-set" data-v="${esc(setKey)}">
+                  <div style="font-size:13px;font-weight:600;color:#2E6BB7">ชุด ${esc(setName)}</div>
+                  <div class="tiny">${setItems.length} สี/ไซส์ · ✓${up}/${setItems.length}${setOpen ? "" : (vars ? " · " + esc(vars) : "")}</div>
+                </button>
+                <button class="ghost" style="padding:4px 8px" data-act="add-in-set" data-g="${esc(cat.name)}" data-v="${esc(setName)}">+ สี</button>
+                ${S.organize ? `<button class="ghost" style="padding:4px 8px" data-act="split-set" data-v="${esc(setName)}">แยกชุด</button>` : ""}
+              </div>
+              ${setOpen ? setItems.map((item) => itemRowHTML(item, cat.name, lasts)).join("") : ""}
+            </div>`;
+        });
+        const limit = S.more[cat.name] || PAGE;
+        const shown = clustered.none.slice(0, limit);
+        shown.forEach((item) => { html += itemRowHTML(item, cat.name, lasts); });
+        if (!cat.items.length && !(cat.skipped || []).length) html += `<div class="tiny" style="padding:10px 14px">ไม่มีรายการในตัวกรองนี้</div>`;
+        if (clustered.none.length > shown.length) html += `<button class="ghost" style="margin:8px 12px 12px" data-act="more" data-v="${esc(cat.name)}">แสดงเพิ่มอีก ${Math.min(PAGE, clustered.none.length - shown.length)} จากที่เหลือ ${(clustered.none.length - shown.length).toLocaleString()}</button>`;
+        const skipped = cat.skipped || [];
+        if (skipped.length) {
+          const skipOpen = S.filter === "excluded" || S.expandedSkip[cat.name] === true;
+          const skKey = "skip||" + cat.name;
+          const skShown = skipped.slice(0, S.more[skKey] || PAGE);
+          html += `<div class="skipfold">
+              <button class="skiphead" data-act="toggle-skip" data-v="${esc(cat.name)}">
+                <span>${skipOpen ? "▾" : "▸"}</span>
+                <span style="flex:1">คัดออก ${skipped.length} รายการ</span>
+              </button>
+              ${skipOpen ? skShown.map((item) => itemRowHTML(item, cat.name, lasts)).join("") : ""}
+              ${skipOpen && skipped.length > skShown.length ? `<button class="ghost" style="margin:8px 12px 12px" data-act="more" data-v="${esc(skKey)}">แสดงเพิ่มอีก ${Math.min(PAGE, skipped.length - skShown.length)} จากที่เหลือ ${(skipped.length - skShown.length).toLocaleString()}</button>` : ""}
+            </div>`;
+        }
+      }
+      html += `</div>`;
+    return html;
+  }
+  function listBodyHTML() {
+    const cats = grouped();
+    const filtering = !!S.search.trim() || S.filter !== "all";
+    let html = "";
+    if (filtering) {
+      const nItems = cats.reduce((n, c) => n + c.items.length + (S.filter === "excluded" ? c.skipped.length : 0), 0);
+      html += `<div class="ck-result"><span>พบ <b>${nItems.toLocaleString()}</b> รายการ ใน <b>${cats.length.toLocaleString()}</b> หมวด</span><button class="ghost" data-act="filters-clear">ล้างตัวกรอง</button></div>`;
+    }
+    if (S.organize) html += `<div class="warn">ลากสินค้าไปวางที่หมวดใหญ่ หรือวางลงกล่องชุดย่อยเพื่อเข้าชุดนั้น · ลากออกจากชุดไปพื้นหมวดใหญ่เพื่อออกจากชุด</div>`;
+    if (!cats.length) html += `<div class="empty">🔍 ไม่พบรายการที่ตรงกับตัวกรอง</div>`;
+    html += `<div class="catgrid">`;
+    let lasts = null;
+    cats.forEach((cat) => {
+      if (!lasts && S.expanded[cat.name] === true) lasts = lastPostMap();
+      html += catBoxHTML(cat, filtering, lasts);
+    });
+    html += `</div>`;
+    return html;
+  }
+  // พิมพ์ค้นหา: วาดใหม่เฉพาะรายการ ไม่แตะช่องค้นหา/หัวหน้า (ช่องไม่หลุดโฟกัส ไม่กระตุก)
+  function renderListOnly() {
+    const area = document.getElementById("listArea");
+    if (!area || S.view !== "list") { render(); return; }
+    area.innerHTML = listBodyHTML();
+    bind();
+  }
+  // เปิด/พับหมวด, แสดงเพิ่ม, เปิดชุด, เปิดรายการคัดออก: วาดใหม่เฉพาะกล่องหมวดนั้น (ไม่ต้องวาดทั้งหน้า)
+  function renderCatOnly(act, v, btn) {
+    if (S.view !== "list") return false;
+    let name;
+    if (act === "toggle-cat" || act === "toggle-skip") name = v;
+    else if (act === "more") name = String(v).indexOf("skip||") === 0 ? String(v).slice(6) : v;
+    else if ((act === "tog" && btn && btn.getAttribute("data-f") === "ex") || act === "copy-item") {
+      const p = findProduct(btn && btn.getAttribute("data-id"));
+      if (!p) return false;
+      name = groupOf(p);
+    }
+    else if (act === "toggle-set") { const i = String(v).indexOf("||"); name = i >= 0 ? String(v).slice(0, i) : null; }
+    else return false;
+    const area = document.getElementById("listArea");
+    if (!area || name == null) return false;
+    const box = Array.from(area.querySelectorAll(".catbox")).find((b) => b.getAttribute("data-drop-group") === name);
+    if (!box) return false;
+    const cat = grouped(name)[0];
+    if (!cat) return false;
+    const tmp = document.createElement("div");
+    tmp.innerHTML = catBoxHTML(cat, !!S.search.trim() || S.filter !== "all", S.expanded[name] === true ? lastPostMap() : null);
+    if (!tmp.firstElementChild) return false;
+    box.replaceWith(tmp.firstElementChild);
+    bind();
+    return true;
+  }
+
   function render() {
     const app = document.getElementById("app");
     const list = products();
     const st = stats();
-    const cats = grouped();
-    const filtering = !!S.search.trim() || S.filter !== "all";
     const selN = selectedIds().length;
 
     let html = `
@@ -1487,91 +2195,14 @@ function startApp() {
     } else if (!list.length) {
       html += `<div class="warn" style="text-align:center">ยังไม่มีข้อมูลจาก Tukkacenter — กด "นำเข้า/อัปเดต" แล้ววางตารางสินค้า</div>`;
     } else {
-      html += `<input class="field" id="searchBox" placeholder="ค้นหาหมวดหมู่หรือชื่อสินค้า..." value="${esc(S.search)}" />
-      <div class="pills">
-        ${[
-          ["all", "ทั้งหมด"],
-          ["upload", "ยังไม่อัปโหลด"],
-          ["photo", "ยังไม่ถ่ายภาพ"],
-          ["video", "ยังไม่ถ่ายวิดีโอ"],
-          ["either", "ยังไม่ครบ"],
-          ["done", "อัปโหลดแล้ว"],
-          ["excluded", "คัดออก"],
-          ["never", "ยังไม่เคยโพสต์"],
-          ["stale", "ไม่ได้โพสต์ 30 วัน"],
-          ["official", "ลิขสิทธิ์แท้"],
-          ["original", "Original"],
-          ["review", "รอตรวจสอบ"],
-        ].map(([id, lb]) => `<button class="pill ${S.filter === id ? "on" : ""}" data-act="filter" data-v="${id}">${lb}</button>`).join("")}
-      </div>`;
-      if (S.organize) html += `<div class="warn">ลากสินค้าไปวางที่หมวดใหญ่ หรือวางลงกล่องชุดย่อยเพื่อเข้าชุดนั้น · ลากออกจากชุดไปพื้นหมวดใหญ่เพื่อออกจากชุด</div>`;
-      if (!cats.length) html += `<div class="empty">🔍 ไม่พบรายการที่ตรงกับตัวกรอง</div>`;
-      html += `<div class="catgrid">`;
-      cats.forEach((cat) => {
-        const isOpen = S.expanded[cat.name] === true;
-        const complete = cat.total > 0 && cat.upload === cat.total;
-        html += `<div class="catbox ${complete ? "complete" : ""}" data-drop-group="${esc(cat.name)}">
-          <div class="cathead">
-            ${S.organize ? `<span class="handle" draggable="true" data-drag-group="${esc(cat.name)}" title="ลากสลับลำดับหมวด">⋮⋮</span>` : `<button class="iconbtn" data-act="toggle-cat" data-v="${esc(cat.name)}" style="width:22px">${isOpen ? "▾" : "▸"}</button>`}
-            <button style="flex:1;min-width:0;background:none;border:none;text-align:left;padding:0" data-act="toggle-cat" data-v="${esc(cat.name)}">
-              <div style="font-size:14px;font-weight:600;color:${complete ? "#8A6E20" : "#1C3554"}">${esc(cat.name)}${complete ? ` <span class="chip">ครบแล้ว</span>` : ""}</div>
-              <div class="tiny">${(filtering ? cat.items.length : cat.total)} รายการ · 📷${cat.photo}/${cat.total} · 🎥${cat.video}/${cat.total} · ✓${cat.upload}/${cat.total}</div>
-            </button>
-            <button class="ghost" data-act="add-in-group" data-v="${esc(cat.name)}" style="padding:5px 8px">+ สินค้า</button>
-            <button class="ghost" data-act="add-multi-group" data-v="${esc(cat.name)}" style="padding:5px 8px">+ หลายรายการ</button>
-            ${S.organize ? `<button class="ghost" data-act="rename-open" data-v="${esc(cat.name)}" style="padding:5px 8px">ชื่อ</button>
-              <button class="ghost" data-act="merge-open" data-v="${esc(cat.name)}" style="padding:5px 8px">รวม</button>
-              <button class="ghost" data-act="strip-open" data-v="${esc(cat.name)}" style="padding:5px 8px">ลบคำ</button>
-              <button class="ghost" style="padding:5px 8px;color:#C0525A;border-color:#E8C4C4" data-act="ask-del-cat" data-v="${esc(cat.name)}">ลบหมวด</button>` : ""}
-          </div>`;
-        if (isOpen) {
-          const clustered = clusterSets(cat.items);
-          const lasts = lastPostMap();
-          clustered.sets.forEach(([setName, setItems]) => {
-            const up = setItems.filter((i) => i.up).length;
-            const setKey = cat.name + "||" + setName;
-            const setOpen = S.expandedSet[setKey] === true;
-            const vars = setItems.map((i) => i.v || i.n).filter(Boolean).slice(0, 6).join(" · ");
-            html += `<div class="setbox" data-drop-set="${esc(setName)}" data-drop-set-group="${esc(cat.name)}">
-              <div class="sethead">
-                <button class="iconbtn" data-act="toggle-set" data-v="${esc(setKey)}" style="width:22px">${setOpen ? "▾" : "▸"}</button>
-                <button style="flex:1;min-width:0;background:none;border:none;text-align:left;padding:0" data-act="toggle-set" data-v="${esc(setKey)}">
-                  <div style="font-size:13px;font-weight:600;color:#2E6BB7">ชุด ${esc(setName)}</div>
-                  <div class="tiny">${setItems.length} สี/ไซส์ · ✓${up}/${setItems.length}${setOpen ? "" : (vars ? " · " + esc(vars) : "")}</div>
-                </button>
-                <button class="ghost" style="padding:4px 8px" data-act="add-in-set" data-g="${esc(cat.name)}" data-v="${esc(setName)}">+ สี</button>
-                ${S.organize ? `<button class="ghost" style="padding:4px 8px" data-act="split-set" data-v="${esc(setName)}">แยกชุด</button>` : ""}
-              </div>
-              ${setOpen ? setItems.map((item) => itemRowHTML(item, cat.name, lasts)).join("") : ""}
-            </div>`;
-          });
-          const limit = S.more[cat.name] || PAGE;
-          const shown = clustered.none.slice(0, limit);
-          shown.forEach((item) => { html += itemRowHTML(item, cat.name, lasts); });
-          if (!cat.items.length && !(cat.skipped || []).length) html += `<div class="tiny" style="padding:10px 14px">ไม่มีรายการในตัวกรองนี้</div>`;
-          if (clustered.none.length > shown.length) html += `<button class="ghost" style="margin:8px 12px 12px" data-act="more" data-v="${esc(cat.name)}">แสดงเพิ่มอีก ${Math.min(PAGE, clustered.none.length - shown.length)} จากที่เหลือ ${(clustered.none.length - shown.length).toLocaleString()}</button>`;
-          const skipped = cat.skipped || [];
-          if (skipped.length) {
-            const skipOpen = S.filter === "excluded" || S.expandedSkip[cat.name] === true;
-            html += `<div class="skipfold">
-              <button class="skiphead" data-act="toggle-skip" data-v="${esc(cat.name)}">
-                <span>${skipOpen ? "▾" : "▸"}</span>
-                <span style="flex:1">คัดออก ${skipped.length} รายการ</span>
-              </button>
-              ${skipOpen ? skipped.map((item) => itemRowHTML(item, cat.name, lasts)).join("") : ""}
-            </div>`;
-          }
-        }
-        html += `</div>`;
-      });
-      html += `</div>`;
+      html += filterCardHTML() + `<div id="listArea">${listBodyHTML()}</div>`;
     }
 
     if (S.view === "list" && list.length) {
       html += `<div class="toolbar"><div class="toolbar-inner">
         <div class="rowbtns" style="margin-bottom:${S.organize ? "8px" : "0"}">
           <button class="ghost ${S.organize ? "on" : ""}" data-act="toggle-org">${S.organize ? "ปิดจัดหมวด" : "เปิดจัดหมวด"}</button>
-          ${S.organize ? `<span class="tiny">เลือกแล้ว ${selN} รายการ</span>` : `<span class="tiny">ปุ่มนี้อยู่ล่างจอตลอด ไม่ต้องเลื่อนขึ้น</span>`}
+          ${S.organize ? `<span class="tiny" id="selCount">เลือกแล้ว ${selN} รายการ</span>` : `<span class="tiny">ปุ่มนี้อยู่ล่างจอตลอด ไม่ต้องเลื่อนขึ้น</span>`}
         </div>
         ${S.organize ? `<div class="rowbtns">
           <button class="ghost" data-act="sel-all">เลือกที่เห็น</button>
@@ -1690,6 +2321,8 @@ function startApp() {
 
     app.innerHTML = html;
     bind();
+    lastSearchKey = S.search.trim().toLowerCase();
+    syncChrome();
   }
 
   function dashHTML() {
@@ -2599,21 +3232,45 @@ function startApp() {
     S.showImport = false;
   }
 
+  // รายการ action ที่ต้องใส่รหัสผ่านซ้ำ (ลบ/ล้างหลายรายการ) — เพิ่มชื่อ data-act ที่นี่ถ้ามีปุ่มอันตรายใหม่
+  const DANGER_PW_ACTS = new Set(["clear-sales", "clear", "del-cat"]);
+  function needsDangerPw(act) {
+    if (DANGER_PW_ACTS.has(act)) return true;
+    // นำเข้า CSV แบบ "แทนที่ทั้งหมด" ทับสินค้าเดิมทั้งชุด
+    if (act === "confirm-import") return S.importMode !== "append" && products().length > 0;
+    return false;
+  }
   function bind() {
     const app = document.getElementById("app");
     app.onclick = (e) => {
+      if (e.target.classList && e.target.classList.contains("rm-back")) { closeRowMenu(true); return; }
       const btn = e.target.closest("[data-act]");
       if (!btn) return;
       if (btn.classList.contains("overlay") && e.target !== btn) return;
       const act = btn.getAttribute("data-act");
       const id = btn.getAttribute("data-id");
       const v = btn.getAttribute("data-v");
+      // ถามรหัสผ่านซ้ำก่อนปุ่มยืนยันของงานลบ/ล้างจำนวนมาก (ผ่านแล้วเรียก handler เดิมซ้ำด้วยปุ่มเดิม)
+      if (!window.__pwPassed && needsDangerPw(act)) {
+        requirePassword(() => {
+          window.__pwPassed = true;
+          try { app.onclick({ target: btn }); } finally { window.__pwPassed = false; }
+        });
+        return;
+      }
       const textBox = document.getElementById("textBox");
       if (textBox) S.textInput = textBox.value;
       grabPostForm();
       let skipRender = false;
+      if (act !== "row-menu" && act !== "cat-menu") closeRowMenu();
 
       if (act === "view") { S.view = v; S.showMenu = false; }
+      else if (act === "row-menu") { openRowMenu(btn); return; }
+      else if (act === "cat-menu") { openCatMenu(btn); return; }
+      else if (act === "rm-close") { skipRender = true; }
+      else if (act === "search-clear") { S.search = ""; }
+      else if (act === "filters-clear") { S.search = ""; S.filter = "all"; }
+      else if (act === "toggle-more-filters") { S.showMoreFilters = !S.showMoreFilters; }
       else if (act === "filter") S.filter = v;
       else if (act === "toggle-menu") S.showMenu = !S.showMenu;
       else if (act === "toggle-skip") S.expandedSkip[v] = !(S.expandedSkip[v] === true);
@@ -2840,6 +3497,7 @@ function startApp() {
         const row = btn.closest(".item");
         if (row) row.classList.toggle("selected", !!S.selected[id]);
         btn.classList.toggle("on", !!S.selected[id]);
+        patchToolbar();
         skipRender = true;
       }
       else if (act === "more") S.more[v] = (S.more[v] || PAGE) + PAGE;
@@ -2909,18 +3567,21 @@ function startApp() {
         }
         S.showNewGroup = false;
       } else if (act === "confirm-import") confirmImport();
-      if (!skipRender) render();
+      if (!skipRender && !renderCatOnly(act, v, btn)) render();
     };
 
     const searchBox = document.getElementById("searchBox");
     if (searchBox) {
       searchBox.oninput = () => {
         S.search = searchBox.value;
+        const clr = document.getElementById("searchClear");
+        if (clr) clr.hidden = !searchBox.value;
         clearTimeout(searchBox._t);
         searchBox._t = setTimeout(() => {
-          render();
-          const el = document.getElementById("searchBox");
-          if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+          const key = S.search.trim().toLowerCase();
+          if (key === lastSearchKey) return;
+          lastSearchKey = key;
+          renderListOnly();
         }, 180);
       };
     }
@@ -3061,6 +3722,8 @@ function startApp() {
     if (backupBox) backupBox.onchange = () => {
       const f = backupBox.files && backupBox.files[0];
       if (!f) return;
+      // นำเข้าไฟล์สำรองจะทับข้อมูลทั้งหมด จึงต้องใส่รหัสผ่านก่อน (ยกเลิก = ไม่ทำอะไร)
+      requirePassword(() => {
       const reader = new FileReader();
       reader.onload = () => {
         try {
@@ -3073,6 +3736,7 @@ function startApp() {
         render();
       };
       reader.readAsText(f);
+      }, { onCancel: () => { backupBox.value = ""; } });
     };
     const fileBox = document.getElementById("fileBox");
     if (fileBox) fileBox.onchange = () => {
@@ -3096,6 +3760,8 @@ function startApp() {
     let dragItem = null;
     let dragGroup = null;
     document.querySelectorAll("[data-drag-item]").forEach((el) => {
+      if (el.__dd) return;
+      el.__dd = 1;
       el.addEventListener("dragstart", (e) => {
         if (!S.organize) return e.preventDefault();
         dragItem = el.getAttribute("data-drag-item");
@@ -3106,6 +3772,8 @@ function startApp() {
       el.addEventListener("dragend", () => el.classList.remove("dragging"));
     });
     document.querySelectorAll("[data-drag-group]").forEach((el) => {
+      if (el.__dd) return;
+      el.__dd = 1;
       el.addEventListener("dragstart", (e) => {
         dragGroup = el.getAttribute("data-drag-group");
         e.dataTransfer.setData("text/plain", "group:" + dragGroup);
@@ -3113,6 +3781,8 @@ function startApp() {
       });
     });
     document.querySelectorAll("[data-drop-set]").forEach((box) => {
+      if (box.__dd) return;
+      box.__dd = 1;
       box.addEventListener("dragover", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -3136,6 +3806,8 @@ function startApp() {
       });
     });
     document.querySelectorAll("[data-drop-group]").forEach((box) => {
+      if (box.__dd) return;
+      box.__dd = 1;
       box.addEventListener("dragover", (e) => { e.preventDefault(); box.classList.add("dragover"); });
       box.addEventListener("dragleave", () => box.classList.remove("dragover"));
       box.addEventListener("drop", (e) => {
@@ -3221,6 +3893,10 @@ function startApp() {
     S.showImport = false;
     S.pasteRaw = ""; S.fileName = ""; S.headers = []; S.rows = [];
   }
+
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeRowMenu(true); });
+  window.addEventListener("resize", () => { const r = document.getElementById("rmRoot"); if (r && r._place) r._place(); }, { passive: true });
+  window.addEventListener("scroll", () => { const r = document.getElementById("rmRoot"); if (r && r._place) r._place(); }, { passive: true });
 
   render();
 }

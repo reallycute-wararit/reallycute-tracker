@@ -118,6 +118,48 @@
     @media (min-width: 900px) {
       .dashgrid { grid-template-columns: 1fr 1fr 1fr 1fr; }
     }
+    /* ==== Sales tab layout (sx-*) ==== */
+    .sx-card { background: #fff; border-radius: 18px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(46,107,183,.10); margin-bottom: 14px; }
+    .sx-head { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: none; padding: 0; text-align: left; color: #1C3554; font-size: 15.5px; font-weight: 700; min-height: 32px; }
+    .sx-head .sx-tag { margin-left: auto; font-size: 11.5px; font-weight: 500; color: #5B6F86; }
+    .sx-sub { font-size: 12.5px; color: #5B6F86; margin-top: 2px; }
+    .sx-step { display: flex; gap: 10px; margin-top: 14px; }
+    .sx-num { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #2E6BB7; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .sx-body { flex: 1 1 auto; min-width: 0; }
+    .sx-lbl { font-size: 13.5px; font-weight: 600; color: #1C3554; margin-bottom: 6px; }
+    .sx-card .pills { margin-bottom: 0; padding-bottom: 4px; }
+    .sx-card .pills.sx-wrap { flex-wrap: wrap; overflow: visible; }
+    .sx-card .pill { border: 1px solid #E1ECF8; }
+    .sx-card .pill.on { border-color: #2E6BB7; }
+    .sx-card .pill.dim:not(.on) { color: #8AA0B5; background: #F7FBFF; }
+    .sx-select { width: 100%; margin: 0; padding: 12px 12px; font-size: 15px; background: #fff; }
+    .sx-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 2px dashed #C5D8EE; background: #F7FBFF; border-radius: 16px; padding: 18px 12px; text-align: center; cursor: pointer; color: #5B6F86; min-height: 96px; }
+    .sx-drop:hover, .sx-drop.over { border-color: #2E6BB7; background: #EAF3FF; }
+    .sx-drop.has { border-style: solid; border-color: #7FC98E; background: #F1FAF3; color: #2E6A3A; }
+    .sx-drop b { font-size: 14px; color: #1C3554; word-break: break-all; }
+    .sx-go { width: 100%; margin-top: 10px; padding: 15px; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; }
+    .sx-go.on { background: #2E6BB7; color: #fff; box-shadow: 0 3px 10px rgba(46,107,183,.25); }
+    .sx-go.off { background: #D7E4F2; color: #8AA0B5; cursor: not-allowed; }
+    .sx-note { border-radius: 14px; padding: 12px 14px; font-size: 13px; margin-top: 12px; display: flex; gap: 8px; align-items: flex-start; background: #FFF8E0; border: 1px solid #F0D48A; color: #8A6E20; }
+    .sx-note.ok { background: #E8F5E9; border-color: #B7DDBE; color: #2E6A3A; }
+    .sx-note.info { background: #EAF3FF; border-color: #C5D8EE; color: #1C3554; }
+    .sx-note .sx-x { margin-left: auto; background: none; border: none; color: inherit; font-size: 16px; line-height: 1; padding: 0 2px; }
+    .sx-summary { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #D7E4F2; font-size: 12.5px; color: #1C3554; }
+    .sx-tools { border: 1px dashed #C5D8EE; border-radius: 14px; background: #F5F8FC; margin-top: 14px; }
+    .sx-tools-body { padding: 4px 12px 12px; }
+    .sx-tools .ghost { margin-top: 8px; }
+    .sx-dz { margin-top: 16px; padding-top: 12px; border-top: 1px dashed #E8C4C4; }
+    .sx-dz .btn-danger { margin-top: 8px; }
+    .sx-twocol { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 900px) {
+      .sx-card { padding: 18px 22px; }
+      .sx-steps { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 20px; }
+      .sx-steps .sx-step { margin-top: 14px; }
+    }
+    @media (max-width: 480px) {
+      .sx-card { padding: 12px 12px; }
+      .sx-card .pill { padding: 8px 13px; }
+    }
     .topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
     @media (min-width: 900px) {
       .wrap { padding: 20px 28px 150px; }
@@ -372,6 +414,7 @@ function startApp() {
   const TUKA_KEY = "tuka-products-v2";
   const POSTS_KEY = "tuka-posts-v1";
   const SALES_KEY = "tuka-sales-v1";
+  const SALE_MONTH_START = "2026-01"; // เดือนแรกที่แท็บยอดขายให้เลือก (ม.ค. 2569) — เดือนถัดไปต่อเองจนถึงเดือนปัจจุบัน
   const LINKS_KEY = "tuka-sale-links-v1";
   const TRASH_KEY = "tuka-trash-v1";
   const TRASH_MS = 7 * 24 * 60 * 60 * 1000;
@@ -535,6 +578,11 @@ function startApp() {
     saleShop: "Shopee wararit.th",
     saleMonth: "all",
     saleImportMonth: "2026-08",
+    saleImportManual: false,
+    showSaleImport: true,
+    showSaleTools: false,
+    saleNoteKind: "",
+    saleNoteFor: "",
     dashMonth: "2026-07",
     dashYear: "2026",
     deleteSaleId: "",
@@ -556,6 +604,8 @@ function startApp() {
   };
 
   let persistTimer = null;
+  let pendingSaleFile = null;
+  S.saleImportMonth = defaultSaleImportMonth();
   function persist(now) {
     S.pack.updatedAt = Date.now();
     S.pack.trash = S.trash || [];
@@ -714,26 +764,43 @@ function startApp() {
         const found = findSaleHeader(aoa);
         if (found) { picked = found; break; }
       }
-      if (!picked) { S.saleNote = "ในไฟล์ไม่มีคอลัมน์ชื่อสินค้า — ส่งออกออเดอร์จากร้าน ไม่ใช่ไฟล์สรุปยอด"; render(); return; }
+      if (!picked) { setSaleNote("ในไฟล์ไม่มีคอลัมน์ชื่อสินค้า — ส่งออกออเดอร์จากร้าน ไม่ใช่ไฟล์สรุปยอด", "warn"); render(); return; }
       let { headers, rows } = picked;
       if (rows[0] && /platform unique order id/i.test(String(rows[0][0] || ""))) rows = rows.slice(1);
       finishSaleImport(headers, rows, fileName);
     } catch (e) {
-      S.saleNote = "อ่านไฟล์ Excel ไม่ได้ — บันทึกเป็น CSV แล้วลองใหม่ หรือเปิดหน้านี้ตอนมีเน็ตครั้งแรก";
+      setSaleNote("อ่านไฟล์ Excel ไม่ได้ — บันทึกเป็น CSV แล้วลองใหม่ หรือเปิดหน้านี้ตอนมีเน็ตครั้งแรก", "warn");
       render();
     }
   }
   function finishSaleImport(headers, rows, fileName) {
     const got = parseSalesTable(headers, rows, S.saleShop);
-    if (got.error) { S.saleNote = got.error + " จาก " + fileName; render(); return; }
+    if (got.error) { setSaleNote(got.error + " จาก " + fileName, "warn"); render(); return; }
     mergeSales(got.items);
-    S.saleNote = got.items.length
-      ? "นำเข้า " + fileName + " ได้ " + got.items.length + " รายการจาก " + S.saleShop
-      : "อ่าน " + fileName + " แล้วแต่ไม่พบแถวสินค้า — ตรวจว่าเป็นไฟล์ออเดอร์ที่มีคอลัมน์ชื่อสินค้า";
+    if (got.items.length) {
+      const byMonth = {};
+      let tq = 0, tr = 0;
+      got.items.forEach((it) => {
+        const m = (it.month && it.month !== "all") ? it.month : S.saleImportMonth;
+        byMonth[m] = (byMonth[m] || 0) + 1;
+        tq += it.qty || 0; tr += Math.round(it.rev || 0);
+      });
+      const ms = Object.keys(byMonth).sort().reverse();
+      let msg = "✓ นำเข้า " + fileName + " ได้ " + got.items.length + " รายการจาก " + S.saleShop +
+        " · " + tq.toLocaleString() + " ชิ้น · ~" + tr.toLocaleString() + " บ. · เดือน: " +
+        ms.map((m) => monthLabel(m) + " " + byMonth[m] + " รายการ").join(", ");
+      // ถ้าตัวกรองที่ดูอยู่จะซ่อนรายการที่เพิ่งนำเข้า ให้ย้ายมุมมองไปให้เห็น
+      if (S.saleMonth && S.saleMonth !== "all" && !byMonth[S.saleMonth]) { S.saleMonth = ms[0]; msg += " · ปรับมุมมองไปเดือน " + monthLabel(ms[0]); }
+      if (S.saleViewShop && S.saleViewShop !== "all" && S.saleViewShop !== S.saleShop) { S.saleViewShop = "all"; msg += " · ปรับตัวกรองร้านเป็นทุกร้าน"; }
+      setSaleNote(msg, "ok");
+    } else {
+      setSaleNote("อ่าน " + fileName + " แล้วแต่ไม่พบแถวสินค้า — ตรวจว่าเป็นไฟล์ออเดอร์ที่มีคอลัมน์ชื่อสินค้า", "warn");
+    }
     S.saleFilter = got.items.length ? "open" : "linked";
     S.view = "sales";
     render();
   }
+  function setSaleNote(text, kind) { S.saleNote = text; S.saleNoteKind = kind || "info"; S.saleNoteFor = text; }
   function findSaleHeader(aoa) {
     const keys = ["ชื่อสินค้า", "itemName", "Product Name", "product name", "product_name", "ชื่อผลิตภัณฑ์", "Item Name"];
     for (let i = 0; i < Math.min((aoa || []).length, 25); i++) {
@@ -777,7 +844,7 @@ function startApp() {
       if (net <= 0) return;
       let rev = hi.rev >= 0 ? Number(String(row[hi.rev] || "0").replace(/,/g, "")) || 0 : 0;
       const sku = hi.sku >= 0 ? String(row[hi.sku] || "").trim() : "";
-      let month = parseSaleMonth(hi.date >= 0 ? row[hi.date] : "") || S.saleImportMonth || "2026-08";
+      let month = parseSaleMonth(hi.date >= 0 ? row[hi.date] : "") || S.saleImportMonth || defaultSaleImportMonth();
       const key = shop + "||" + name + "||" + variant + "||" + month;
       if (!bag[key]) bag[key] = { shop, name, variant, sku, qty: 0, rev: 0, month };
       bag[key].qty += net;
@@ -847,7 +914,7 @@ function startApp() {
     const map = {};
     old.forEach((s) => { map[salePairKey(s) + "||" + saleMonthOf(s)] = s; });
     items.forEach((it) => {
-      const month = (it.month && it.month !== "all") ? it.month : (S.saleImportMonth || "2026-08");
+      const month = (it.month && it.month !== "all") ? it.month : (S.saleImportMonth || defaultSaleImportMonth());
       const k = salePairKey(it) + "||" + month;
       const prev = map[k];
       map[k] = {
@@ -868,6 +935,33 @@ function startApp() {
   function saleMonths() {
     const set = new Set((S.sales || []).map(saleMonthOf).filter((m) => /^\d{4}-\d{2}$/.test(m)));
     return Array.from(set).sort().reverse();
+  }
+  // เดือนทั้งหมดที่เลือกได้ในแท็บยอดขาย: ม.ค. 2569 (2026-01) ถึงเดือนปัจจุบัน + เดือนที่มีข้อมูลเก็บไว้ (แม้เก่ากว่านั้น) เรียงใหม่ → เก่า
+  function curMonthKey() {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  }
+  function saleMonthOptions() {
+    const set = new Set(saleMonths());
+    const cur = curMonthKey();
+    let y = Number(SALE_MONTH_START.slice(0, 4)), m = Number(SALE_MONTH_START.slice(5, 7));
+    for (let guard = 0; guard < 600; guard++) {
+      const key = y + "-" + String(m).padStart(2, "0");
+      set.add(key);
+      if (key >= cur) break;
+      m += 1;
+      if (m > 12) { m = 1; y += 1; }
+    }
+    return Array.from(set).sort().reverse();
+  }
+  function defaultSaleImportMonth() {
+    if (S.saleMonth && S.saleMonth !== "all") return S.saleMonth;
+    return saleMonthOptions()[0];
+  }
+  function saleMonthCounts() {
+    const bag = {};
+    (S.sales || []).forEach((x) => { const m = saleMonthOf(x); bag[m] = (bag[m] || 0) + 1; });
+    return bag;
   }
   function monthLabel(m) {
     if (!m || m === "all") return "ทุกเดือน";
@@ -1786,34 +1880,86 @@ function startApp() {
     const qty = shopOf.reduce((n, s) => n + (s.qty || 0), 0);
     const rev = shopOf.reduce((n, s) => n + (s.rev || 0), 0);
     const shopOpts = SALE_SHOPS.map((n) => `<option value="${esc(n)}">${esc(n.replace("Shopee ", ""))}</option>`).join("");
+    const monthOpts = saleMonthOptions();
+    const mCounts = saleMonthCounts();
+    const shopLbl = (n) => esc(n.replace("Shopee ", ""));
+    const noteKind = S.saleNote ? (S.saleNoteFor === S.saleNote && S.saleNoteKind ? S.saleNoteKind : "info") : "";
+    const fileSize = pendingSaleFile ? (pendingSaleFile.size >= 1048576 ? (pendingSaleFile.size / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(pendingSaleFile.size / 1024)) + " KB") : "";
     return `
-      <div class="card">
-        <div class="muted">เลือกไฟล์ออเดอร์ แล้วแก้ร้าน / จำนวน / ผูกสินค้าในแถวได้เลย</div>
-        <div class="lbl" style="margin-top:8px">เดือนที่ดู</div>
-        <div class="pills">
-          <button class="pill ${S.saleMonth === "all" ? "on" : ""}" data-act="sale-month" data-v="all">ทุกเดือน</button>
-          ${saleMonths().map((m) => `<button class="pill ${S.saleMonth === m ? "on" : ""}" data-act="sale-month" data-v="${m}">${monthLabel(m)}</button>`).join("")}
+      <div class="sx-card" id="saleImportCard">
+        <button class="sx-head" data-act="toggle-sale-import" aria-expanded="${S.showSaleImport ? "true" : "false"}">
+          <span>${S.showSaleImport ? "▾" : "▸"}</span><span>📥 นำเข้ายอดขายจากไฟล์</span>
+          <span class="sx-tag">${S.showSaleImport ? "" : esc(monthLabel(S.saleImportMonth) + " · " + (S.saleShop || "").replace("Shopee ", ""))}</span>
+        </button>
+        ${S.showSaleImport ? `
+        <div class="sx-sub">ทำตามลำดับ 1 → 2 → 3 แล้วกดปุ่มนำเข้า · แก้ร้าน / จำนวน / ผูกสินค้าในแถวได้หลังนำเข้า</div>
+        <div class="sx-steps">
+          <div class="sx-step"><div class="sx-num">1</div><div class="sx-body">
+            <div class="sx-lbl">เลือกเดือนของไฟล์</div>
+            <select class="field sx-select" id="saleImportMonthSel" aria-label="เดือนของไฟล์ที่นำเข้า">
+              ${monthOpts.map((m) => `<option value="${m}" ${S.saleImportMonth === m ? "selected" : ""}>${esc(monthLabel(m))}${mCounts[m] ? " · มีข้อมูล " + mCounts[m] + " รายการ" : ""}</option>`).join("")}
+            </select>
+            <div class="tiny" style="margin-top:6px">ใช้กับแถวที่ไม่มีวันที่ — ถ้าไฟล์มีคอลัมน์วันที่สั่งซื้อ ระบบจะจัดเข้าเดือนตามวันที่ในไฟล์</div>
+          </div></div>
+          <div class="sx-step"><div class="sx-num">2</div><div class="sx-body">
+            <div class="sx-lbl">เลือกร้านของไฟล์</div>
+            <div class="pills sx-wrap">${SALE_SHOPS.map((n) => `<button class="pill ${S.saleShop === n ? "on" : ""}" data-act="sale-shop" data-v="${esc(n)}">${shopLbl(n)}</button>`).join("")}</div>
+          </div></div>
+          <div class="sx-step"><div class="sx-num">3</div><div class="sx-body">
+            <div class="sx-lbl">เลือกไฟล์ แล้วกดนำเข้า</div>
+            <label class="sx-drop ${pendingSaleFile ? "has" : ""}" id="saleDrop" for="saleFile">
+              ${pendingSaleFile
+                ? `<span style="font-size:22px">📄</span><b>${esc(pendingSaleFile.name)}</b><span class="tiny">${fileSize} · แตะเพื่อเปลี่ยนไฟล์</span>`
+                : `<span style="font-size:24px">⬆️</span><b>ลากไฟล์มาวางที่นี่ หรือแตะเพื่อเลือกไฟล์</b><span class="tiny">รองรับ .csv .xlsx .xls (ไฟล์ออเดอร์จาก Shopee / Lazada / TikTok)</span>`}
+            </label>
+            <input type="file" id="saleFile" accept=".csv,.txt,.tsv,.xlsx,.xls" hidden />
+            <button class="sx-go ${pendingSaleFile ? "on" : "off"}" id="saleImportGo" data-act="sale-import-go" ${pendingSaleFile ? "" : "disabled"}>⬆ นำเข้ายอดขาย</button>
+            <div class="tiny" style="margin-top:6px;text-align:center">จะนำเข้า: ร้าน <b>${shopLbl(S.saleShop || "")}</b> · เดือน <b>${esc(monthLabel(S.saleImportMonth))}</b></div>
+          </div></div>
         </div>
-        <div class="lbl" style="margin-top:8px">เดือนของไฟล์ที่นำเข้า</div>
-        <div class="pills">
-          ${["2026-07","2026-08","2026-09"].concat(saleMonths()).filter((m, i, a) => a.indexOf(m) === i).sort().map((m) => `<button class="pill ${S.saleImportMonth === m ? "on" : ""}" data-act="sale-import-month" data-v="${m}">${monthLabel(m)}</button>`).join("")}
+        ` : ""}
+        ${S.saleNote ? `<div class="sx-note ${noteKind}" id="saleNoteBox" role="status"><span style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(S.saleNote)}</span><button class="sx-x" data-act="sale-note-clear" aria-label="ปิดข้อความ">✕</button></div>` : ""}
+        <div class="sx-tools">
+          <button class="sx-head" style="padding:8px 12px;font-size:13.5px;font-weight:600;color:#5B6F86" data-act="toggle-sale-tools" aria-expanded="${S.showSaleTools ? "true" : "false"}">
+            <span>${S.showSaleTools ? "▾" : "▸"}</span><span>🧰 เครื่องมืออื่น ๆ</span><span class="sx-tag">ย้ายรายการ · ล้างยอดขาย</span>
+          </button>
+          ${S.showSaleTools ? `<div class="sx-tools-body">
+            <div class="tiny">ย้ายเฉพาะรายการที่ยังไม่ผูกตามตัวกรองที่ดูอยู่ ไปยังร้าน/เดือนที่เลือกในขั้นตอนที่ 1–2 (ขึ้นหน้าต่างให้ยืนยันก่อน)</div>
+            <div class="rowbtns">
+              <button class="ghost" data-act="ask-sale" data-v="shop">ย้ายที่ยังไม่ผูกในตัวกรองนี้ไปร้านนำเข้า (${shopLbl(S.saleShop || "")})</button>
+              <button class="ghost" data-act="ask-sale" data-v="month">ย้ายที่ยังไม่ผูกในตัวกรองนี้ไปเดือนนำเข้า (${esc(monthLabel(S.saleImportMonth))})</button>
+            </div>
+            <div class="sx-dz">
+              <div class="tiny" style="color:#C0525A;font-weight:600">โซนอันตราย</div>
+              <button class="btn-danger" data-act="ask-clear-sales">🗑 ล้างยอดขายแล้ววนนำเข้าใหม่</button>
+              <div class="tiny" style="margin-top:4px">ลบยอดขายทุกเดือน (การผูกสินค้าถูกจำไว้) — ต้องกดยืนยันอีกครั้ง</div>
+            </div>
+          </div>` : ""}
         </div>
-        <div class="lbl" style="margin-top:8px">ร้านของไฟล์ที่จะนำเข้า</div>
-        <div class="pills">${SALE_SHOPS.map((n) => `<button class="pill ${S.saleShop === n ? "on" : ""}" data-act="sale-shop" data-v="${esc(n)}">${n.replace("Shopee ","")}</button>`).join("")}</div>
-        <input type="file" id="saleFile" accept=".csv,.txt,.tsv,.xlsx,.xls" style="margin:6px 0 8px" />
-        <div class="rowbtns" style="margin-bottom:8px">
-          <button class="ghost" data-act="ask-sale" data-v="shop">ย้ายที่ยังไม่ผูกในตัวกรองนี้ไปร้านนำเข้า</button>
-          <button class="ghost" data-act="ask-sale" data-v="month">ย้ายที่ยังไม่ผูกในตัวกรองนี้ไปเดือนนำเข้า</button>
-          <button class="ghost" style="color:#C0525A;border-color:#E8C4C4" data-act="ask-clear-sales">ล้างยอดขายแล้ววนนำเข้าใหม่</button>
-        </div>
-        <div class="tiny">${shopOf.length} รายการ · ${qty} ชิ้น · ~${rev.toLocaleString()} บ. · รอผูก ${open.length} · ผูกแล้ว ${linked.length}</div>
-        <button class="ghost" style="margin-top:8px" data-act="ask-sale" data-v="inherit">คัดลอกการผูกจากเดือนอื่นที่ชื่อหรือ SKU ตรงกัน</button>
-        ${S.saleNote ? `<div class="warn" style="margin-top:8px">${esc(S.saleNote)}</div>` : ""}
       </div>
-      <input class="field" id="saleSearch" placeholder="ค้นชื่อในยอดขาย..." value="${esc(S.saleQ)}" />
-      <div class="pills">
-        <button class="pill ${S.saleViewShop === "all" ? "on" : ""}" data-act="sale-view-shop" data-v="all">ทุกร้าน</button>
-        ${SALE_SHOPS.map((n) => `<button class="pill ${S.saleViewShop === n ? "on" : ""}" data-act="sale-view-shop" data-v="${esc(n)}">${n.replace("Shopee ","")}</button>`).join("")}
+
+      <div class="sx-card" id="saleViewCard">
+        <div class="sx-head" style="cursor:default">🔎 ดูยอดขาย / กรอง</div>
+        <div class="sx-step" style="margin-top:10px"><div class="sx-body">
+          <div class="sx-lbl">เดือนที่ดู</div>
+          <div class="pills sx-scroll" id="saleMonthPills">
+            <button class="pill ${S.saleMonth === "all" ? "on" : ""}" data-act="sale-month" data-v="all">ทุกเดือน</button>
+            ${monthOpts.map((m) => `<button class="pill ${S.saleMonth === m ? "on" : ""} ${mCounts[m] ? "" : "dim"}" data-act="sale-month" data-v="${m}">${monthLabel(m)}</button>`).join("")}
+          </div>
+          <div class="tiny" style="margin-top:4px">เดือนจาง = ยังไม่มีข้อมูลยอดขาย · เลื่อนดูเดือนอื่นได้ทางขวา</div>
+        </div></div>
+        <div class="sx-step" style="margin-top:12px"><div class="sx-body">
+          <div class="sx-lbl">ร้านที่ดู</div>
+          <div class="pills sx-wrap">
+            <button class="pill ${S.saleViewShop === "all" ? "on" : ""}" data-act="sale-view-shop" data-v="all">ทุกร้าน</button>
+            ${SALE_SHOPS.map((n) => `<button class="pill ${S.saleViewShop === n ? "on" : ""}" data-act="sale-view-shop" data-v="${esc(n)}">${shopLbl(n)}</button>`).join("")}
+          </div>
+        </div></div>
+        <input class="field" id="saleSearch" placeholder="ค้นชื่อในยอดขาย..." value="${esc(S.saleQ)}" style="margin-top:14px;margin-bottom:0" />
+        <div class="sx-summary">
+          <div id="saleSummary"><b>${shopOf.length}</b> รายการ · ${qty} ชิ้น · ~${rev.toLocaleString()} บ. · รอผูก ${open.length} · ผูกแล้ว ${linked.length}</div>
+          <button class="ghost" data-act="ask-sale" data-v="inherit">คัดลอกการผูกจากเดือนอื่นที่ชื่อหรือ SKU ตรงกัน</button>
+        </div>
       </div>
       <div class="tiny" style="margin-bottom:8px">รอผูก ${open.length} รายการ</div>
       ${list.length ? list.slice(0, 80).map((s) => {
@@ -2474,8 +2620,14 @@ function startApp() {
       else if (act === "dash-go") { S.view = "list"; S.filter = v || "all"; S.showMenu = false; }
       else if (act === "dash-month") S.dashMonth = v;
       else if (act === "dash-year") { S.dashYear = v; S.dashMonth = "all"; }
-      else if (act === "sale-month") S.saleMonth = v;
-      else if (act === "sale-import-month") S.saleImportMonth = v;
+      else if (act === "sale-month") { S.saleMonth = v; if (!S.saleImportManual) S.saleImportMonth = defaultSaleImportMonth(); }
+      else if (act === "sale-import-month") { S.saleImportMonth = v; S.saleImportManual = true; }
+      else if (act === "toggle-sale-import") S.showSaleImport = !S.showSaleImport;
+      else if (act === "toggle-sale-tools") S.showSaleTools = !S.showSaleTools;
+      else if (act === "sale-note-clear") { S.saleNote = ""; S.saleNoteKind = ""; S.saleNoteFor = ""; }
+      else if (act === "sale-import-go") {
+        if (pendingSaleFile) { const f = pendingSaleFile; pendingSaleFile = null; setSaleNote("กำลังนำเข้า " + f.name + " …", "info"); ingestSaleFile(f); }
+      }
       else if (act === "ask-sale") S.confirmSale = v;
       else if (act === "cancel-sale-ask") S.confirmSale = "";
       else if (act === "sale-reassign-month") {
@@ -2533,7 +2685,7 @@ function startApp() {
         S.sales = [];
         persistSales();
         S.confirmClearSales = false;
-        S.saleNote = "ล้างยอดขายแล้ว การผูกถูกเก็บไว้ นำเข้าไฟล์กรกฎาคมก่อน แล้วค่อยสิงหาคม";
+        S.saleNote = "ล้างยอดขายแล้ว การผูกถูกเก็บไว้ — เลือกเดือน/ร้าน แล้วนำเข้าไฟล์ใหม่ได้เลย";
       }
       else if (act === "ask-clear") S.confirmClear = true;
       else if (act === "cancel-clear") S.confirmClear = false;
@@ -2815,8 +2967,32 @@ function startApp() {
         }, 180);
       };
     });
+    const SALE_EXT = /\.(csv|txt|tsv|xlsx|xls)$/i;
+    const stageSaleFile = (f) => {
+      if (!f) return;
+      if (!SALE_EXT.test(f.name || "")) { pendingSaleFile = null; setSaleNote("ไฟล์ " + f.name + " ไม่รองรับ — ใช้ .csv .xlsx .xls เท่านั้น", "warn"); render(); return; }
+      pendingSaleFile = f;
+      if (S.saleNoteKind === "ok") { S.saleNote = ""; S.saleNoteKind = ""; S.saleNoteFor = ""; }
+      render();
+    };
     const saleFile = document.getElementById("saleFile");
-    if (saleFile) saleFile.onchange = () => ingestSaleFile(saleFile.files && saleFile.files[0]);
+    if (saleFile) saleFile.onchange = () => stageSaleFile(saleFile.files && saleFile.files[0]);
+    const saleDrop = document.getElementById("saleDrop");
+    if (saleDrop) {
+      ["dragenter", "dragover"].forEach((ev) => saleDrop.addEventListener(ev, (e) => { e.preventDefault(); saleDrop.classList.add("over"); }));
+      ["dragleave", "dragend"].forEach((ev) => saleDrop.addEventListener(ev, () => saleDrop.classList.remove("over")));
+      saleDrop.addEventListener("drop", (e) => {
+        e.preventDefault();
+        saleDrop.classList.remove("over");
+        stageSaleFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+      });
+    }
+    const saleImportSel = document.getElementById("saleImportMonthSel");
+    if (saleImportSel) saleImportSel.onchange = () => { S.saleImportMonth = saleImportSel.value; S.saleImportManual = true; render(); };
+    document.querySelectorAll(".pills.sx-scroll").forEach((el) => {
+      const on = el.querySelector(".pill.on");
+      if (on) el.scrollLeft = Math.max(0, on.getBoundingClientRect().left - el.getBoundingClientRect().left + el.scrollLeft - (el.clientWidth - on.offsetWidth) / 2);
+    });
 
     const postQ = document.getElementById("postQ");
     if (postQ) {

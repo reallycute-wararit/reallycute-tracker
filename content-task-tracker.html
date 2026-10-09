@@ -2340,27 +2340,31 @@ function startApp() {
       </div>`;
     }
 
-    if (S.showGuide) html += `<div class="overlay" data-act="close-guide"><div class="sheet" data-stop="1">
+    if (S.showGuide) html += `<div class="overlay" data-act="close-guide"><div class="sheet" data-stop="1" role="dialog" aria-label="คู่มือใช้งานสำหรับทีม">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:17px;font-weight:700;color:#2E6BB7">ส่งต่อให้พนักงาน</div>
-        <button class="iconbtn" data-act="close-guide">✕</button>
+        <div style="font-size:17px;font-weight:700;color:#2E6BB7">คู่มือใช้งานสำหรับทีม</div>
+        <button class="iconbtn" data-act="close-guide" aria-label="ปิด">✕</button>
       </div>
       <div class="muted" style="line-height:1.65">
-        ข้อมูลไม่อยู่ในไฟล์ HTML อยู่ที่เบราว์เซอร์ของแต่ละเครื่อง<br><br>
-        <b>เครื่องหลัก (คุณ)</b><br>
-        1. เปิดไฟล์จากโฟลเดอร์เดิมบนไดรฟ์ P: เท่านั้น<br>
-        2. ตั้งโฟลเดอร์สำรองในโฟลเดอร์เดียวกัน<br>
-        3. หมดวันกด «ส่งไฟล์ให้พนักงาน» ได้ไฟล์ reallycute-ส่งต่อ.json<br>
-        4. วางไฟล์นั้นในโฟลเดอร์ [สำรองข้อมูล]<br><br>
-        <b>เครื่องพนักงาน</b><br>
-        1. เปิดไฟล์ HTML จากโฟลเดอร์เดิมเหมือนกัน<br>
-        2. กดนำเข้า/อัปเดต → สำรองทั้งก้อน → เลือกไฟล์ .json ล่าสุด<br>
-        3. ทำงานเสร็จกด «ส่งไฟล์ให้พนักงาน» ทับไฟล์เดิมในโฟลเดอร์สำรอง<br>
-        4. อย่ากดปุ่มแดงลบข้อมูลสินค้าทั้งหมด และอย่านำเข้า Tukkacenter แบบแทนที่ทั้งหมด<br><br>
-        ใช้ Chrome หรือ Edge เครื่องละ 1 คน ไม่สลับโปรไฟล์เบราว์เซอร์
+        ทุกเครื่องใช้ข้อมูลชุดเดียวกันบนคลาวด์ แก้ที่เครื่องไหน เครื่องอื่นก็เห็น ไม่ต้องส่งไฟล์ต่อกันแล้ว<br><br>
+        <b>เข้าใช้งาน</b><br>
+        1. เปิดลิงก์ <b>reallycute-tracker.pages.dev/content-task-tracker</b> ด้วย Chrome หรือ Edge<br>
+        2. ใส่รหัสผ่านทีม แล้วกด «เข้าใช้งาน» (ขอรหัสจากคุณ susi หรือ IT · ห้ามโพสต์รหัสในกลุ่ม)<br>
+        3. ดูป้ายมุมขวาบน: «☁️ บันทึกขึ้นคลาวด์แล้ว» = ปลอดภัย · «🔄 กำลังบันทึก…» = รอก่อนปิด · «⚠️» = ไม่สำเร็จ แคปจอแจ้ง IT<br><br>
+        <b>⭐ กฎทอง</b><br>
+        1. เปิด tracker แค่ 1 แท็บ ปิดแท็บเก่าทุกแท็บก่อนเปิดใหม่<br>
+        2. เมื่อแจ้งว่าอัปเดตเว็บ: ปิดแท็บเก่าหมด แล้วกด Ctrl+Shift+R (มือถือ: ปิดแล้วเปิดใหม่)<br>
+        3. อย่าแก้สินค้าชิ้นเดียวกันพร้อมกันสองเครื่อง/สองคน<br>
+        4. รอ «☁️ บันทึกขึ้นคลาวด์แล้ว» ก่อนปิดหน้า<br><br>
+        <b>สำรองข้อมูล</b><br>
+        ระบบส่งออก CSV ให้อัตโนมัติทุกวันอาทิตย์ 18:00 เข้า NAS โฟลเดอร์ [สำรองข้อมูล] ไม่ต้องกดส่งออกเองทุกสัปดาห์<br><br>
+        <b>🔒 ปุ่มอันตราย (ถามรหัสผ่านซ้ำ)</b><br>
+        ล้างยอดขาย · ลบข้อมูลสินค้าทั้งหมด · ลบหมวด · นำเข้าแบบแทนที่ทั้งหมด · กู้คืนจากไฟล์สำรองทั้งก้อน → ไม่แน่ใจ กด «ยกเลิก» แล้วถาม IT ก่อน<br><br>
+        <b>ติดปัญหาถามใคร</b><br>
+        ใช้ไม่เป็น/ติดปัญหา → IT REALLYCUTE · บั๊ก/อยากได้ฟีเจอร์ใหม่ → PROGRAMMER REALLYCUTE (แนบภาพหน้าจอ)
       </div>
       <div class="rowbtns" style="margin-top:12px">
-        <button class="ghost" data-act="export-json">ส่งไฟล์ให้พนักงานตอนนี้</button>
+        <button class="ghost" data-act="close-guide">เข้าใจแล้ว ปิดหน้านี้</button>
       </div>
     </div></div>`;
     if (S.deleteSaleId) {

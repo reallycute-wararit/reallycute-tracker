@@ -379,6 +379,22 @@
     .ck-chips { display: flex; flex-wrap: wrap; gap: 5px 6px; margin-top: 6px; align-items: center; }
     .ck-c { display: inline-flex; align-items: center; font-size: 12px; line-height: 1.35; padding: 2px 9px; border-radius: 999px; font-weight: 600; background: #EEF4FB; color: #5B6F86; white-space: nowrap; }
     .ck-c.price { color: #1C3554; }
+    .ck-c.sell { background: #E7F0FF; color: #1F4E8C; }
+    .ck-pf { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 12px; line-height: 1.35; padding: 2px 9px; border-radius: 10px; background: #F3FAF4; color: #2E6A3A; font-weight: 600; }
+    .ck-pf .k { color: #5B6F86; font-weight: 500; }
+    .ck-pf .pv { white-space: nowrap; }
+    .ck-pf .neg, .pf-tbl .neg { color: #C0392B; }
+    .ck-pf.none { background: #fff; color: #8AA0B5; box-shadow: inset 0 0 0 1px #D7E4F2; font-weight: 500; }
+    .pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pf-box { border: 1px solid #D7E4F2; border-radius: 12px; padding: 8px 10px; margin: 2px 0 10px; background: #F9FCFF; }
+    .pf-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .pf-tbl td { padding: 3px 2px; }
+    .pf-tbl td.v { text-align: right; font-weight: 700; color: #2E6A3A; white-space: nowrap; }
+    .pf-tbl td.v.none { color: #8AA0B5; font-weight: 500; }
+    .pf-tbl td.v.neg { color: #C0392B; }
+    .pf-tbl .fee { color: #8AA0B5; font-size: 12px; }
+    .pf-cfg-row { display: grid; grid-template-columns: 1fr 110px; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .pf-cfg-row .field { margin: 0; }
     .ck-c.in { background: #E8F5E9; color: #2E6A3A; }
     .ck-c.out { background: #FDECEC; color: #C0525A; }
     .ck-c.r-official { background: #D6E7FA; color: #2E6BB7; }
@@ -952,6 +968,42 @@ function startApp() {
   ];
   function rightsOf(p) { return (p && p.rights) || ""; }
   function rightsLabel(id) { return (RIGHTS.find((r) => r.id === id) || {}).label || "ยังไม่ระบุลิขสิทธิ์"; }
+  // ==== ต้นทุน / ราคาขาย / กำไรต่อชิ้น ====
+  // p  = ต้นทุน (ราคาจากโรงงาน tukatacenter — ฟิลด์เดิม "ราคา" ใช้ต่อเลย ข้อมูลเก่าไม่ต้องแปลง)
+  // sp = ราคาขาย (ฟิลด์ใหม่ ต่อสินค้า/ตัวเลือก ว่างได้)
+  // กำไร/ชิ้น = ราคาขาย × (1 − ค่าธรรมเนียม%) − ต้นทุน − ค่าส่งเหมา
+  // ค่าเริ่มต้นด้านล่าง แก้ได้ในแอป (⋯ เพิ่มเติม → ตั้งค่ากำไร) ค่าที่แก้เก็บใน S.pack.costCfg และซิงก์ขึ้นคลาวด์พร้อมสินค้า
+  const PROFIT_PLATFORMS = [
+    { id: "spp", short: "ploy", label: "Shopee ployririta", fee: 17.96 },
+    { id: "spw", short: "wararit", label: "Shopee wararit.th", fee: 18.26 },
+    { id: "tt", short: "TikTok", label: "TikTok", fee: 19.89 },
+    { id: "lz", short: "Lazada", label: "Lazada", fee: 22.43 },
+  ];
+  const PROFIT_SHIP_DEFAULT = 50;
+  const toNum = (x) => (x === "" || x == null || typeof x === "boolean" || !Number.isFinite(Number(x))) ? null : Number(x);
+  let _cfgMemo = null, _cfgSrc;
+  function costCfg() {
+    const src = S.pack && S.pack.costCfg;
+    if (_cfgMemo && _cfgSrc === src) return _cfgMemo;
+    const c = src && typeof src === "object" ? src : {};
+    const fees = c.fees && typeof c.fees === "object" ? c.fees : {};
+    const ship = toNum(c.ship);
+    _cfgSrc = src;
+    _cfgMemo = {
+      ship: ship != null && ship >= 0 ? ship : PROFIT_SHIP_DEFAULT,
+      plats: PROFIT_PLATFORMS.map((pl) => { const f = toNum(fees[pl.id]); return { ...pl, fee: f != null && f >= 0 && f < 100 ? f : pl.fee }; }),
+    };
+    return _cfgMemo;
+  }
+  function profitOf(sell, cost, fee, ship) {
+    if (sell == null || cost == null) return null;
+    return Math.round((sell * (1 - fee / 100) - cost - ship) * 100) / 100;
+  }
+  function profitsOf(p) {
+    const cfg = costCfg(), sell = toNum(p && p.sp), cost = toNum(p && p.p);
+    return cfg.plats.map((pl) => profitOf(sell, cost, pl.fee, cfg.ship));
+  }
+  const fmtB = (n) => Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
   function allowedChannelIds(rights) {
     if (rights === "review") return CHANNELS.filter((c) => REVIEW_OK[c.id]).map((c) => c.id);
     return CHANNELS.map((c) => c.id);
@@ -1001,7 +1053,10 @@ function startApp() {
     S.colCategory = find(/(หมวด|category)/i) || S.colCategory;
     S.colProductName = find(/(ชื่อสินค้า|product.?name|^name$)/i) || S.colProductName;
     S.colVariant = find(/(ตัวเลือก|variant|option)/i) || S.colVariant;
-    S.colPrice = find(/(ราคา|price)/i) || S.colPrice;
+    const SELL_RE = /(ราคาขาย|sell|selling|retail)/i;
+    const findNot = (re, not) => { const i = p.headers.findIndex((h) => re.test(h) && !not.test(h)); return i >= 0 ? p.headers[i] : ""; };
+    S.colPrice = findNot(/(ต้นทุน|ราคา|price|cost)/i, SELL_RE) || S.colPrice;
+    S.colSell = find(SELL_RE) || S.colSell;
     S.colStock = find(/(สต็อก|สต๊อก|stock)/i) || S.colStock;
     S.colPhoto = find(/(ทำรูป|รูปแล้ว|photo)/i) || S.colPhoto;
     S.colVideo = find(/(วิดีโอแล้ว|ทำวิดีโอ|video)/i) || S.colVideo;
@@ -1046,6 +1101,8 @@ function startApp() {
     multiStock: "in",
     multiNote: "",
     showGuide: false,
+    showCostCfg: false,
+    costCfgNote: "",
     showMenu: false,
     expandedSkip: {},
     showMoreFilters: false,
@@ -1067,10 +1124,10 @@ function startApp() {
     importMode: "replace",
     importNote: "",
     importTab: "form",
-    formItem: { group: "", newGroup: "", name: "", variant: "", price: "", stock: "in", rights: "", sku: "", aka: "", set: "", ph: false, vd: false, up: false, ex: false, editId: null },
+    formItem: { group: "", newGroup: "", name: "", variant: "", price: "", sell: "", stock: "in", rights: "", sku: "", aka: "", set: "", ph: false, vd: false, up: false, ex: false, editId: null },
     showSet: false,
     multiSet: "",
-    colCategory: "", colProductName: "", colVariant: "", colPrice: "", colStock: "", colPhoto: "", colVideo: "",
+    colCategory: "", colProductName: "", colVariant: "", colPrice: "", colSell: "", colStock: "", colPhoto: "", colVideo: "",
     showMove: false,
     showMerge: false,
     showRename: false,
@@ -1553,10 +1610,10 @@ function startApp() {
   }
   function exportAll() {
     const last = lastPostMap();
-    const prodRows = [["หมวด","ชุดสินค้า","ชื่อสินค้า","ตัวเลือก","ราคา","สต็อก","ลิขสิทธิ์","SKU","ชื่อที่ใช้ขาย","ถ่ายรูป","ถ่ายวิดีโอ","อัปโหลด","คัดออก","โพสต์รูปล่าสุด","โพสต์วิดีโอล่าสุด"]].concat(
+    const prodRows = [["หมวด","ชุดสินค้า","ชื่อสินค้า","ตัวเลือก","ราคา","สต็อก","ลิขสิทธิ์","SKU","ชื่อที่ใช้ขาย","ถ่ายรูป","ถ่ายวิดีโอ","อัปโหลด","คัดออก","โพสต์รูปล่าสุด","โพสต์วิดีโอล่าสุด","ราคาขาย"].concat(costCfg().plats.map((pl) => "กำไร " + pl.label))].concat(
       products().map((p) => {
         const lp = last[p.id] || {};
-        return [groupOf(p), p.set || "", p.n, p.v, p.p, p.s === "out" ? "หมด/ปิด" : "มีสินค้า", rightsLabel(rightsOf(p)), p.sku || "", p.aka || "", p.ph ? "ใช่" : "", p.vd ? "ใช่" : "", p.up ? "ใช่" : "", p.ex ? "ใช่" : "", lp.photo || "", lp.video || ""].map(csvCell);
+        return [groupOf(p), p.set || "", p.n, p.v, p.p, p.s === "out" ? "หมด/ปิด" : "มีสินค้า", rightsLabel(rightsOf(p)), p.sku || "", p.aka || "", p.ph ? "ใช่" : "", p.vd ? "ใช่" : "", p.up ? "ใช่" : "", p.ex ? "ใช่" : "", lp.photo || "", lp.video || "", toNum(p.sp) != null ? toNum(p.sp) : ""].concat(profitsOf(p).map((x) => x == null ? "" : x)).map(csvCell);
       })
     );
     downloadText("reallycute-สินค้า.csv", prodRows.map((r) => r.join(",")).join("\n"));
@@ -1671,8 +1728,8 @@ function startApp() {
     const stamp = new Date().toISOString().slice(0, 10);
     const json = JSON.stringify({ pack: S.pack, posts: S.posts, sales: S.sales, savedAt: Date.now() });
     const last = lastPostMap();
-    const prod = [["หมวด","ชื่อสินค้า","ตัวเลือก","ราคา","สต็อก","ลิขสิทธิ์","ถ่ายรูป","ถ่ายวิดีโอ","อัปโหลด","คัดออก"]].concat(
-      products().map((p) => [groupOf(p), p.n, p.v, p.p, p.s === "out" ? "หมด/ปิด" : "มีสินค้า", rightsLabel(rightsOf(p)), p.ph ? "ใช่" : "", p.vd ? "ใช่" : "", p.up ? "ใช่" : "", p.ex ? "ใช่" : ""].map(csvCell))
+    const prod = [["หมวด","ชื่อสินค้า","ตัวเลือก","ราคา","สต็อก","ลิขสิทธิ์","ถ่ายรูป","ถ่ายวิดีโอ","อัปโหลด","คัดออก","ราคาขาย"]].concat(
+      products().map((p) => [groupOf(p), p.n, p.v, p.p, p.s === "out" ? "หมด/ปิด" : "มีสินค้า", rightsLabel(rightsOf(p)), p.ph ? "ใช่" : "", p.vd ? "ใช่" : "", p.up ? "ใช่" : "", p.ex ? "ใช่" : "", toNum(p.sp) != null ? toNum(p.sp) : ""].map(csvCell))
     ).map((r) => r.join(",")).join("\n");
     async function put(name, text) {
       const file = await backupHandle.getFileHandle(name, { create: true });
@@ -1968,6 +2025,66 @@ function startApp() {
     const t = on ? m.on : m.off;
     return `<button class="ck-t ${f} ${on ? "on" : ""}" data-act="tog" data-f="${f}" data-id="${esc(item.id)}" aria-pressed="${on}" title="${t}" aria-label="${m.tx}: ${t}">${m.ic} ${m.tx}</button>`;
   }
+  function profitChipHTML(cost, sell) {
+    if (sell == null || cost == null) {
+      return `<span class="ck-pf none" title="${sell == null ? "ยังไม่ได้ใส่ราคาขาย" : "ยังไม่มีต้นทุน"} — กดแก้ไขเพื่อใส่ แล้วระบบจะคำนวณกำไรให้">กำไร –</span>`;
+    }
+    const cfg = costCfg();
+    let h = "";
+    for (const pl of cfg.plats) {
+      const v = profitOf(sell, cost, pl.fee, cfg.ship);
+      h += `<span class="pv" title="${pl.label}: ค่าธรรมเนียม ${pl.fee}% · ค่าส่ง ฿${cfg.ship}"><span class="k">${pl.short}</span> <span class="${v < 0 ? "neg" : ""}">${fmtB(v)}</span></span>`;
+    }
+    return `<span class="ck-pf" title="กำไรต่อชิ้น (บาท) = ราคาขาย × (1 − ค่าธรรมเนียม) − ต้นทุน − ค่าส่ง ฿${cfg.ship}"><span class="k">กำไร</span>${h}</span>`;
+  }
+  function profitPreviewHTML(costRaw, sellRaw) {
+    const cost = toNum(String(costRaw == null ? "" : costRaw).replace(/[^\d.]/g, "")), sell = toNum(String(sellRaw == null ? "" : sellRaw).replace(/[^\d.]/g, ""));
+    const cfg = costCfg();
+    const rows = cfg.plats.map((pl) => {
+      const v = profitOf(sell, cost, pl.fee, cfg.ship);
+      return `<tr><td>${pl.label} <span class="fee">${pl.fee}%</span></td><td class="v ${v == null ? "none" : v < 0 ? "neg" : ""}">${v == null ? "–" : (v < 0 ? "-฿" + fmtB(-v) : "฿" + fmtB(v))}</td></tr>`;
+    }).join("");
+    const hint = sell == null ? "ใส่ราคาขายแล้วจะคำนวณกำไรให้" : cost == null ? "ยังไม่มีต้นทุน — ใส่ต้นทุนก่อนถึงจะคำนวณได้" : "";
+    return `<div class="tiny" style="margin-bottom:4px">กำไรต่อชิ้น (หักค่าธรรมเนียม + ค่าส่ง ฿${fmtB(cfg.ship)})</div><table class="pf-tbl">${rows}</table>${hint ? `<div class="tiny" style="margin-top:4px">${hint}</div>` : ""}`;
+  }
+  function costCfgSheet() {
+    const cfg = costCfg();
+    return `<div class="overlay" data-act="close-costcfg"><div class="sheet" data-stop="1" role="dialog" aria-label="ตั้งค่าคำนวณกำไร">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:17px;font-weight:700;color:#2E6BB7">ตั้งค่าคำนวณกำไร</div>
+        <button class="iconbtn" data-act="close-costcfg" aria-label="ปิด">✕</button>
+      </div>
+      <div class="tiny" style="margin-bottom:10px">กำไร/ชิ้น = ราคาขาย × (1 − ค่าธรรมเนียม%) − ต้นทุน − ค่าส่งเหมา · ใช้กับทุกสินค้า และทุกเครื่องที่ซิงก์กัน (แค่บันทึกใน tracker ไม่เปลี่ยนราคาบนแพลตฟอร์ม)</div>
+      ${cfg.plats.map((pl) => `<div class="pf-cfg-row"><label for="cfgFee_${pl.id}">ค่าธรรมเนียม ${pl.label} (%)</label><input class="field" id="cfgFee_${pl.id}" type="number" inputmode="decimal" step="0.01" min="0" max="99" value="${pl.fee}" /></div>`).join("")}
+      <div class="pf-cfg-row"><label for="cfgShip">ค่าส่งเหมา (บาท/ชิ้น)</label><input class="field" id="cfgShip" type="number" inputmode="decimal" step="1" min="0" value="${cfg.ship}" /></div>
+      ${S.costCfgNote ? `<div class="warn">${esc(S.costCfgNote)}</div>` : ""}
+      <button class="btn" data-act="save-costcfg" style="background:#2E6BB7;color:#fff">บันทึกค่า</button>
+      <button class="ghost" style="width:100%;margin-top:8px;justify-content:center" data-act="reset-costcfg">คืนค่าเริ่มต้น (${PROFIT_PLATFORMS.map((p) => p.fee + "%").join(" / ")} · ส่ง ฿${PROFIT_SHIP_DEFAULT})</button>
+    </div></div>`;
+  }
+  function saveCostCfg(reset) {
+    let next;
+    if (reset) next = { ship: PROFIT_SHIP_DEFAULT, fees: Object.fromEntries(PROFIT_PLATFORMS.map((p) => [p.id, p.fee])) };
+    else {
+      const fees = {};
+      for (const pl of PROFIT_PLATFORMS) {
+        const el = document.getElementById("cfgFee_" + pl.id);
+        const v = toNum(el && el.value);
+        if (v == null || v < 0 || v >= 100) { S.costCfgNote = "ค่าธรรมเนียม " + pl.label + " ต้องเป็นตัวเลข 0–99"; return false; }
+        fees[pl.id] = v;
+      }
+      const sEl = document.getElementById("cfgShip");
+      const ship = toNum(sEl && sEl.value);
+      if (ship == null || ship < 0) { S.costCfgNote = "ค่าส่งต้องเป็นตัวเลข 0 ขึ้นไป"; return false; }
+      next = { ship, fees };
+    }
+    next.updatedAt = Date.now();
+    S.pack.costCfg = next; // ออบเจกต์ใหม่ -> costCfg() คำนวณใหม่อัตโนมัติ
+    persist(true);
+    S.costCfgNote = "";
+    S.showCostCfg = false;
+    return true;
+  }
   function itemRowHTML(item, catName, lasts) {
     const done = isDone(item);
     const skipped = !!item.ex;
@@ -1975,7 +2092,10 @@ function startApp() {
     const id = esc(item.id);
     const r = rightsOf(item);
     let chips = "";
-    if (item.p != null) chips += `<span class="ck-c price" title="ราคา">฿${Number(item.p).toLocaleString()}</span>`;
+    const cost = toNum(item.p), sell = toNum(item.sp);
+    if (cost != null) chips += `<span class="ck-c price" title="ต้นทุน (ราคาจากโรงงาน tukatacenter)">ทุน ฿${fmtB(cost)}</span>`;
+    if (sell != null) chips += `<span class="ck-c sell" title="ราคาขาย">ขาย ฿${fmtB(sell)}</span>`;
+    chips += profitChipHTML(cost, sell);
     chips += item.s === "in" ? `<span class="ck-c in" title="สถานะสต็อก">มีสินค้า</span>` : `<span class="ck-c out" title="สถานะสต็อก">หมด/ปิด</span>`;
     chips += `<span class="ck-c ${r === "official" || r === "original" || r === "review" ? "r-" + r : "r-none"}" title="สถานะลิขสิทธิ์">${esc(rightsLabel(r))}</span>`;
     if (item.sku) chips += `<span class="ck-c" title="รหัส SKU">SKU ${esc(item.sku)}</span>`;
@@ -2296,6 +2416,7 @@ function startApp() {
             <button class="ghost" data-act="export-all">ส่งออก CSV</button>
             <button class="ghost" data-act="export-json">ส่งไฟล์ให้พนักงาน</button>
             <button class="ghost" data-act="open-guide">คู่มือส่งต่อ</button>
+            <button class="ghost" data-act="open-costcfg">ตั้งค่ากำไร (ค่าธรรมเนียม/ค่าส่ง)</button>
             <button class="ghost ${S.backupOn && backupHandle ? "on" : ""}" data-act="pick-backup">${S.backupOn && backupHandle ? "โฟลเดอร์สำรองพร้อม" : "ตั้งโฟลเดอร์สำรองอัตโนมัติ"}</button>
           </div>` : ""}
         </div>
@@ -2423,6 +2544,7 @@ function startApp() {
     </div></div>`;
     if (S.showPost) html += postSheet();
     if (S.showImport) html += importSheet();
+    if (S.showCostCfg) html += costCfgSheet();
     if (S.showMulti) html += multiSheet();
     if (S.imgEdit) html += imgEditSheet();
     if (S.showRights) html += `<div class="overlay" data-act="close-pop"><div class="sheet" data-stop="1">
@@ -3185,7 +3307,7 @@ function startApp() {
     S.importNote = "เพิ่ม " + extras.length + " รายการในหมวด " + group;
   }
   function emptyForm() {
-    return { group: groupOrder()[0] || "", newGroup: "", name: "", variant: "", price: "", stock: "in", rights: "", sku: "", aka: "", set: "", ph: false, vd: false, up: false, ex: false, editId: null, requireSet: false, autoName: false };
+    return { group: groupOrder()[0] || "", newGroup: "", name: "", variant: "", price: "", sell: "", stock: "in", rights: "", sku: "", aka: "", set: "", ph: false, vd: false, up: false, ex: false, editId: null, requireSet: false, autoName: false };
   }
   function importSheet() {
     const f = S.formItem;
@@ -3194,7 +3316,8 @@ function startApp() {
       ["colCategory", "หมวดหมู่จากไฟล์", S.colCategory],
       ["colProductName", "ชื่อสินค้า *", S.colProductName],
       ["colVariant", "ตัวเลือกย่อย", S.colVariant],
-      ["colPrice", "ราคา", S.colPrice],
+      ["colPrice", "ต้นทุน (ราคา)", S.colPrice],
+      ["colSell", "ราคาขาย", S.colSell],
       ["colStock", "สต็อก", S.colStock],
       ["colPhoto", "ทำรูปแล้ว", S.colPhoto],
       ["colVideo", "ทำวิดีโอแล้ว", S.colVideo],
@@ -3223,8 +3346,15 @@ function startApp() {
         <input class="field" id="fSet" style="${f.requireSet && !f.set ? "border:1.5px solid #C0392B" : ""}" placeholder="เช่น แมวมารี / ฮู้ดเพลิงนวล" value="${esc(f.set)}" />
         <div class="lbl">ตัวเลือกย่อย (ถ้ามี)</div>
         <input class="field" id="fVariant" placeholder="สี / ไซส์ / รุ่น" value="${esc(f.variant)}" />
-        <div class="lbl">ราคา</div>
-        <input class="field" id="fPrice" type="number" inputmode="decimal" placeholder="0" value="${esc(f.price)}" />
+        <div class="pf-grid">
+          <div><div class="lbl">ต้นทุน (ราคาโรงงาน)</div>
+          <input class="field" id="fPrice" type="number" inputmode="decimal" placeholder="เช่น 250" title="ราคาจากโรงงาน tukatacenter" value="${esc(f.price)}" /></div>
+          <div><div class="lbl">ราคาขาย</div>
+          <input class="field" id="fSell" type="number" inputmode="decimal" placeholder="ว่างได้" value="${esc(f.sell)}" /></div>
+        </div>
+        <div class="pf-box"><div id="fProfit">${profitPreviewHTML(f.price, f.sell)}</div>
+          <button class="ghost" style="margin-top:6px;padding:4px 10px;font-size:12.5px" data-act="open-costcfg">⚙ ตั้งค่าค่าธรรมเนียม / ค่าส่ง</button>
+        </div>
         <div class="lbl">SKU ชั่วคราว (ถ้ามี)</div>
         <input class="field" id="fSku" placeholder="เช่น RC-INK-9PNK" value="${esc(f.sku)}" />
         <div class="lbl">ชื่อที่ใช้ขายบนแพลตฟอร์ม</div>
@@ -3385,6 +3515,8 @@ function startApp() {
     if (n) S.formItem.name = n.value;
     if (v) S.formItem.variant = v.value;
     if (p) S.formItem.price = p.value;
+    const sl = document.getElementById("fSell");
+    if (sl) S.formItem.sell = sl.value;
     const sku = document.getElementById("fSku");
     const aka = document.getElementById("fAka");
     if (sku) S.formItem.sku = sku.value;
@@ -3401,6 +3533,7 @@ function startApp() {
       name: p.n || "",
       variant: p.v || "",
       price: p.p != null ? String(p.p) : "",
+      sell: p.sp != null ? String(p.sp) : "",
       stock: p.s === "out" ? "out" : "in",
       ph: !!p.ph, vd: !!p.vd, up: !!p.up, ex: !!p.ex,
       rights: p.rights || "",
@@ -3420,10 +3553,13 @@ function startApp() {
     const group = (S.formItem.newGroup || "").trim() || (S.formItem.group || "").trim() || "ไม่ระบุหมวดหมู่";
     const variant = (S.formItem.variant || "").trim();
     const priceRaw = String(S.formItem.price || "").replace(/[^\d.]/g, "");
+    const sellRaw = String(S.formItem.sell || "").replace(/[^\d.]/g, "");
+    const sp = toNum(sellRaw);
     if (S.formItem.editId) {
       S.pack.list = products().map((p) => String(p.id) === String(S.formItem.editId) ? {
         ...p, n: name, v: variant, c: group, g: group,
         p: priceRaw ? Number(priceRaw) : null,
+        sp,
         s: S.formItem.stock === "out" ? "out" : "in",
         ph: !!S.formItem.ph, vd: !!S.formItem.vd, up: !!S.formItem.up, ex: !!S.formItem.ex,
         rights: S.formItem.rights || "",
@@ -3435,6 +3571,7 @@ function startApp() {
       S.pack.list = [{
         id: uid(), n: name, v: variant, c: group, g: group,
         p: priceRaw ? Number(priceRaw) : null,
+        sp,
         s: S.formItem.stock === "out" ? "out" : "in",
         ph: !!S.formItem.ph, vd: !!S.formItem.vd, up: !!S.formItem.up, ex: !!S.formItem.ex,
         rights: S.formItem.rights || "",
@@ -3616,6 +3753,10 @@ function startApp() {
       else if (act === "export-all") exportAll();
       else if (act === "export-json") exportJson();
       else if (act === "open-guide") S.showGuide = true;
+      else if (act === "open-costcfg") { if (S.showImport) grabManualForm(); S.showCostCfg = true; S.costCfgNote = ""; S.showMenu = false; }
+      else if (act === "close-costcfg") { S.showCostCfg = false; S.costCfgNote = ""; }
+      else if (act === "save-costcfg") saveCostCfg(false);
+      else if (act === "reset-costcfg") saveCostCfg(true);
       else if (act === "close-guide") S.showGuide = false;
       else if (act === "pick-backup") { pickBackupFolder().then(() => render()); return; }
       else if (act === "open-import") { S.showImport = true; S.importTab = "form"; S.importNote = ""; if (!S.formItem.editId) S.formItem = emptyForm(); }
@@ -3922,6 +4063,17 @@ function startApp() {
     const multiSet = document.getElementById("multiSet");
     if (multiSet) multiSet.oninput = () => { S.multiSet = multiSet.value; };
 
+    const fPriceEl = document.getElementById("fPrice"), fSellEl = document.getElementById("fSell");
+    if (fPriceEl || fSellEl) {
+      const upd = () => {
+        if (fPriceEl) S.formItem.price = fPriceEl.value;
+        if (fSellEl) S.formItem.sell = fSellEl.value;
+        const box = document.getElementById("fProfit");
+        if (box) box.innerHTML = profitPreviewHTML(S.formItem.price, S.formItem.sell);
+      };
+      if (fPriceEl) fPriceEl.oninput = upd;
+      if (fSellEl) fSellEl.oninput = upd;
+    }
     const fVariantEl = document.getElementById("fVariant");
     const fNameEl = document.getElementById("fName");
     if (fVariantEl) {
@@ -4070,7 +4222,7 @@ function startApp() {
     if (!S.colProductName) return;
     const idx = (col) => S.headers.indexOf(col);
     const iCat = idx(S.colCategory), iName = idx(S.colProductName), iVar = idx(S.colVariant);
-    const iPrice = idx(S.colPrice), iStock = idx(S.colStock), iPhoto = idx(S.colPhoto), iVideo = idx(S.colVideo);
+    const iPrice = idx(S.colPrice), iSell = idx(S.colSell), iStock = idx(S.colStock), iPhoto = idx(S.colPhoto), iVideo = idx(S.colVideo);
     const prev = {};
     products().forEach((p) => { prev[(p.n || "") + "||" + (p.v || "")] = p; });
     let skipped = 0;
@@ -4089,6 +4241,7 @@ function startApp() {
         n: name,
         v: variant,
         p: priceRaw ? Number(priceRaw) : null,
+        sp: iSell >= 0 ? toNum((r[iSell] || "").replace(/[^\d.]/g, "")) : (oldP && oldP.sp != null ? oldP.sp : null),
         s: iStock >= 0 && /หมด|ปิด|out/i.test(r[iStock] || "") ? "out" : "in",
         ph: iPhoto >= 0 ? truthy(r[iPhoto]) : !!(oldP && oldP.ph),
         vd: iVideo >= 0 ? truthy(r[iVideo]) : !!(oldP && oldP.vd),
@@ -4116,7 +4269,7 @@ function startApp() {
       list = incoming;
     }
     const order = S.pack.order && S.pack.order.length ? S.pack.order : [];
-    S.pack = { list, order, updatedAt: Date.now() };
+    S.pack = { list, order, updatedAt: Date.now(), ...(S.pack.costCfg ? { costCfg: S.pack.costCfg } : {}) };
     persist();
     S.importNote = "นำเข้าแล้ว " + list.length.toLocaleString() + " รายการ" + (skipped ? " (ข้ามแถวว่าง " + skipped.toLocaleString() + ")" : "");
     S.showImport = false;

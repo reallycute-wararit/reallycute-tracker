@@ -440,6 +440,29 @@
     .rm-sep { height: 1px; background: #EEF4FB; margin: 4px 8px; }
     .rm-hint { padding: 8px 12px 10px; font-size: 12px; color: #8AA0B5; line-height: 1.5; }
     .rm-x { display: none; }
+    .csku-row { display: flex; gap: 6px; align-items: stretch; }
+    .csku-row .field { flex: 1; min-width: 0; }
+    .csku-row .ghost { flex: 0 0 auto; white-space: nowrap; padding: 0 12px; }
+    #skugenBack { position: fixed; inset: 0; background: rgba(28,53,84,.38); z-index: 9000; display: none; align-items: center; justify-content: center; }
+    .skg { background: #fff; border-radius: 18px; padding: 14px 16px 16px; width: 440px; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.18); box-sizing: border-box; }
+    .skg-h { display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
+    .skg-x { border: none; background: #EEF4FB; border-radius: 10px; width: 34px; height: 34px; font-size: 15px; cursor: pointer; }
+    .skg-note { font-size: 12px; color: #8AA0B5; margin-top: 4px; }
+    .skg-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+    .skg-prev { margin-top: 12px; padding: 10px; border-radius: 12px; background: #EAF6EE; color: #1E7A3C; font: 700 20px/1.3 ui-monospace, Menlo, Consolas, monospace; text-align: center; letter-spacing: .5px; word-break: break-all; }
+    .skg-prev.bad { background: #FDF0EE; color: #B24030; }
+    .skg-msg { margin-top: 6px; font-size: 13px; }
+    .skg-ok { color: #1E7A3C; }
+    .skg-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+    .skg-btns button { min-height: 40px; padding: 0 16px; }
+    .skg-btns .primary { background: #2E6BB7; color: #fff; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+    .skg-btns button:disabled { opacity: .45; cursor: not-allowed; }
+    @media (max-width: 699px) {
+      #skugenBack { align-items: flex-end; }
+      .skg { width: 100%; max-width: none; border-radius: 22px 22px 0 0; max-height: 92vh; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+      .skg .field, .skg select { font-size: 16px; min-height: 44px; }
+      .skg-btns button { flex: 1; min-height: 48px; }
+    }
     @media (max-width: 699px) {
       .rm-back { background: rgba(28,53,84,.38); }
       .rm { left: 0; right: 0; bottom: 0; top: auto; width: auto; max-width: none; border-radius: 22px 22px 0 0; padding: 8px 10px calc(14px + env(safe-area-inset-bottom)); }
@@ -1225,6 +1248,144 @@ function startApp() {
     const lbl = (o.p.n || "") + (o.p.v && o.p.v !== o.p.n ? " / " + o.p.v : "");
     return "SKU กลาง " + normCsku(o.p.csku) + " ซ้ำกับ \"" + lbl + "\"" + (o.where === "trash" ? " (อยู่ในถังขยะ)" : "");
   }
+  // ===== ตัวช่วยสร้าง SKU กลาง (ตารางรหัสจากแท็บ rules ของไฟล์ร่าง) =====
+  const SKUGEN_T = {"groups": [["LC", "มีลิขสิทธิ์ (มีเอกสารยืนยัน)"], ["NL", "ไม่มีลิขสิทธิ์"], ["OD", "ออกแบบเอง (Original Design)"], ["UC", "ยังไม่ยืนยันสถานะลิขสิทธิ์ (ชั่วคราว ต้องเปลี่ยนเป็น LC/NL ก่อนใส่บนแพลตฟอร์ม)"], ["AP", "เสื้อผ้า (เสนอเพิ่ม รอ susi ตัดสิน)"]], "chars": [["LFY", "ลูฟี่ Luffy"], ["ZRO", "โซโร Zoro"], ["SNJ", "ซันจิ Sanji"], ["CHP", "ช็อปเปอร์ Chopper"], ["NMI", "นามิ Nami"], ["RBN", "โรบิน Robin"], ["KRI", "โคริลัคคุมะ Korilakkuma"], ["KRT", "คิอิโรอิโทริ Kiiroitori"], ["RLK", "ริลัคคุมะ Rilakkuma"], ["PGL", "พิกเล็ต Piglet"], ["EYR", "อียอร์ Eeyore"], ["TGR", "ทิกเกอร์ Tigger"], ["POH", "หมีพูห์ Pooh"], ["WDY", "วู้ดดี้ Woody"], ["BUZ", "บัซ Buzz"], ["JSS", "เจสซี่ Jessie"], ["FRK", "ฟอร์กกี้ Forky"], ["ALN", "เอเลี่ยน Alien"], ["LTS", "ล็อทโซ่ Lotso"], ["LTF", "เพลิงนวล Light Fury"], ["TLS", "เขี้ยวกุด Toothless"], ["KRM", "คุโรมิ Kuromi"], ["MML", "มายเมโลดี้ My Melody"], ["CNR", "ชินนามอนโรล Cinnamoroll"], ["PMP", "ปอมปอมปูริน Pompompurin"], ["KTY", "คิตตี้ Kitty"], ["PCC", "โพชัคโกะ Pochacco"], ["BBM", "แบดแบดมารุ Bad Badtz-Maru"], ["SLY", "แซลลี่ Sally"], ["CNY", "โคนี่ Cony"], ["CHC", "ช็อกโก้ Choco"], ["BRN", "บราวน์ Brown (Line Friends)"], ["MMN", "มูมิน Moomin"], ["MDN", "สนอร์คเมเดน Snorkmaiden"], ["MRI", "แมวมารี Marie"], ["LCF", "ลูซิเฟอร์ Lucifer"], ["CHI", "แมวจี้ Chi"], ["KRR", "เคโรโระ Keroro"], ["DRR", "โดโรโระ Dororo"], ["SNP", "สนูปปี้ Snoopy"], ["CBR", "ชาร์ลี บราวน์"], ["BEL", "เบลล์ Belle"], ["OLF", "โอลาฟ"], ["ARL", "แอเรียล Ariel"], ["RPZ", "ราพันเซล"], ["CDR", "ซินเดอเรลล่า"], ["JSM", "จัสมิน"], ["ARR", "ออโรร่า"], ["TKB", "ทิงเกอร์เบลล์"], ["SWH", "สโนว์ไวท์"], ["ANA", "แอนนา Anna"], ["ELS", "เอลซ่า Elsa"], ["STC", "สติช Stitch"], ["SCR", "สกรัมพ์ Scrump"], ["JDY", "จูดี้ Judy"], ["NCK", "นิค Nick"], ["BOB", "บ็อบ Bob (Minions)"], ["KVN", "เควิน Kevin"], ["STU", "สจ๊วต Stuart"], ["OTO", "อ็อตโต้ Otto"], ["MNN", "มินเนี่ยน Minions"], ["GRZ", "กริซลี่ Grizzly"], ["PND", "แพนด้า Panda"], ["ICB", "ไอซ์แบร์ Ice Bear"], ["WBB", "We Bare Bears"], ["TTR", "โทโทโร่ Totoro"], ["GFD", "การ์ฟิลด์ Garfield"], ["ELM", "เอลโม่ Elmo"], ["CKM", "คุกกี้มอนสเตอร์"], ["BGB", "บิ๊กเบิร์ด"], ["SSM", "Sesame Street"], ["BTM", "แบทแมน Batman"], ["SPM", "ซูเปอร์แมน Superman"], ["WWM", "วันเดอร์วูแมน"], ["FLH", "เดอะแฟลช Flash"], ["DCC", "DC Comics"], ["TWK", "ทิงกี้วิงกี้"], ["DPS", "ดิปซี่"], ["LAA", "ลาลา"], ["POO", "โพ Po"], ["TLT", "เทเลทับบี้"], ["MSM", "มาชิมาโร่ Mashimaro"], ["SHN", "ชินจัง Shin-chan"], ["DRM", "โดราเอมอน"], ["LRV", "ลาวา Larva"], ["MAX", "แม็กซ์ Max"], ["CHL", "โคลอี้ Chloe"], ["PET", "Secret Life of Pets"], ["BYM", "เบย์แม็กซ์ Baymax"], ["MNE", "มินนี่ Minnie"], ["BGS", "บักส์ บันนี่"], ["DFY", "แดฟฟี่ ดั๊ก"], ["MQN", "แม็คควีน"], ["HPT", "Harry Potter"], ["TRL", "Trolls"], ["KNG", "คิงคอง Kong"], ["LNF", "Line Friends (รวม)"], ["SNR", "Sanrio (รวม)"], ["DPR", "Disney Princess (รวม)"], ["DPC", "Disney Prince/โฉมงาม"], ["OPC", "One Piece (รวม)"], ["TYS", "Toy Story (รวม)"], ["DRW", "DreamWorks"], ["SHR", "หมาชิโร่ Shiro"], ["OWL", "นกฮูก Owl"], ["CRC", "จระเข้"], ["DZD", "Dozy Doggy"], ["PFP", "Puffy Puggy"], ["PFH", "Puffy Hugsy"], ["PZP", "Puzzled Puppy"], ["SNZ", "Snoozy Twins"], ["SEL", "แมวน้ำอุ๋ง"], ["TRT", "เต่า Turtle"], ["BUF", "ควาย Buffalo"], ["FOX", "จิ้งจอก Fox"], ["SHB", "ชิบะ Shiba"], ["UNI", "ยูนิคอร์น"], ["RHN", "แรด"], ["DCK", "เป็ด Duck"], ["WHL", "วาฬ Whale"], ["SHK", "ฉลาม"], ["ALP", "อัลปาก้า"], ["PGN", "เพนกวิน"], ["BNY", "กระต่าย Bunny"], ["FRG", "กบ Frog"], ["PLR", "หมีขั้วโลก"], ["SBR", "หมาไซบีเรียน"], ["PUG", "หมาปั๊ก"], ["DRB", "Dreamy Bear"], ["STD", "เด็กนักเรียน (OD)"], ["CAT", "แมว (ทั่วไป)"], ["DOG", "หมา (ทั่วไป)"], ["BER", "หมี (ทั่วไป)"]], "styles": [["KEY", "พวงกุญแจ"], ["HOD", "ฮู้ดผ้าห่ม"], ["BKP", "หมอนผ้าห่ม/ตุ๊กตาผ้าห่ม"], ["HWP", "หมอนซุกมือ"], ["NKP", "หมอนรองคอ"], ["BLS", "หมอนข้าง"], ["CSH", "หมอนอิง"], ["LIE", "ท่านอน/หมอบ"], ["SIT", "ท่านั่ง"], ["STN", "ท่ายืน"], ["BAG", "กระเป๋า/อื่นๆ"], ["DOL", "ตุ๊กตา (มาตรฐาน)"], ["APP", "เสื้อผ้า"]], "colors": [["BLK", "ดำ"], ["WHT", "ขาว"], ["BRW", "น้ำตาล"], ["GRY", "เทา"], ["PNK", "ชมพู"], ["YLW", "เหลือง"], ["GRN", "เขียว"], ["BLU", "ฟ้า/น้ำเงิน"], ["ORG", "ส้ม"], ["PPL", "ม่วง"], ["RED", "แดง"], ["CRM", "ครีม/เบจ"]]};
+  const SKUGEN_GROUPS = SKUGEN_T.groups.filter((g) => /^(LC|NL|OD|UC)$/.test(g[0]));
+  const SKUGEN_STYLE_KW = [["พวงกุญแจ","KEY"],["ฮู้ด","HOD"],["ผ้าห่ม","BKP"],["ซุกมือ","HWP"],["รองคอ","NKP"],["หมอนข้าง","BLS"],["กระเป๋า","BAG"],["เสื้อ","APP"],["หมอน","CSH"],["หมอบ","LIE"],["นอน","LIE"],["นั่ง","SIT"],["ยืน","STN"]];
+  const SKUGEN_COLOR_KW = [["ดำ","BLK"],["ขาว","WHT"],["น้ำตาล","BRW"],["เทา","GRY"],["ชมพู","PNK"],["เหลือง","YLW"],["เขียว","GRN"],["ฟ้า","BLU"],["น้ำเงิน","BLU"],["ส้ม","ORG"],["ม่วง","PPL"],["แดง","RED"],["ครีม","CRM"],["เบจ","CRM"]];
+  function skugenKeywords(name) {
+    return String(name).replace(/\(.*?\)/g, " ").split(/[\/\s]+/).map((w) => w.trim().toLowerCase()).filter((w) => w.length >= 2);
+  }
+  function skugenGuess(f) {
+    const txt = ((f.name || "") + " " + (f.variant || "")).toLowerCase();
+    const rmap = { official: "LC", original: "OD", review: "UC", "": "NL" };
+    const g = { group: rmap[f.rights || ""] || "NL", char: "", style: "DOL", size: "", color: "" };
+    let best = 0;
+    const SKUGEN_ALIAS = [["โครีลัคคุมา","KRI"],["รีลัคคุมา","RLK"],["สนู๊ปปี้","SNP"],["โดเรม่อน","DRM"],["ชินจัง","SHN"],["เบย์แม็กซ์","BYM"],["คิตตี้","KTY"],["ซินนามอน","CNR"]];
+    const kws = SKUGEN_T.chars.map(([c, n]) => [c, skugenKeywords(n)]).concat(SKUGEN_ALIAS.map(([k, c]) => [c, [k]]));
+    kws.forEach(([c, ks]) => ks.forEach((k) => { if (txt.includes(k) && k.length > best) { best = k.length; g.char = c; } }));
+    for (const [k, s] of SKUGEN_STYLE_KW) if (txt.includes(k)) { g.style = s; break; }
+    let m = txt.match(/(\d+(?:\.\d+)?)\s*(นิ้ว|inch|in\b|")/);
+    if (m) g.size = String(Math.round(parseFloat(m[1]) * 2.54));
+    else if ((m = txt.match(/(\d+(?:\.\d+)?)\s*(ซม|cm|เซน)/))) g.size = String(Math.round(parseFloat(m[1])));
+    else if ((m = txt.match(/\d+/))) g.size = m[0];
+    const cm = txt.match(/สี\s*([^\s\d]+)/);
+    if (cm) for (const [k, c] of SKUGEN_COLOR_KW) if (cm[1].startsWith(k)) { g.color = c; break; }
+    return g;
+  }
+  function skugenCode(st) {
+    const ch = st.char === "__custom" ? normCsku(st.customChar) : st.char;
+    const parts = [st.group, ch, st.style, String(st.size || "").trim()];
+    if (st.color) parts.push(st.color);
+    if (String(st.suffix || "").trim()) parts.push(String(st.suffix).trim());
+    return normCsku(parts.join("-"));
+  }
+  function skugenCheck(st) {
+    const ch = st.char === "__custom" ? normCsku(st.customChar) : st.char;
+    if (!ch) return { err: "เลือกตัวละคร หรือพิมพ์รหัสเอง" };
+    if (!/^[A-Z0-9]{3}$/.test(ch)) return { err: "รหัสตัวละครต้องเป็น A–Z/0–9 จำนวน 3 ตัว" };
+    if (st.char === "__custom" && SKUGEN_T.chars.some((c) => c[0] === ch)) return { warn: "รหัส " + ch + " มีในตารางแล้ว (" + SKUGEN_T.chars.find((c) => c[0] === ch)[1] + ")" , ok: true };
+    const sz = String(st.size || "").trim();
+    if (!sz) return { err: "ใส่ไซซ์เป็นตัวเลขเซนติเมตร" };
+    if (!/^\d{1,3}$/.test(sz)) return { err: "ไซซ์ต้องเป็นตัวเลข ซม. เท่านั้น (ห้าม NA)" };
+    if (String(st.suffix || "").trim() && !/^\d{1,2}$/.test(String(st.suffix).trim())) return { err: "เลขต่อท้ายต้องเป็นตัวเลข เช่น 2, 3" };
+    return { ok: true };
+  }
+  let SKUGEN = null;
+  function skugenOpen() {
+    grabManualForm();
+    const f = S.formItem || {};
+    SKUGEN = Object.assign(skugenGuess(f), { customChar: "", suffix: "", q: "" });
+    let el = document.getElementById("skugenBack");
+    if (!el) { el = document.createElement("div"); el.id = "skugenBack"; document.body.appendChild(el); el.addEventListener("input", skugenOnInput); el.addEventListener("change", skugenOnInput); el.addEventListener("click", skugenOnClick); }
+    el.style.display = "flex";
+    skugenRender(true);
+  }
+  function skugenClose() { const el = document.getElementById("skugenBack"); if (el) el.style.display = "none"; SKUGEN = null; }
+  function skugenCharOpts() {
+    const q = (SKUGEN.q || "").trim().toLowerCase();
+    const list = SKUGEN_T.chars.filter(([c, n]) => !q || c.toLowerCase().includes(q) || n.toLowerCase().includes(q));
+    const sel = SKUGEN.char;
+    if (sel && sel !== "__custom" && !list.some((c) => c[0] === sel)) { const x = SKUGEN_T.chars.find((c) => c[0] === sel); if (x) list.unshift(x); }
+    return `<option value="">— เลือกตัวละคร (${list.length}) —</option>` + list.map(([c, n]) => `<option value="${c}" ${c === sel ? "selected" : ""}>${esc(n)} · ${c}</option>`).join("") + `<option value="__custom" ${sel === "__custom" ? "selected" : ""}>➕ ไม่มีในตาราง – พิมพ์รหัสเอง</option>`;
+  }
+  function skugenRender(full) {
+    const el = document.getElementById("skugenBack");
+    if (!el || !SKUGEN) return;
+    const st = SKUGEN;
+    if (full) {
+      el.innerHTML = `<div class="skg" role="dialog" aria-label="สร้าง SKU กลาง">
+        <div class="skg-h"><b>สร้าง SKU กลาง</b><button class="skg-x" data-skg="close" aria-label="ปิด">✕</button></div>
+        <div class="lbl">กลุ่ม</div>
+        <div class="pills" id="skgGroups">${SKUGEN_GROUPS.map(([c, n]) => `<button class="pill ${st.group === c ? "on" : ""}" data-skg="group" data-v="${c}" title="${esc(n)}">${c}</button>`).join("")}</div>
+        <div class="skg-note" id="skgGroupNote"></div>
+        <div class="lbl">ตัวละคร</div>
+        <input class="field" id="skgQ" placeholder="ค้นหา ชื่อไทย/อังกฤษ/รหัส" value="${esc(st.q)}" />
+        <select class="field" id="skgChar" style="margin-top:6px">${skugenCharOpts()}</select>
+        <input class="field" id="skgCustom" maxlength="3" placeholder="รหัสตัวละคร 3 ตัว เช่น ABC" style="text-transform:uppercase;margin-top:6px;${st.char === "__custom" ? "" : "display:none"}" value="${esc(st.customChar)}" />
+        <div class="skg-g2">
+          <div><div class="lbl">แบบ</div><select class="field" id="skgStyle">${SKUGEN_T.styles.map(([c, n]) => `<option value="${c}" ${c === st.style ? "selected" : ""}>${esc(n)} · ${c}</option>`).join("")}</select></div>
+          <div><div class="lbl">ไซซ์ (ซม.)</div><input class="field" id="skgSize" type="number" inputmode="numeric" min="1" max="999" placeholder="เช่น 40" value="${esc(st.size)}" /></div>
+          <div><div class="lbl">สี (ถ้ามี)</div><select class="field" id="skgColor"><option value="">— ไม่ใส่ —</option>${SKUGEN_T.colors.map(([c, n]) => `<option value="${c}" ${c === st.color ? "selected" : ""}>${esc(n)} · ${c}</option>`).join("")}</select></div>
+          <div><div class="lbl">เลขต่อท้าย (ถ้าชน)</div><input class="field" id="skgSuffix" inputmode="numeric" maxlength="2" placeholder="เช่น 2" value="${esc(st.suffix)}" /></div>
+        </div>
+        <div class="skg-prev" id="skgPrev"></div>
+        <div class="skg-msg" id="skgMsg"></div>
+        <div class="skg-btns"><button class="ghost" data-skg="close">ยกเลิก</button><button class="primary" id="skgUse" data-skg="use">ใช้รหัสนี้</button></div>
+      </div>`;
+    }
+    const gn = SKUGEN_GROUPS.find((g) => g[0] === st.group);
+    el.querySelector("#skgGroupNote").textContent = gn ? gn[1] : "";
+    el.querySelectorAll('[data-skg="group"]').forEach((b) => b.classList.toggle("on", b.dataset.v === st.group));
+    el.querySelector("#skgCustom").style.display = st.char === "__custom" ? "" : "none";
+    const chk = skugenCheck(st);
+    const code = skugenCode(st);
+    const prev = el.querySelector("#skgPrev"), msg = el.querySelector("#skgMsg"), use = el.querySelector("#skgUse");
+    let ok = !!chk.ok, html = chk.err ? `<div class="warn">${esc(chk.err)}</div>` : chk.warn ? `<div class="warn">${esc(chk.warn)}</div>` : "";
+    if (ok) {
+      const fe = cskuFormatErr(code);
+      const own = fe ? null : cskuOwner(code, S.formItem && S.formItem.editId);
+      if (fe) { ok = false; html += `<div class="warn">${esc(fe)}</div>`; }
+      else if (own) { ok = false; html += `<div class="warn skg-dup">⚠ ${esc(cskuDupMsg(own))}<br>ลองเพิ่มสี หรือใส่เลขต่อท้าย เช่น -2 ถ้าเป็นของคนละแบบ/คนละโรงงาน</div>`; }
+      else html += `<div class="skg-ok">✓ ยังไม่มีใครใช้รหัสนี้</div>`;
+    }
+    prev.textContent = ok || chk.ok ? code : code.replace(/-+$/, "") || "—";
+    prev.classList.toggle("bad", !ok);
+    msg.innerHTML = html;
+    use.disabled = !ok;
+  }
+  function skugenOnInput(e) {
+    if (!SKUGEN) return;
+    const t = e.target, id = t.id;
+    if (id === "skgQ") { SKUGEN.q = t.value; const s = document.getElementById("skgChar"); s.innerHTML = skugenCharOpts(); }
+    else if (id === "skgChar") SKUGEN.char = t.value;
+    else if (id === "skgCustom") SKUGEN.customChar = t.value;
+    else if (id === "skgStyle") SKUGEN.style = t.value;
+    else if (id === "skgSize") SKUGEN.size = t.value;
+    else if (id === "skgColor") SKUGEN.color = t.value;
+    else if (id === "skgSuffix") SKUGEN.suffix = t.value;
+    else return;
+    skugenRender(false);
+  }
+  function skugenOnClick(e) {
+    if (e.target.id === "skugenBack") return skugenClose();
+    const b = e.target.closest("[data-skg]");
+    if (!b || !SKUGEN) return;
+    e.preventDefault(); e.stopPropagation();
+    const a = b.dataset.skg;
+    if (a === "close") skugenClose();
+    else if (a === "group") { SKUGEN.group = b.dataset.v; skugenRender(false); }
+    else if (a === "use" && !b.disabled) {
+      const code = skugenCode(SKUGEN);
+      const inp = document.getElementById("fCsku");
+      if (inp) inp.value = code;
+      if (S.formItem) { S.formItem.csku = code; S.formItem.cskuErr = ""; }
+      const er = document.getElementById("fCskuErr"); if (er) er.remove();
+      skugenClose();
+    }
+  }
+  document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("#cskuGenBtn"); if (b) { e.preventDefault(); e.stopPropagation(); skugenOpen(); } }, true);
+  window.__skugenGuess = skugenGuess;
   function findCskuDups(pack) {
     const seen = {}, dups = [];
     (pack && pack.list || []).concat(pack && pack.trash || []).forEach((x) => {
@@ -3396,7 +3557,7 @@ function startApp() {
         <div class="lbl">SKU ชั่วคราว (ถ้ามี)</div>
         <input class="field" id="fSku" placeholder="เช่น RC-INK-9PNK" value="${esc(f.sku)}" />
         <div class="lbl">SKU กลาง (ว่างได้)</div>
-        <input class="field" id="fCsku" placeholder="เช่น LC-MMN-SIT-40" maxlength="25" style="text-transform:uppercase" value="${esc(f.csku || "")}" />
+<div class="csku-row"><input class="field" id="fCsku" placeholder="เช่น LC-MMN-SIT-40" maxlength="25" style="text-transform:uppercase" value="${esc(f.csku || "")}" /><button type="button" class="ghost" id="cskuGenBtn">สร้าง SKU</button></div>
         ${f.cskuErr ? `<div class="warn" id="fCskuErr" style="margin-top:4px">${esc(f.cskuErr)}</div>` : ""}
         <div class="lbl">ชื่อที่ใช้ขายบนแพลตฟอร์ม</div>
         <textarea class="field" id="fAka" rows="3" placeholder="วางชื่อตามหน้าร้าน บรรทัดละชื่อ เช่น&#10;Shopee wararit: อิงอิงชุดชมพู 9 นิ้ว&#10;TikTok Shop: IngIng pink 9 inch">${esc(f.aka)}</textarea>

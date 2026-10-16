@@ -1848,9 +1848,9 @@ function startApp() {
   // อัปเดตเฉพาะแถวที่กด (ไม่ render ใหม่ทั้งหน้า) + ตัวเลข/แถบความคืบหน้าของหมวดนั้น
   function patchItemRow(row, p) {
     if (!row || !p) return;
-    const done = !!p.up;
+    const done = !!(p.ph && p.vd && p.up);
     row.classList.toggle("done", done);
-    [["ph", !!p.ph], ["vd", !!p.vd], ["up", done]].forEach(([f, on]) => {
+    [["ph", !!p.ph], ["vd", !!p.vd], ["up", !!p.up]].forEach(([f, on]) => {
       const b = row.querySelector('.ck-t[data-f="' + f + '"]');
       if (b) setTogState(b, f, on);
     });
@@ -1861,10 +1861,10 @@ function startApp() {
     if (!box) return;
     const name = box.getAttribute("data-drop-group");
     const items = (groupMap().get(name) || []).filter((i) => !i.ex);
-    let ph = 0, vd = 0, up = 0;
-    items.forEach((i) => { if (i.ph) ph++; if (i.vd) vd++; if (i.up) up++; });
+    let ph = 0, vd = 0, up = 0, full = 0;
+    items.forEach((i) => { if (i.ph) ph++; if (i.vd) vd++; if (i.up) up++; if (i.ph && i.vd && i.up) full++; });
     const total = items.length;
-    const complete = total > 0 && up === total;
+    const complete = total > 0 && full === total;
     box.classList.toggle("complete", complete);
     let chip = box.querySelector(".ck-done");
     if (complete && !chip) {
@@ -1939,7 +1939,7 @@ function startApp() {
       upload: list.filter((p) => p.up).length,
     };
   }
-  function isDone(p) { return !!p.up; }
+  function isDone(p) { return !!(p.ph && p.vd && p.up); }
   function setOf(p) { return ((p && p.set) || "").trim(); }
   function clusterSets(items) {
     const map = new Map();
@@ -1978,7 +1978,7 @@ function startApp() {
       const base = gm.get(name) || [];
       const all = [];
       let skipped = [];
-      let photo = 0, video = 0, upload = 0;
+      let photo = 0, video = 0, upload = 0, full = 0;
       for (let k = 0; k < base.length; k++) {
         const i = base[k];
         if (i.ex) { skipped.push(i); continue; }
@@ -1986,6 +1986,7 @@ function startApp() {
         if (i.ph) photo++;
         if (i.vd) video++;
         if (i.up) upload++;
+        if (i.ph && i.vd && i.up) full++;
       }
       let items = all;
       if (S.filter === "excluded") items = [];
@@ -2009,7 +2010,7 @@ function startApp() {
         items = items.filter(hit);
         skipped = skipped.filter(hit);
       }
-      return { name, items, skipped, total: all.length, photo, video, upload };
+      return { name, items, skipped, total: all.length, photo, video, upload, full };
     }).filter((c) => (S.search || S.filter !== "all") ? (c.items.length > 0 || (S.filter === "excluded" && c.skipped.length > 0)) : true);
   }
 
@@ -2268,7 +2269,7 @@ function startApp() {
   // ==== รายการหมวด + สินค้า (ส่วนที่เปลี่ยนตอนค้นหา) ====
   function catHeadHTML(cat, isOpen, filtering) {
     const n = esc(cat.name);
-    const complete = cat.total > 0 && cat.upload === cat.total;
+    const complete = cat.total > 0 && cat.full === cat.total;
     const p = pct(cat.upload, cat.total);
     return `<div class="cathead ck-cat">
       ${S.organize ? `<span class="handle" draggable="true" data-drag-group="${n}" title="ลากสลับลำดับหมวด">⋮⋮</span>` : ""}
@@ -2291,7 +2292,7 @@ function startApp() {
   function catBoxHTML(cat, filtering, lasts) {
     let html = "";
       const isOpen = S.expanded[cat.name] === true;
-      const complete = cat.total > 0 && cat.upload === cat.total;
+      const complete = cat.total > 0 && cat.full === cat.total;
       html += `<div class="catbox ${isOpen ? "open" : ""} ${complete ? "complete" : ""}" data-drop-group="${esc(cat.name)}">${catHeadHTML(cat, isOpen, filtering)}`;
       if (isOpen) {
         const clustered = clusterSets(cat.items);

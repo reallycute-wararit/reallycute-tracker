@@ -858,6 +858,13 @@
 
         const syncWithRetry = async (key, value, attempt = 0) => {
           try {
+            if (key === "products" && window.__findCskuDups) {
+              const d = window.__findCskuDups(value);
+              if (d.length) {
+                window.__setSyncBadge("⚠️ ยังไม่บันทึกขึ้นคลาวด์: SKU กลางซ้ำ " + d.slice(0, 3).join(", "), "#7A1E1E", "#FADBD8");
+                return;
+              }
+            }
             const packed = await gzipCompress(value);
             const nowIso = new Date().toISOString();
 
@@ -1124,7 +1131,7 @@ function startApp() {
     importMode: "replace",
     importNote: "",
     importTab: "form",
-    formItem: { group: "", newGroup: "", name: "", variant: "", price: "", sell: "", stock: "in", rights: "", sku: "", aka: "", set: "", ph: false, vd: false, up: false, ex: false, editId: null },
+    formItem: { group: "", newGroup: "", name: "", variant: "", price: "", sell: "", stock: "in", rights: "", sku: "", csku: "", aka: "", set: "", ph: false, vd: false, up: false, ex: false, editId: null },
     showSet: false,
     multiSet: "",
     colCategory: "", colProductName: "", colVariant: "", colPrice: "", colSell: "", colStock: "", colPhoto: "", colVideo: "",
@@ -1200,6 +1207,34 @@ function startApp() {
     return (map[salePairKey(it)] || (sku && map["sku::" + sku]) || "") || "";
   }
   function persistTrash() { save(TRASH_KEY, S.trash || []); scheduleBackup(); }
+  // ===== SKU กลาง (csku) — ช่องใหม่ แยกจาก SKU เดิม ห้ามซ้ำทั้งรายการและถังขยะ =====
+  const CSKU_RE = /^(LC|NL|OD|UC)-[A-Z0-9]{3}-[A-Z]{3}-[A-Z0-9]+(-[A-Z0-9]+)*$/;
+  function normCsku(v) { return String(v == null ? "" : v).trim().toUpperCase(); }
+  function cskuFormatErr(code) {
+    if (!code) return "";
+    if (code.length > 25) return "SKU กลางยาวเกิน 25 ตัวอักษร";
+    if (!CSKU_RE.test(code)) return "รูปแบบ SKU กลางไม่ถูกต้อง ต้องเป็น กลุ่ม-ตัวละคร-แบบ-ไซซ์(-สี) เช่น LC-MMN-SIT-40 (กลุ่ม LC/NL/OD/UC)";
+    return "";
+  }
+  function cskuOwner(code, exceptId) {
+    if (!code) return null;
+    const hit = (arr, where) => { const p = (arr || []).find((x) => normCsku(x.csku) === code && String(x.id) !== String(exceptId)); return p ? { p, where } : null; };
+    return hit(products(), "list") || hit(S.trash, "trash");
+  }
+  function cskuDupMsg(o) {
+    const lbl = (o.p.n || "") + (o.p.v && o.p.v !== o.p.n ? " / " + o.p.v : "");
+    return "SKU กลาง " + normCsku(o.p.csku) + " ซ้ำกับ \"" + lbl + "\"" + (o.where === "trash" ? " (อยู่ในถังขยะ)" : "");
+  }
+  function findCskuDups(pack) {
+    const seen = {}, dups = [];
+    (pack && pack.list || []).concat(pack && pack.trash || []).forEach((x) => {
+      const c = normCsku(x && x.csku);
+      if (!c) return;
+      if (seen[c] && seen[c] !== String(x.id)) dups.push(c); else seen[c] = String(x.id);
+    });
+    return dups;
+  }
+  window.__findCskuDups = findCskuDups;
   function purgeTrash() {
     const now = Date.now();
     const keep = (S.trash || []).filter((x) => now - (x.deletedAt || 0) < TRASH_MS);
@@ -1575,7 +1610,7 @@ function startApp() {
     const words = raw.split(/[^a-z0-9ก-๙]+/).filter((w) => w.length >= 2).slice(0, 8);
     if (!words.length) return [];
     return products().map((p) => {
-      const hay = ((p.n || "") + " " + (p.v || "") + " " + (p.aka || "") + " " + (p.sku || "") + " " + groupOf(p)).toLowerCase();
+      const hay = ((p.n || "") + " " + (p.v || "") + " " + (p.aka || "") + " " + (p.sku || "") + " " + (p.csku || "") + " " + groupOf(p)).toLowerCase();
       let sc = 0;
       words.forEach((w) => { if (hay.includes(w)) sc += w.length; });
       return { p, sc };
@@ -1822,6 +1857,7 @@ function startApp() {
       id: uid(),
       n: name,
       sku: p.sku ? String(p.sku) + "-copy" : "",
+      csku: "",
       ph: false,
       vd: false,
       up: false,
@@ -2100,6 +2136,7 @@ function startApp() {
     chips += item.s === "in" ? `<span class="ck-c in" title="สถานะสต็อก">มีสินค้า</span>` : `<span class="ck-c out" title="สถานะสต็อก">หมด/ปิด</span>`;
     chips += `<span class="ck-c ${r === "official" || r === "original" || r === "review" ? "r-" + r : "r-none"}" title="สถานะลิขสิทธิ์">${esc(rightsLabel(r))}</span>`;
     if (item.sku) chips += `<span class="ck-c" title="รหัส SKU">SKU ${esc(item.sku)}</span>`;
+    if (item.csku) chips += `<span class="ck-c csku" title="SKU กลาง">SKU กลาง ${esc(item.csku)}</span>`;
     if (item.aka) chips += `<span class="ck-c" title="มีชื่อเรียกในร้านค้า">มีชื่อในร้าน</span>`;
     if (skipped) chips += `<span class="ck-c skip">คัดออก — ไม่ทำรูปโปรโมท</span>`;
     else {
@@ -3308,7 +3345,7 @@ function startApp() {
     S.importNote = "เพิ่ม " + extras.length + " รายการในหมวด " + group;
   }
   function emptyForm() {
-    return { group: groupOrder()[0] || "", newGroup: "", name: "", variant: "", price: "", sell: "", stock: "in", rights: "", sku: "", aka: "", set: "", ph: false, vd: false, up: false, ex: false, editId: null, requireSet: false, autoName: false };
+    return { group: groupOrder()[0] || "", newGroup: "", name: "", variant: "", price: "", sell: "", stock: "in", rights: "", sku: "", csku: "", aka: "", set: "", ph: false, vd: false, up: false, ex: false, editId: null, requireSet: false, autoName: false };
   }
   function importSheet() {
     const f = S.formItem;
@@ -3358,6 +3395,9 @@ function startApp() {
         </div>
         <div class="lbl">SKU ชั่วคราว (ถ้ามี)</div>
         <input class="field" id="fSku" placeholder="เช่น RC-INK-9PNK" value="${esc(f.sku)}" />
+        <div class="lbl">SKU กลาง (ว่างได้)</div>
+        <input class="field" id="fCsku" placeholder="เช่น LC-MMN-SIT-40" maxlength="25" style="text-transform:uppercase" value="${esc(f.csku || "")}" />
+        ${f.cskuErr ? `<div class="warn" id="fCskuErr" style="margin-top:4px">${esc(f.cskuErr)}</div>` : ""}
         <div class="lbl">ชื่อที่ใช้ขายบนแพลตฟอร์ม</div>
         <textarea class="field" id="fAka" rows="3" placeholder="วางชื่อตามหน้าร้าน บรรทัดละชื่อ เช่น&#10;Shopee wararit: อิงอิงชุดชมพู 9 นิ้ว&#10;TikTok Shop: IngIng pink 9 inch">${esc(f.aka)}</textarea>
         <div class="lbl">สินค้า</div>
@@ -3521,6 +3561,8 @@ function startApp() {
     const sku = document.getElementById("fSku");
     const aka = document.getElementById("fAka");
     if (sku) S.formItem.sku = sku.value;
+    const csku = document.getElementById("fCsku");
+    if (csku) S.formItem.csku = csku.value;
     if (aka) S.formItem.aka = aka.value;
     const st = document.getElementById("fSet");
     if (st) S.formItem.set = st.value;
@@ -3539,6 +3581,7 @@ function startApp() {
       ph: !!p.ph, vd: !!p.vd, up: !!p.up, ex: !!p.ex,
       rights: p.rights || "",
       sku: p.sku || "",
+      csku: p.csku || "",
       aka: p.aka || "",
       set: p.set || "",
       editId: p.id,
@@ -3556,6 +3599,13 @@ function startApp() {
     const priceRaw = String(S.formItem.price || "").replace(/[^\d.]/g, "");
     const sellRaw = String(S.formItem.sell || "").replace(/[^\d.]/g, "");
     const sp = toNum(sellRaw);
+    const csku = normCsku(S.formItem.csku);
+    S.formItem.csku = csku;
+    const cErr = cskuFormatErr(csku);
+    if (cErr) { S.formItem.cskuErr = cErr; S.importNote = cErr; return; }
+    const cOwn = cskuOwner(csku, S.formItem.editId);
+    if (cOwn) { S.formItem.cskuErr = cskuDupMsg(cOwn); S.importNote = S.formItem.cskuErr; return; }
+    S.formItem.cskuErr = "";
     if (S.formItem.editId) {
       S.pack.list = products().map((p) => String(p.id) === String(S.formItem.editId) ? {
         ...p, n: name, v: variant, c: group, g: group,
@@ -3565,6 +3615,7 @@ function startApp() {
         ph: !!S.formItem.ph, vd: !!S.formItem.vd, up: !!S.formItem.up, ex: !!S.formItem.ex,
         rights: S.formItem.rights || "",
         sku: (S.formItem.sku || "").trim(),
+        csku,
         aka: (S.formItem.aka || "").trim(),
         set: (S.formItem.set || "").trim(),
       } : p);
@@ -3577,6 +3628,7 @@ function startApp() {
         ph: !!S.formItem.ph, vd: !!S.formItem.vd, up: !!S.formItem.up, ex: !!S.formItem.ex,
         rights: S.formItem.rights || "",
         sku: (S.formItem.sku || "").trim(),
+        csku,
         aka: (S.formItem.aka || "").trim(),
         set: (S.formItem.set || "").trim(),
       }, ...products()];
@@ -4249,6 +4301,7 @@ function startApp() {
         up: !!(oldP && oldP.up),
         rights: oldP && oldP.rights ? oldP.rights : "",
         sku: oldP && oldP.sku ? oldP.sku : "",
+        ...(oldP && oldP.csku ? { csku: oldP.csku } : {}),
         aka: oldP && oldP.aka ? oldP.aka : "",
         ex: !!(oldP && oldP.ex),
         ...(oldP && oldP.img ? { img: oldP.img } : {}),

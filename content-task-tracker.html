@@ -458,6 +458,8 @@
     .skg-prev { margin-top: 12px; padding: 10px; border-radius: 12px; background: #EAF6EE; color: #1E7A3C; font: 700 20px/1.3 ui-monospace, Menlo, Consolas, monospace; text-align: center; letter-spacing: .5px; word-break: break-all; }
     .skg-prev.bad { background: #FDF0EE; color: #B24030; }
     .skg-msg { margin-top: 6px; font-size: 13px; }
+    .skg-chk { display: flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 14px; cursor: pointer; }
+    .skg-chk input { width: 18px; height: 18px; }
     .skg-ok { color: #1E7A3C; }
     .skg-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
     .skg-btns button { min-height: 40px; padding: 0 16px; }
@@ -1237,75 +1239,69 @@ function startApp() {
   }
   function persistTrash() { save(TRASH_KEY, S.trash || []); scheduleBackup(); }
   // ===== SKU กลาง (csku) — ช่องใหม่ แยกจาก SKU เดิม ห้ามซ้ำทั้งรายการและถังขยะ =====
-  const CSKU_RE = /^(LC|NL|OD|UC)-[A-Z0-9]{3}-[A-Z]{3}-[A-Z0-9]+(-[A-Z0-9]+)*$/;
+  // รูปแบบใหม่ (v3): ตัวละคร3-แบบ3-เลขรัน5หลัก(-ตัวเลือกย่อย) เช่น SNP-DOL-10001 / SNP-DOL-10001-WHT
+  // ลิขสิทธิ์ไม่อยู่ในรหัสแล้ว (อยู่ในช่อง rights) · ไซซ์อยู่ในช่อง size_cm
+  const CSKU_RE = /^[A-Z0-9]{3}-[A-Z]{3}-[1-9][0-9]{4}(-[A-Z0-9]{1,4})?$/;
+  const CSKU_LEGACY_RE = /^(LC|NL|OD|UC)-[A-Z0-9]{3}-[A-Z]{3}-[A-Z0-9]+(-[A-Z0-9]+)*$/;
+  const CSKU_NUM_RE = /^[A-Z0-9]{3}-[A-Z]{3}-([1-9][0-9]{4})(?:-|$)/;
+  const CSKU_MAX = 20, CSKU_FIRST = 10001;
   function normCsku(v) { return String(v == null ? "" : v).trim().toUpperCase(); }
-  function cskuFormatErr(code) {
+  // legacyOk = รหัสเดิมของสินค้านั้นเอง (รูปแบบเก่า) ยังบันทึกได้จนกว่าจะย้ายรหัส
+  function cskuFormatErr(code, legacyOk) {
     if (!code) return "";
-    if (code.length > 25) return "SKU กลางยาวเกิน 25 ตัวอักษร";
-    if (!CSKU_RE.test(code)) return "รูปแบบ SKU กลางไม่ถูกต้อง ต้องเป็น กลุ่ม-ตัวละคร-แบบ-ไซซ์(-สี) เช่น LC-MMN-SIT-40 (กลุ่ม LC/NL/OD/UC)";
+    if (legacyOk && CSKU_LEGACY_RE.test(code)) return "";
+    if (code.length > CSKU_MAX) return "SKU กลางยาวเกิน " + CSKU_MAX + " ตัวอักษร";
+    if (!CSKU_RE.test(code)) return "รูปแบบ SKU กลางไม่ถูกต้อง ต้องเป็น ตัวละคร-แบบ-เลขรัน 5 หลัก เช่น SNP-DOL-10001 (มีตัวเลือกย่อยต่อท้ายได้ เช่น SNP-DOL-10001-WHT) ใช้ A–Z, 0–9 และ - เท่านั้น";
     return "";
+  }
+  // รหัสที่เลิกใช้แล้ว ห้ามนำกลับมาใช้: เก็บใน S.pack.csku_retired + csku_old ทุกตัว
+  function cskuRetiredSet(pack) {
+    pack = pack || S.pack || {};
+    const set = new Set((pack.csku_retired || []).map(normCsku).filter(Boolean));
+    (pack.list || []).concat(pack.trash || []).forEach((x) => { const o = normCsku(x && x.csku_old); if (o) set.add(o); });
+    return set;
+  }
+  function cskuRetire(codes) {
+    const cur = new Set((S.pack.csku_retired || []).map(normCsku));
+    let added = 0;
+    (codes || []).map(normCsku).filter(Boolean).forEach((c) => { if (!cur.has(c)) { cur.add(c); added++; } });
+    if (added) S.pack.csku_retired = Array.from(cur).sort();
+    return added;
   }
   function cskuOwner(code, exceptId) {
     if (!code) return null;
     const hit = (arr, where) => { const p = (arr || []).find((x) => normCsku(x.csku) === code && String(x.id) !== String(exceptId)); return p ? { p, where } : null; };
-    return hit(products(), "list") || hit(S.trash, "trash");
+    const h = hit(products(), "list") || hit(S.trash, "trash");
+    if (h) return h;
+    if (cskuRetiredSet().has(code)) {
+      const ex = exceptId != null ? findProduct(exceptId) : null;
+      if (ex && normCsku(ex.csku) === code) return null;
+      return { p: { n: "", csku: code }, where: "retired" };
+    }
+    return null;
   }
   function cskuDupMsg(o) {
+    if (o.where === "retired") return "SKU กลาง " + normCsku(o.p.csku) + " เป็นรหัสที่เลิกใช้แล้ว ห้ามนำกลับมาใช้";
     const lbl = (o.p.n || "") + (o.p.v && o.p.v !== o.p.n ? " / " + o.p.v : "");
     return "SKU กลาง " + normCsku(o.p.csku) + " ซ้ำกับ \"" + lbl + "\"" + (o.where === "trash" ? " (อยู่ในถังขยะ)" : "");
   }
-  // ===== รหัสกลุ่ม SKU กลางตามลิขสิทธิ์ (อัตโนมัติ) =====
-  const CSKU_RIGHTS_PFX = { official: "LC", original: "OD", "": "NL", review: "UC" };
-  function cskuPfxFor(rights) { return CSKU_RIGHTS_PFX[rights || ""] || "NL"; }
-  function cskuForRights(code, rights) {
-    code = normCsku(code);
-    if (!code) return code;
-    const parts = code.split("-");
-    if (!/^(LC|NL|OD|UC)$/.test(parts[0])) return code;
-    parts[0] = cskuPfxFor(rights);
-    return parts.join("-");
+  // เลขรันถัดไป = เลขสูงสุดทั้งร้าน (รายการ + ถังขยะ + รหัสเลิกใช้) + 1 · ลำดับเดียวทั้งร้าน
+  function cskuNextNum(extra) {
+    let mx = CSKU_FIRST - 1;
+    const see = (c) => { const m = normCsku(c).match(CSKU_NUM_RE); if (m) mx = Math.max(mx, Number(m[1])); };
+    products().concat(S.trash || []).forEach((x) => { see(x.csku); see(x.csku_old); });
+    cskuRetiredSet().forEach(see);
+    (extra || []).forEach(see);
+    return mx + 1;
   }
   function cskuItemLabel(p) { return (p.n || "") + (p.v && p.v !== p.n ? " / " + p.v : ""); }
-  // คืนค่า { q: สินค้าหลังเปลี่ยนลิขสิทธิ์, warn: ข้อความเตือนถ้ารหัสใหม่ซ้ำ }
-  // batch = Set ของรหัสที่ถูกจองในการเปลี่ยนรอบเดียวกัน (กันซ้ำกันเองตอนเปลี่ยนหลายตัว)
-  function withRightsCsku(p, v, batch) {
-    const q = { ...p, rights: v || "" };
-    const cur = normCsku(p.csku);
-    if (!cur) return { q };
-    const nc = cskuForRights(cur, v);
-    if (nc === cur) return { q };
-    const own = cskuOwner(nc, p.id);
-    if (own || (batch && batch.has(nc))) {
-      return { q, warn: "\"" + cskuItemLabel(p) + "\": SKU กลางใหม่ " + nc + (own ? " ซ้ำกับ \"" + cskuItemLabel(own.p) + "\"" + (own.where === "trash" ? " (อยู่ในถังขยะ)" : "") : " ซ้ำกับสินค้าอื่นที่เปลี่ยนพร้อมกัน") + " — ยังคงรหัสเดิม " + cur + " ไว้ กรุณาแก้ SKU กลางเอง" };
-    }
-    if (batch) batch.add(nc);
-    q.csku = nc;
-    const orig = p.csku_old ? normCsku(p.csku_old) : cur;
-    if (nc === orig) { delete q.csku_old; delete q.csku_chg; }
-    else { q.csku_old = orig; q.csku_chg = true; }
-    return { q };
-  }
-  function cskuWarn(lines) {
-    if (!lines || !lines.length) return;
-    let box = document.getElementById("cskuWarnBox");
-    if (!box) { box = document.createElement("div"); box.id = "cskuWarnBox"; box.setAttribute("role", "alert"); document.body.appendChild(box); }
-    const shown = lines.slice(0, 8).join("\n") + (lines.length > 8 ? "\n…และอีก " + (lines.length - 8) + " รายการ" : "");
-    box.innerHTML = "<b>⚠ เปลี่ยน SKU กลางไม่ได้ " + lines.length + " รายการ (รหัสซ้ำ)</b>\n" + esc(shown) + '<button type="button" aria-label="ปิด" onclick="this.parentNode.remove()">✕</button>';
-  }
+  // v3: เปลี่ยนลิขสิทธิ์ = เปลี่ยนแค่ช่อง rights ไม่แตะ SKU กลาง
   function setRightsMany(ids, v) {
-    const batch = new Set(), warns = [];
-    S.pack.list = products().map((p) => {
-      if (!ids.has(String(p.id))) return p;
-      const r = withRightsCsku(p, v, batch);
-      if (r.warn) warns.push(r.warn);
-      return r.q;
-    });
-    cskuWarn(warns);
+    S.pack.list = products().map((p) => ids.has(String(p.id)) ? { ...p, rights: v || "" } : p);
   }
-  window.__cskuForRights = cskuForRights;
+  window.__cskuNextNum = cskuNextNum;
   // ===== ตัวช่วยสร้าง SKU กลาง (ตารางรหัสจากแท็บ rules ของไฟล์ร่าง) =====
-  const SKUGEN_T = {"groups": [["LC", "มีลิขสิทธิ์ (มีเอกสารยืนยัน)"], ["NL", "ไม่มีลิขสิทธิ์"], ["OD", "ออกแบบเอง (Original Design)"], ["UC", "ยังไม่ยืนยันสถานะลิขสิทธิ์ (ชั่วคราว ต้องเปลี่ยนเป็น LC/NL ก่อนใส่บนแพลตฟอร์ม)"], ["AP", "เสื้อผ้า (เสนอเพิ่ม รอ susi ตัดสิน)"]], "chars": [["LFY", "ลูฟี่ Luffy"], ["ZRO", "โซโร Zoro"], ["SNJ", "ซันจิ Sanji"], ["CHP", "ช็อปเปอร์ Chopper"], ["NMI", "นามิ Nami"], ["RBN", "โรบิน Robin"], ["KRI", "โคริลัคคุมะ Korilakkuma"], ["KRT", "คิอิโรอิโทริ Kiiroitori"], ["RLK", "ริลัคคุมะ Rilakkuma"], ["PGL", "พิกเล็ต Piglet"], ["EYR", "อียอร์ Eeyore"], ["TGR", "ทิกเกอร์ Tigger"], ["POH", "หมีพูห์ Pooh"], ["WDY", "วู้ดดี้ Woody"], ["BUZ", "บัซ Buzz"], ["JSS", "เจสซี่ Jessie"], ["FRK", "ฟอร์กกี้ Forky"], ["ALN", "เอเลี่ยน Alien"], ["LTS", "ล็อทโซ่ Lotso"], ["LTF", "เพลิงนวล Light Fury"], ["TLS", "เขี้ยวกุด Toothless"], ["KRM", "คุโรมิ Kuromi"], ["MML", "มายเมโลดี้ My Melody"], ["CNR", "ชินนามอนโรล Cinnamoroll"], ["PMP", "ปอมปอมปูริน Pompompurin"], ["KTY", "คิตตี้ Kitty"], ["PCC", "โพชัคโกะ Pochacco"], ["BBM", "แบดแบดมารุ Bad Badtz-Maru"], ["SLY", "แซลลี่ Sally"], ["CNY", "โคนี่ Cony"], ["CHC", "ช็อกโก้ Choco"], ["BRN", "บราวน์ Brown (Line Friends)"], ["MMN", "มูมิน Moomin"], ["MDN", "สนอร์คเมเดน Snorkmaiden"], ["MRI", "แมวมารี Marie"], ["LCF", "ลูซิเฟอร์ Lucifer"], ["CHI", "แมวจี้ Chi"], ["KRR", "เคโรโระ Keroro"], ["DRR", "โดโรโระ Dororo"], ["SNP", "สนูปปี้ Snoopy"], ["CBR", "ชาร์ลี บราวน์"], ["BEL", "เบลล์ Belle"], ["OLF", "โอลาฟ"], ["ARL", "แอเรียล Ariel"], ["RPZ", "ราพันเซล"], ["CDR", "ซินเดอเรลล่า"], ["JSM", "จัสมิน"], ["ARR", "ออโรร่า"], ["TKB", "ทิงเกอร์เบลล์"], ["SWH", "สโนว์ไวท์"], ["ANA", "แอนนา Anna"], ["ELS", "เอลซ่า Elsa"], ["STC", "สติช Stitch"], ["SCR", "สกรัมพ์ Scrump"], ["JDY", "จูดี้ Judy"], ["NCK", "นิค Nick"], ["BOB", "บ็อบ Bob (Minions)"], ["KVN", "เควิน Kevin"], ["STU", "สจ๊วต Stuart"], ["OTO", "อ็อตโต้ Otto"], ["MNN", "มินเนี่ยน Minions"], ["GRZ", "กริซลี่ Grizzly"], ["PND", "แพนด้า Panda"], ["ICB", "ไอซ์แบร์ Ice Bear"], ["WBB", "We Bare Bears"], ["TTR", "โทโทโร่ Totoro"], ["GFD", "การ์ฟิลด์ Garfield"], ["ELM", "เอลโม่ Elmo"], ["CKM", "คุกกี้มอนสเตอร์"], ["BGB", "บิ๊กเบิร์ด"], ["SSM", "Sesame Street"], ["BTM", "แบทแมน Batman"], ["SPM", "ซูเปอร์แมน Superman"], ["WWM", "วันเดอร์วูแมน"], ["FLH", "เดอะแฟลช Flash"], ["DCC", "DC Comics"], ["TWK", "ทิงกี้วิงกี้"], ["DPS", "ดิปซี่"], ["LAA", "ลาลา"], ["POO", "โพ Po"], ["TLT", "เทเลทับบี้"], ["MSM", "มาชิมาโร่ Mashimaro"], ["SHN", "ชินจัง Shin-chan"], ["DRM", "โดราเอมอน"], ["LRV", "ลาวา Larva"], ["MAX", "แม็กซ์ Max"], ["CHL", "โคลอี้ Chloe"], ["PET", "Secret Life of Pets"], ["BYM", "เบย์แม็กซ์ Baymax"], ["MNE", "มินนี่ Minnie"], ["BGS", "บักส์ บันนี่"], ["DFY", "แดฟฟี่ ดั๊ก"], ["MQN", "แม็คควีน"], ["HPT", "Harry Potter"], ["TRL", "Trolls"], ["KNG", "คิงคอง Kong"], ["LNF", "Line Friends (รวม)"], ["SNR", "Sanrio (รวม)"], ["DPR", "Disney Princess (รวม)"], ["DPC", "Disney Prince/โฉมงาม"], ["OPC", "One Piece (รวม)"], ["TYS", "Toy Story (รวม)"], ["DRW", "DreamWorks"], ["SHR", "หมาชิโร่ Shiro"], ["OWL", "นกฮูก Owl"], ["CRC", "จระเข้"], ["DZD", "Dozy Doggy"], ["PFP", "Puffy Puggy"], ["PFH", "Puffy Hugsy"], ["PZP", "Puzzled Puppy"], ["SNZ", "Snoozy Twins"], ["SEL", "แมวน้ำอุ๋ง"], ["TRT", "เต่า Turtle"], ["BUF", "ควาย Buffalo"], ["FOX", "จิ้งจอก Fox"], ["SHB", "ชิบะ Shiba"], ["UNI", "ยูนิคอร์น"], ["RHN", "แรด"], ["DCK", "เป็ด Duck"], ["WHL", "วาฬ Whale"], ["SHK", "ฉลาม"], ["ALP", "อัลปาก้า"], ["PGN", "เพนกวิน"], ["BNY", "กระต่าย Bunny"], ["FRG", "กบ Frog"], ["PLR", "หมีขั้วโลก"], ["SBR", "หมาไซบีเรียน"], ["PUG", "หมาปั๊ก"], ["DRB", "Dreamy Bear"], ["STD", "เด็กนักเรียน (OD)"], ["CAT", "แมว (ทั่วไป)"], ["DOG", "หมา (ทั่วไป)"], ["BER", "หมี (ทั่วไป)"]], "styles": [["KEY", "พวงกุญแจ"], ["HOD", "ฮู้ดผ้าห่ม"], ["BKP", "หมอนผ้าห่ม/ตุ๊กตาผ้าห่ม"], ["HWP", "หมอนซุกมือ"], ["NKP", "หมอนรองคอ"], ["BLS", "หมอนข้าง"], ["CSH", "หมอนอิง"], ["LIE", "ท่านอน/หมอบ"], ["SIT", "ท่านั่ง"], ["STN", "ท่ายืน"], ["BAG", "กระเป๋า/อื่นๆ"], ["DOL", "ตุ๊กตา (มาตรฐาน)"], ["APP", "เสื้อผ้า"]], "colors": [["BLK", "ดำ"], ["WHT", "ขาว"], ["BRW", "น้ำตาล"], ["GRY", "เทา"], ["PNK", "ชมพู"], ["YLW", "เหลือง"], ["GRN", "เขียว"], ["BLU", "ฟ้า/น้ำเงิน"], ["ORG", "ส้ม"], ["PPL", "ม่วง"], ["RED", "แดง"], ["CRM", "ครีม/เบจ"]]};
-  const SKUGEN_GROUPS = SKUGEN_T.groups.filter((g) => /^(LC|NL|OD|UC)$/.test(g[0]));
+  const SKUGEN_T = {"groups": [["LC", "มีลิขสิทธิ์ (มีเอกสารยืนยัน)"], ["NL", "ไม่มีลิขสิทธิ์"], ["OD", "ออกแบบเอง (Original Design)"], ["UC", "ยังไม่ยืนยันสถานะลิขสิทธิ์ (ชั่วคราว ต้องเปลี่ยนเป็น LC/NL ก่อนใส่บนแพลตฟอร์ม)"], ["AP", "เสื้อผ้า (เสนอเพิ่ม รอ susi ตัดสิน)"]], "chars": [["LFY", "ลูฟี่ Luffy"], ["ZRO", "โซโร Zoro"], ["SNJ", "ซันจิ Sanji"], ["CHP", "ช็อปเปอร์ Chopper"], ["NMI", "นามิ Nami"], ["RBN", "โรบิน Robin"], ["KRI", "โคริลัคคุมะ Korilakkuma"], ["KRT", "คิอิโรอิโทริ Kiiroitori"], ["RLK", "ริลัคคุมะ Rilakkuma"], ["PGL", "พิกเล็ต Piglet"], ["EYR", "อียอร์ Eeyore"], ["TGR", "ทิกเกอร์ Tigger"], ["POH", "หมีพูห์ Pooh"], ["WDY", "วู้ดดี้ Woody"], ["BUZ", "บัซ Buzz"], ["JSS", "เจสซี่ Jessie"], ["FRK", "ฟอร์กกี้ Forky"], ["ALN", "เอเลี่ยน Alien"], ["LTS", "ล็อทโซ่ Lotso"], ["LTF", "เพลิงนวล Light Fury"], ["TLS", "เขี้ยวกุด Toothless"], ["KRM", "คุโรมิ Kuromi"], ["MML", "มายเมโลดี้ My Melody"], ["CNR", "ชินนามอนโรล Cinnamoroll"], ["PMP", "ปอมปอมปูริน Pompompurin"], ["KTY", "คิตตี้ Kitty"], ["PCC", "โพชัคโกะ Pochacco"], ["BBM", "แบดแบดมารุ Bad Badtz-Maru"], ["SLY", "แซลลี่ Sally"], ["CNY", "โคนี่ Cony"], ["CHC", "ช็อกโก้ Choco"], ["BRN", "บราวน์ Brown (Line Friends)"], ["MMN", "มูมิน Moomin"], ["MDN", "สนอร์คเมเดน Snorkmaiden"], ["MRI", "แมวมารี Marie"], ["LCF", "ลูซิเฟอร์ Lucifer"], ["CHI", "แมวจี้ Chi"], ["KRR", "เคโรโระ Keroro"], ["DRR", "โดโรโระ Dororo"], ["SNP", "สนูปปี้ Snoopy"], ["CBR", "ชาร์ลี บราวน์"], ["BEL", "เบลล์ Belle"], ["OLF", "โอลาฟ"], ["ARL", "แอเรียล Ariel"], ["RPZ", "ราพันเซล"], ["CDR", "ซินเดอเรลล่า"], ["JSM", "จัสมิน"], ["ARR", "ออโรร่า"], ["TKB", "ทิงเกอร์เบลล์"], ["SWH", "สโนว์ไวท์"], ["ANA", "แอนนา Anna"], ["ELS", "เอลซ่า Elsa"], ["STC", "สติช Stitch"], ["SCR", "สกรัมพ์ Scrump"], ["JDY", "จูดี้ Judy"], ["NCK", "นิค Nick"], ["BOB", "บ็อบ Bob (Minions)"], ["KVN", "เควิน Kevin"], ["STU", "สจ๊วต Stuart"], ["OTO", "อ็อตโต้ Otto"], ["MNN", "มินเนี่ยน Minions"], ["GRZ", "กริซลี่ Grizzly"], ["PND", "แพนด้า Panda"], ["ICB", "ไอซ์แบร์ Ice Bear"], ["WBB", "We Bare Bears"], ["TTR", "โทโทโร่ Totoro"], ["GFD", "การ์ฟิลด์ Garfield"], ["ELM", "เอลโม่ Elmo"], ["CKM", "คุกกี้มอนสเตอร์"], ["BGB", "บิ๊กเบิร์ด"], ["SSM", "Sesame Street"], ["BTM", "แบทแมน Batman"], ["SPM", "ซูเปอร์แมน Superman"], ["WWM", "วันเดอร์วูแมน"], ["FLH", "เดอะแฟลช Flash"], ["DCC", "DC Comics"], ["TWK", "ทิงกี้วิงกี้"], ["DPS", "ดิปซี่"], ["LAA", "ลาลา"], ["POO", "โพ Po"], ["TLT", "เทเลทับบี้"], ["MSM", "มาชิมาโร่ Mashimaro"], ["SHN", "ชินจัง Shin-chan"], ["DRM", "โดราเอมอน"], ["LRV", "ลาวา Larva"], ["MAX", "แม็กซ์ Max"], ["CHL", "โคลอี้ Chloe"], ["PET", "Secret Life of Pets"], ["BYM", "เบย์แม็กซ์ Baymax"], ["MNE", "มินนี่ Minnie"], ["BGS", "บักส์ บันนี่"], ["DFY", "แดฟฟี่ ดั๊ก"], ["MQN", "แม็คควีน"], ["HPT", "Harry Potter"], ["TRL", "Trolls"], ["KNG", "คิงคอง Kong"], ["LNF", "Line Friends (รวม)"], ["SNR", "Sanrio (รวม)"], ["DPR", "Disney Princess (รวม)"], ["DPC", "Disney Prince/โฉมงาม"], ["OPC", "One Piece (รวม)"], ["TYS", "Toy Story (รวม)"], ["DRW", "DreamWorks"], ["SHR", "หมาชิโร่ Shiro"], ["OWL", "นกฮูก Owl"], ["CRC", "จระเข้"], ["DZD", "Dozy Doggy"], ["PFP", "Puffy Puggy"], ["PFH", "Puffy Hugsy"], ["PZP", "Puzzled Puppy"], ["SNZ", "Snoozy Twins"], ["SEL", "แมวน้ำอุ๋ง"], ["TRT", "เต่า Turtle"], ["BUF", "ควาย Buffalo"], ["FOX", "จิ้งจอก Fox"], ["SHB", "ชิบะ Shiba"], ["UNI", "ยูนิคอร์น"], ["RHN", "แรด"], ["DCK", "เป็ด Duck"], ["WHL", "วาฬ Whale"], ["SHK", "ฉลาม"], ["ALP", "อัลปาก้า"], ["PGN", "เพนกวิน"], ["BNY", "กระต่าย Bunny"], ["FRG", "กบ Frog"], ["PLR", "หมีขั้วโลก"], ["SBR", "หมาไซบีเรียน"], ["PUG", "หมาปั๊ก"], ["DRB", "Dreamy Bear"], ["STD", "เด็กนักเรียน (OD)"], ["CAT", "แมว (ทั่วไป)"], ["DOG", "หมา (ทั่วไป)"], ["BER", "หมี (ทั่วไป)"], ["GEN", "ไม่มีตัวละคร / ทั่วไป"]], "styles": [["KEY", "พวงกุญแจ"], ["HOD", "ฮู้ดผ้าห่ม"], ["BKP", "หมอนผ้าห่ม/ตุ๊กตาผ้าห่ม"], ["HWP", "หมอนซุกมือ"], ["NKP", "หมอนรองคอ"], ["BLS", "หมอนข้าง"], ["CSH", "หมอนอิง"], ["LIE", "ท่านอน/หมอบ"], ["SIT", "ท่านั่ง"], ["STN", "ท่ายืน"], ["BAG", "กระเป๋า/อื่นๆ"], ["DOL", "ตุ๊กตา (มาตรฐาน)"], ["APP", "เสื้อผ้า"]], "colors": [["BLK", "ดำ"], ["WHT", "ขาว"], ["BRW", "น้ำตาล"], ["GRY", "เทา"], ["PNK", "ชมพู"], ["YLW", "เหลือง"], ["GRN", "เขียว"], ["BLU", "ฟ้า/น้ำเงิน"], ["ORG", "ส้ม"], ["PPL", "ม่วง"], ["RED", "แดง"], ["CRM", "ครีม/เบจ"]]};
   const SKUGEN_STYLE_KW = [["พวงกุญแจ","KEY"],["ฮู้ด","HOD"],["ผ้าห่ม","BKP"],["ซุกมือ","HWP"],["รองคอ","NKP"],["หมอนข้าง","BLS"],["กระเป๋า","BAG"],["เสื้อ","APP"],["หมอน","CSH"],["หมอบ","LIE"],["นอน","LIE"],["นั่ง","SIT"],["ยืน","STN"]];
   const SKUGEN_COLOR_KW = [["ดำ","BLK"],["ขาว","WHT"],["น้ำตาล","BRW"],["เทา","GRY"],["ชมพู","PNK"],["เหลือง","YLW"],["เขียว","GRN"],["ฟ้า","BLU"],["น้ำเงิน","BLU"],["ส้ม","ORG"],["ม่วง","PPL"],["แดง","RED"],["ครีม","CRM"],["เบจ","CRM"]];
   function skugenKeywords(name) {
@@ -1313,44 +1309,49 @@ function startApp() {
   }
   function skugenGuess(f) {
     const txt = ((f.name || "") + " " + (f.variant || "")).toLowerCase();
-    const rmap = { official: "LC", original: "OD", review: "UC", "": "NL" };
-    const g = { group: rmap[f.rights || ""] || "NL", char: "", style: "DOL", size: "", color: "" };
+    const g = { char: "", style: "DOL", colorHint: "", guessed: false };
     let best = 0;
-    const SKUGEN_ALIAS = [["โครีลัคคุมา","KRI"],["รีลัคคุมา","RLK"],["สนู๊ปปี้","SNP"],["โดเรม่อน","DRM"],["ชินจัง","SHN"],["เบย์แม็กซ์","BYM"],["คิตตี้","KTY"],["ซินนามอน","CNR"]];
-    const kws = SKUGEN_T.chars.map(([c, n]) => [c, skugenKeywords(n)]).concat(SKUGEN_ALIAS.map(([k, c]) => [c, [k]]));
+    const SKUGEN_ALIAS = [["โครีลัคคุมา","KRI"],["รีลัคคุมา","RLK"],["สนู๊ปปี้","SNP"],["โดเรม่อน","DRM"],["ชินจัง","SHN"],["เบย์แม็กซ์","BYM"],["คิตตี้","KTY"],["ซินนามอน","CNR"],["เอลโม","ELM"],["ปั๊ก","PUG"],["ซุปเปอร์แมน","SPM"],["วู๊ดดี้","WDY"],["สกรั้มพ์","SCR"],["สติทช์","STC"],["สติช","STC"],["โทะโทะโร","TTR"],["โทโทโร่","TTR"],["แบดแบตซ์มารุ","BBM"],["บ๊อบ","BOB"],["วันเดอร์วูเมน","WWM"],["พิกเลท","PGL"],["โทะริ","KRT"],["มาชิ","MSM"],["คุ๊กกี้มอนสเตอร์","CKM"],["ช็อคโก้","CHC"],["ดาฟฟี่","DFY"],["ปลาวาฬ","WHL"],["ชาลีบราวน์","CBR"],["มินเนียน","MNN"],["เพลิงนวล","LTF"],["เขี้ยวกุด","TLS"],["กริซลี","GRZ"]];
+    const kws = SKUGEN_T.chars.filter(([c]) => c !== "GEN").map(([c, n]) => [c, skugenKeywords(n)]).concat(SKUGEN_ALIAS.map(([k, c]) => [c, [k]]));
     kws.forEach(([c, ks]) => ks.forEach((k) => { if (txt.includes(k) && k.length > best) { best = k.length; g.char = c; } }));
+    if (g.char) g.guessed = true; else g.char = "GEN";
     for (const [k, s] of SKUGEN_STYLE_KW) if (txt.includes(k)) { g.style = s; break; }
-    let m = txt.match(/(\d+(?:\.\d+)?)\s*(นิ้ว|inch|in\b|")/);
-    if (m) g.size = String(Math.round(parseFloat(m[1]) * 2.54));
-    else if ((m = txt.match(/(\d+(?:\.\d+)?)\s*(ซม|cm|เซน)/))) g.size = String(Math.round(parseFloat(m[1])));
-    else if ((m = txt.match(/\d+/))) g.size = m[0];
     const cm = txt.match(/สี\s*([^\s\d]+)/);
-    if (cm) for (const [k, c] of SKUGEN_COLOR_KW) if (cm[1].startsWith(k)) { g.color = c; break; }
+    if (cm) for (const [k, c] of SKUGEN_COLOR_KW) if (cm[1].startsWith(k)) { g.colorHint = c; break; }
     return g;
   }
+  function skugenChar(st) { return st.char === "__custom" ? normCsku(st.customChar) : st.char; }
+  function skugenVariant(st) { return st.hasVar ? normCsku(st.variant === "__custom" ? st.customVar : st.variant) : ""; }
+  // รหัสหลักที่มีอยู่แล้วของตัวละคร+แบบเดียวกัน (ใช้ตอนเพิ่มตัวเลือกย่อยของลิสติ้งเดิม)
+  function skugenMains(st) {
+    const pre = skugenChar(st) + "-" + st.style + "-";
+    const set = new Set();
+    products().concat(S.trash || []).forEach((x) => { const c = normCsku(x.csku); const m = c.match(CSKU_NUM_RE); if (m && c.startsWith(pre)) set.add(pre + m[1]); });
+    return Array.from(set).sort();
+  }
   function skugenCode(st) {
-    const ch = st.char === "__custom" ? normCsku(st.customChar) : st.char;
-    const parts = [st.group, ch, st.style, String(st.size || "").trim()];
-    if (st.color) parts.push(st.color);
-    if (String(st.suffix || "").trim()) parts.push(String(st.suffix).trim());
-    return normCsku(parts.join("-"));
+    const main = st.hasVar && st.base ? st.base : skugenChar(st) + "-" + st.style + "-" + cskuNextNum();
+    const v = skugenVariant(st);
+    return normCsku(v ? main + "-" + v : main);
   }
   function skugenCheck(st) {
-    const ch = st.char === "__custom" ? normCsku(st.customChar) : st.char;
-    if (!ch) return { err: "เลือกตัวละคร หรือพิมพ์รหัสเอง" };
+    const ch = skugenChar(st);
+    if (!ch) return { err: "เลือกตัวละคร (ถ้าไม่มีตัวละครเลือก GEN)" };
     if (!/^[A-Z0-9]{3}$/.test(ch)) return { err: "รหัสตัวละครต้องเป็น A–Z/0–9 จำนวน 3 ตัว" };
-    if (st.char === "__custom" && SKUGEN_T.chars.some((c) => c[0] === ch)) return { warn: "รหัส " + ch + " มีในตารางแล้ว (" + SKUGEN_T.chars.find((c) => c[0] === ch)[1] + ")" , ok: true };
-    const sz = String(st.size || "").trim();
-    if (!sz) return { err: "ใส่ไซซ์เป็นตัวเลขเซนติเมตร" };
-    if (!/^\d{1,3}$/.test(sz)) return { err: "ไซซ์ต้องเป็นตัวเลข ซม. เท่านั้น (ห้าม NA)" };
-    if (String(st.suffix || "").trim() && !/^\d{1,2}$/.test(String(st.suffix).trim())) return { err: "เลขต่อท้ายต้องเป็นตัวเลข เช่น 2, 3" };
+    if (st.hasVar) {
+      const v = skugenVariant(st);
+      if (!v) return { err: "เลือกสีของตัวเลือกย่อย หรือปิด \"มีตัวเลือกย่อย\"" };
+      if (!/^[A-Z0-9]{1,4}$/.test(v)) return { err: "รหัสตัวเลือกย่อยต้องเป็น A–Z/0–9 ไม่เกิน 4 ตัว" };
+    }
+    if (st.char === "__custom" && SKUGEN_T.chars.some((c) => c[0] === ch)) return { warn: "รหัส " + ch + " มีในตารางแล้ว (" + SKUGEN_T.chars.find((c) => c[0] === ch)[1] + ")", ok: true };
     return { ok: true };
   }
   let SKUGEN = null;
   function skugenOpen() {
     grabManualForm();
     const f = S.formItem || {};
-    SKUGEN = Object.assign(skugenGuess(f), { customChar: "", suffix: "", q: "" });
+    SKUGEN = Object.assign(skugenGuess(f), { customChar: "", q: "", hasVar: false, variant: "", customVar: "", base: "" });
+    if (SKUGEN.colorHint) SKUGEN.variant = SKUGEN.colorHint;
     let el = document.getElementById("skugenBack");
     if (!el) { el = document.createElement("div"); el.id = "skugenBack"; document.body.appendChild(el); el.addEventListener("input", skugenOnInput); el.addEventListener("change", skugenOnInput); el.addEventListener("click", skugenOnClick); }
     el.style.display = "flex";
@@ -1364,6 +1365,11 @@ function startApp() {
     if (sel && sel !== "__custom" && !list.some((c) => c[0] === sel)) { const x = SKUGEN_T.chars.find((c) => c[0] === sel); if (x) list.unshift(x); }
     return `<option value="">— เลือกตัวละคร (${list.length}) —</option>` + list.map(([c, n]) => `<option value="${c}" ${c === sel ? "selected" : ""}>${esc(n)} · ${c}</option>`).join("") + `<option value="__custom" ${sel === "__custom" ? "selected" : ""}>➕ ไม่มีในตาราง – พิมพ์รหัสเอง</option>`;
   }
+  function skugenBaseOpts() {
+    const mains = skugenMains(SKUGEN);
+    if (SKUGEN.base && !mains.includes(SKUGEN.base)) SKUGEN.base = "";
+    return `<option value="">ลิสติ้งใหม่ (เลขถัดไป)</option>` + mains.map((m) => `<option value="${m}" ${m === SKUGEN.base ? "selected" : ""}>${m} (ลิสติ้งเดิม)</option>`).join("");
+  }
   function skugenRender(full) {
     const el = document.getElementById("skugenBack");
     if (!el || !SKUGEN) return;
@@ -1371,40 +1377,47 @@ function startApp() {
     if (full) {
       el.innerHTML = `<div class="skg" role="dialog" aria-label="สร้าง SKU กลาง">
         <div class="skg-h"><b>สร้าง SKU กลาง</b><button class="skg-x" data-skg="close" aria-label="ปิด">✕</button></div>
-        <div class="lbl">กลุ่ม</div>
-        <div class="pills" id="skgGroups">${SKUGEN_GROUPS.map(([c, n]) => `<button class="pill ${st.group === c ? "on" : ""}" data-skg="group" data-v="${c}" title="${esc(n)}">${c}</button>`).join("")}</div>
-        <div class="skg-note" id="skgGroupNote"></div>
+        <div class="skg-note" style="margin-bottom:8px">รูปแบบ: ตัวละคร-แบบ-เลขรัน 5 หลัก · ลิขสิทธิ์และไซซ์ไม่อยู่ในรหัส</div>
         <div class="lbl">ตัวละคร</div>
         <input class="field" id="skgQ" placeholder="ค้นหา ชื่อไทย/อังกฤษ/รหัส" value="${esc(st.q)}" />
         <select class="field" id="skgChar" style="margin-top:6px">${skugenCharOpts()}</select>
         <input class="field" id="skgCustom" maxlength="3" placeholder="รหัสตัวละคร 3 ตัว เช่น ABC" style="text-transform:uppercase;margin-top:6px;${st.char === "__custom" ? "" : "display:none"}" value="${esc(st.customChar)}" />
-        <div class="skg-g2">
-          <div><div class="lbl">แบบ</div><select class="field" id="skgStyle">${SKUGEN_T.styles.map(([c, n]) => `<option value="${c}" ${c === st.style ? "selected" : ""}>${esc(n)} · ${c}</option>`).join("")}</select></div>
-          <div><div class="lbl">ไซซ์ (ซม.)</div><input class="field" id="skgSize" type="number" inputmode="numeric" min="1" max="999" placeholder="เช่น 40" value="${esc(st.size)}" /></div>
-          <div><div class="lbl">สี (ถ้ามี)</div><select class="field" id="skgColor"><option value="">— ไม่ใส่ —</option>${SKUGEN_T.colors.map(([c, n]) => `<option value="${c}" ${c === st.color ? "selected" : ""}>${esc(n)} · ${c}</option>`).join("")}</select></div>
-          <div><div class="lbl">เลขต่อท้าย (ถ้าชน)</div><input class="field" id="skgSuffix" inputmode="numeric" maxlength="2" placeholder="เช่น 2" value="${esc(st.suffix)}" /></div>
+        <div class="skg-note" id="skgCharNote"></div>
+        <div class="lbl">แบบ</div>
+        <select class="field" id="skgStyle">${SKUGEN_T.styles.map(([c, n]) => `<option value="${c}" ${c === st.style ? "selected" : ""}>${esc(n)} · ${c}</option>`).join("")}</select>
+        <label class="skg-chk"><input type="checkbox" id="skgHasVar" ${st.hasVar ? "checked" : ""}/> ลิสติ้งนี้มีตัวเลือกย่อย (เช่น หลายสี) – ไม่บังคับ</label>
+        <div id="skgVarBox" style="${st.hasVar ? "" : "display:none"}">
+          <div class="skg-g2">
+            <div><div class="lbl">สีของตัวเลือกนี้</div><select class="field" id="skgVar"><option value="">— เลือกสี —</option>${SKUGEN_T.colors.map(([c, n]) => `<option value="${c}" ${c === st.variant ? "selected" : ""}>${esc(n)} · ${c}</option>`).join("")}<option value="__custom" ${st.variant === "__custom" ? "selected" : ""}>➕ พิมพ์เอง (เช่น ไซซ์ 30)</option></select>
+              <input class="field" id="skgCustomVar" maxlength="4" placeholder="A–Z/0–9 ไม่เกิน 4 ตัว" style="text-transform:uppercase;margin-top:6px;${st.variant === "__custom" ? "" : "display:none"}" value="${esc(st.customVar)}" /></div>
+            <div><div class="lbl">รหัสหลัก</div><select class="field" id="skgBase">${skugenBaseOpts()}</select></div>
+          </div>
         </div>
         <div class="skg-prev" id="skgPrev"></div>
         <div class="skg-msg" id="skgMsg"></div>
         <div class="skg-btns"><button class="ghost" data-skg="close">ยกเลิก</button><button class="primary" id="skgUse" data-skg="use">ใช้รหัสนี้</button></div>
       </div>`;
     }
-    const gn = SKUGEN_GROUPS.find((g) => g[0] === st.group);
-    el.querySelector("#skgGroupNote").textContent = gn ? gn[1] : "";
-    el.querySelectorAll('[data-skg="group"]').forEach((b) => b.classList.toggle("on", b.dataset.v === st.group));
     el.querySelector("#skgCustom").style.display = st.char === "__custom" ? "" : "none";
+    el.querySelector("#skgVarBox").style.display = st.hasVar ? "" : "none";
+    el.querySelector("#skgCustomVar").style.display = st.variant === "__custom" ? "" : "none";
+    const cn = el.querySelector("#skgCharNote");
+    cn.textContent = st.char === "GEN" && !st.guessed ? "ไม่พบชื่อตัวละครในชื่อสินค้า จึงเลือก GEN (ไม่มีตัวละคร) ไว้ก่อน ถ้ามีตัวละครให้เลือกใหม่" : st.guessed && st.char !== "__custom" ? "เดาจากชื่อสินค้า เปลี่ยนได้" : "";
     const chk = skugenCheck(st);
-    const code = skugenCode(st);
     const prev = el.querySelector("#skgPrev"), msg = el.querySelector("#skgMsg"), use = el.querySelector("#skgUse");
     let ok = !!chk.ok, html = chk.err ? `<div class="warn">${esc(chk.err)}</div>` : chk.warn ? `<div class="warn">${esc(chk.warn)}</div>` : "";
+    const code = ok ? skugenCode(st) : "";
     if (ok) {
       const fe = cskuFormatErr(code);
       const own = fe ? null : cskuOwner(code, S.formItem && S.formItem.editId);
       if (fe) { ok = false; html += `<div class="warn">${esc(fe)}</div>`; }
-      else if (own) { ok = false; html += `<div class="warn skg-dup">⚠ ${esc(cskuDupMsg(own))}<br>ลองเพิ่มสี หรือใส่เลขต่อท้าย เช่น -2 ถ้าเป็นของคนละแบบ/คนละโรงงาน</div>`; }
-      else html += `<div class="skg-ok">✓ ยังไม่มีใครใช้รหัสนี้</div>`;
+      else if (own) { ok = false; html += `<div class="warn skg-dup">⚠ ${esc(cskuDupMsg(own))}</div>`; }
+      else {
+        html += st.hasVar && st.base ? `<div class="skg-ok">✓ ตัวเลือกย่อยของลิสติ้งเดิม ${esc(st.base)}</div>` : `<div class="skg-ok">✓ เลขรันถัดไปของร้าน: ${cskuNextNum()} (ยังไม่มีใครใช้)</div>`;
+        if (st.hasVar && st.base && cskuOwner(st.base, S.formItem && S.formItem.editId)) html += `<div class="warn">รหัสหลัก ${esc(st.base)} ถูกใช้แบบไม่มีตัวเลือกย่อยอยู่แล้ว ควรเปลี่ยนตัวนั้นให้มีสีต่อท้ายด้วย</div>`;
+      }
     }
-    prev.textContent = ok || chk.ok ? code : code.replace(/-+$/, "") || "—";
+    prev.textContent = code || "—";
     prev.classList.toggle("bad", !ok);
     msg.innerHTML = html;
     use.disabled = !ok;
@@ -1413,13 +1426,15 @@ function startApp() {
     if (!SKUGEN) return;
     const t = e.target, id = t.id;
     if (id === "skgQ") { SKUGEN.q = t.value; const s = document.getElementById("skgChar"); s.innerHTML = skugenCharOpts(); }
-    else if (id === "skgChar") SKUGEN.char = t.value;
+    else if (id === "skgChar") { SKUGEN.char = t.value; SKUGEN.guessed = false; }
     else if (id === "skgCustom") SKUGEN.customChar = t.value;
     else if (id === "skgStyle") SKUGEN.style = t.value;
-    else if (id === "skgSize") SKUGEN.size = t.value;
-    else if (id === "skgColor") SKUGEN.color = t.value;
-    else if (id === "skgSuffix") SKUGEN.suffix = t.value;
+    else if (id === "skgHasVar") SKUGEN.hasVar = t.checked;
+    else if (id === "skgVar") SKUGEN.variant = t.value;
+    else if (id === "skgCustomVar") SKUGEN.customVar = t.value;
+    else if (id === "skgBase") SKUGEN.base = t.value;
     else return;
+    if (id !== "skgBase" && id !== "skgVar" && id !== "skgCustomVar") { const b = document.getElementById("skgBase"); if (b) b.innerHTML = skugenBaseOpts(); }
     skugenRender(false);
   }
   function skugenOnClick(e) {
@@ -1429,7 +1444,6 @@ function startApp() {
     e.preventDefault(); e.stopPropagation();
     const a = b.dataset.skg;
     if (a === "close") skugenClose();
-    else if (a === "group") { SKUGEN.group = b.dataset.v; skugenRender(false); }
     else if (a === "use" && !b.disabled) {
       const code = skugenCode(SKUGEN);
       const inp = document.getElementById("fCsku");
@@ -1443,10 +1457,14 @@ function startApp() {
   window.__skugenGuess = skugenGuess;
   function findCskuDups(pack) {
     const seen = {}, dups = [];
+    const retired = new Set(((pack && pack.csku_retired) || []).map(normCsku));
+    const olds = {};
+    (pack && pack.list || []).concat(pack && pack.trash || []).forEach((x) => { const o = normCsku(x && x.csku_old); if (o) olds[o] = String(x.id); });
     (pack && pack.list || []).concat(pack && pack.trash || []).forEach((x) => {
       const c = normCsku(x && x.csku);
       if (!c) return;
       if (seen[c] && seen[c] !== String(x.id)) dups.push(c); else seen[c] = String(x.id);
+      if (retired.has(c) || (olds[c] && olds[c] !== String(x.id))) dups.push(c + " (เลิกใช้แล้ว)");
     });
     return dups;
   }
@@ -1455,6 +1473,7 @@ function startApp() {
     const now = Date.now();
     const keep = (S.trash || []).filter((x) => now - (x.deletedAt || 0) < TRASH_MS);
     if (keep.length !== (S.trash || []).length) {
+      cskuRetire((S.trash || []).filter((x) => !keep.includes(x)).flatMap((x) => [x.csku, x.csku_old]));
       S.trash = keep;
       persistTrash();
     }
@@ -1515,8 +1534,11 @@ function startApp() {
     S.expanded[groupOf(rest)] = true;
   }
   function dropTrash(id) {
+    const gone = (S.trash || []).find((p) => String(p.id) === String(id));
+    const retired = gone ? cskuRetire([gone.csku, gone.csku_old]) : 0;
     S.trash = (S.trash || []).filter((p) => String(p.id) !== String(id));
     persistTrash();
+    if (retired) persist();
   }
   purgeTrash();
   rescueRenamedFromTrash();
@@ -1826,7 +1848,7 @@ function startApp() {
     const words = raw.split(/[^a-z0-9ก-๙]+/).filter((w) => w.length >= 2).slice(0, 8);
     if (!words.length) return [];
     return products().map((p) => {
-      const hay = ((p.n || "") + " " + (p.v || "") + " " + (p.aka || "") + " " + (p.sku || "") + " " + (p.csku || "") + " " + groupOf(p)).toLowerCase();
+      const hay = ((p.n || "") + " " + (p.v || "") + " " + (p.aka || "") + " " + (p.sku || "") + " " + (p.csku || "") + " " + (p.csku_old || "") + " " + groupOf(p)).toLowerCase();
       let sc = 0;
       words.forEach((w) => { if (hay.includes(w)) sc += w.length; });
       return { p, sc };
@@ -2357,7 +2379,8 @@ function startApp() {
     chips += `<span class="ck-c ${r === "official" || r === "original" || r === "review" ? "r-" + r : "r-none"}" title="สถานะลิขสิทธิ์">${esc(rightsLabel(r))}</span>`;
     if (item.sku) chips += `<span class="ck-c" title="รหัส SKU">SKU ${esc(item.sku)}</span>`;
     if (item.csku) chips += `<span class="ck-c csku" title="SKU กลาง">SKU กลาง ${esc(item.csku)}</span>`;
-    if (item.csku_chg) chips += `<span class="ck-c cskuchg" title="รหัสกลุ่มเปลี่ยนตามลิขสิทธิ์ ต้องไปแก้ SKU บนแพลตฟอร์ม">SKU เปลี่ยน ต้องแก้บนแพลตฟอร์ม: ${esc(item.csku_old || "-")} → ${esc(item.csku || "-")}</span><button type="button" class="ck-c cskudone" data-act="csku-done" data-id="${id}" title="กดเมื่อแก้ SKU บนแพลตฟอร์มครบแล้ว">แก้บนแพลตฟอร์มแล้ว ✓</button>`;
+    if (item.size_cm) chips += `<span class="ck-c" title="ไซซ์">ไซซ์ ${esc(item.size_cm)} ซม.</span>`;
+    if (item.csku_chg) chips += `<span class="ck-c cskuchg" title="SKU กลางเปลี่ยนเป็นรูปแบบใหม่ ต้องไปแก้ SKU บนแพลตฟอร์ม">SKU เปลี่ยน ต้องแก้บนแพลตฟอร์ม: ${esc(item.csku_old || "-")} → ${esc(item.csku || "-")}</span><button type="button" class="ck-c cskudone" data-act="csku-done" data-id="${id}" title="กดเมื่อแก้ SKU บนแพลตฟอร์มครบแล้ว">แก้บนแพลตฟอร์มแล้ว ✓</button>`;
     if (item.aka) chips += `<span class="ck-c" title="มีชื่อเรียกในร้านค้า">มีชื่อในร้าน</span>`;
     if (skipped) chips += `<span class="ck-c skip">คัดออก — ไม่ทำรูปโปรโมท</span>`;
     else {
@@ -3618,9 +3641,10 @@ function startApp() {
         <div class="lbl">SKU ชั่วคราว (ถ้ามี)</div>
         <input class="field" id="fSku" placeholder="เช่น RC-INK-9PNK" value="${esc(f.sku)}" />
         <div class="lbl">SKU กลาง (ว่างได้)</div>
-<div class="csku-row"><input class="field" id="fCsku" placeholder="เช่น LC-MMN-SIT-40" maxlength="25" style="text-transform:uppercase" value="${esc(f.csku || "")}" /><button type="button" class="ghost" id="cskuGenBtn">สร้าง SKU</button></div>
+<div class="csku-row"><input class="field" id="fCsku" placeholder="เช่น SNP-DOL-10001" maxlength="25" style="text-transform:uppercase" value="${esc(f.csku || "")}" /><button type="button" class="ghost" id="cskuGenBtn">สร้าง SKU</button></div>
         ${f.cskuErr ? `<div class="warn" id="fCskuErr" style="margin-top:4px">${esc(f.cskuErr)}</div>` : ""}
-        ${cskuLiveHTML(f)}
+        <div class="lbl">ไซซ์ (ซม.) ไม่บังคับ</div>
+        <input class="field" id="fSizeCm" type="number" inputmode="numeric" min="1" max="999" placeholder="เช่น 40" value="${esc(f.size_cm || "")}" />
         <div class="lbl">ชื่อที่ใช้ขายบนแพลตฟอร์ม</div>
         <textarea class="field" id="fAka" rows="3" placeholder="วางชื่อตามหน้าร้าน บรรทัดละชื่อ เช่น&#10;Shopee wararit: อิงอิงชุดชมพู 9 นิ้ว&#10;TikTok Shop: IngIng pink 9 inch">${esc(f.aka)}</textarea>
         <div class="lbl">สินค้า</div>
@@ -3768,18 +3792,6 @@ function startApp() {
     S.calDelAsk = "";
     S.calSheet = f.date || todayISO(); // เปิดรายละเอียดวันนั้นให้เห็นว่าโพสต์ลงตรงไหน
   }
-  function cskuLiveHTML(f) {
-    if (!f || !f.editId) return "";
-    const p = findProduct(f.editId);
-    if (!p) return "";
-    const cur = normCsku(f.csku);
-    if (!cur || cur !== normCsku(p.csku) || (f.rights || "") === rightsOf(p)) return "";
-    const nc = cskuForRights(cur, f.rights);
-    if (nc === cur) return "";
-    const own = cskuOwner(nc, p.id);
-    if (own) return `<div class="csku-live bad" id="fCskuLive">⚠ ลิขสิทธิ์เปลี่ยน แต่ SKU กลางใหม่ ${esc(nc)} ${esc(cskuDupMsg(own).replace(/^SKU กลาง \S+ /, ""))} — จะคงรหัสเดิม ${esc(cur)} ไว้ กรุณาแก้เอง</div>`;
-    return `<div class="csku-live" id="fCskuLive">🔁 ลิขสิทธิ์เปลี่ยน → SKU กลางใหม่: <b>${esc(cur)} → ${esc(nc)}</b> (เปลี่ยนเมื่อกดบันทึก และจะขึ้นป้ายให้แก้บนแพลตฟอร์ม)</div>`;
-  }
   function grabManualForm() {
     const g = document.getElementById("fGroup");
     const ng = document.getElementById("fNewGroup");
@@ -3798,6 +3810,8 @@ function startApp() {
     if (sku) S.formItem.sku = sku.value;
     const csku = document.getElementById("fCsku");
     if (csku) S.formItem.csku = csku.value;
+    const szc = document.getElementById("fSizeCm");
+    if (szc) S.formItem.size_cm = szc.value;
     if (aka) S.formItem.aka = aka.value;
     const st = document.getElementById("fSet");
     if (st) S.formItem.set = st.value;
@@ -3817,6 +3831,7 @@ function startApp() {
       rights: p.rights || "",
       sku: p.sku || "",
       csku: p.csku || "",
+      size_cm: p.size_cm != null ? String(p.size_cm) : "",
       aka: p.aka || "",
       set: p.set || "",
       editId: p.id,
@@ -3836,23 +3851,19 @@ function startApp() {
     const sp = toNum(sellRaw);
     const csku = normCsku(S.formItem.csku);
     S.formItem.csku = csku;
-    const cErr = cskuFormatErr(csku);
+    const oldP0 = S.formItem.editId ? findProduct(S.formItem.editId) : null;
+    const cErr = cskuFormatErr(csku, !!(oldP0 && csku && csku === normCsku(oldP0.csku)));
     if (cErr) { S.formItem.cskuErr = cErr; S.importNote = cErr; return; }
     const cOwn = cskuOwner(csku, S.formItem.editId);
     if (cOwn) { S.formItem.cskuErr = cskuDupMsg(cOwn); S.importNote = S.formItem.cskuErr; return; }
+    const szRaw = String(S.formItem.size_cm == null ? "" : S.formItem.size_cm).trim();
+    if (szRaw && !/^[1-9][0-9]{0,2}$/.test(szRaw)) { S.formItem.cskuErr = ""; S.importNote = "ไซซ์ต้องเป็นตัวเลขเซนติเมตร 1–999 (หรือเว้นว่าง)"; return; }
+    const size_cm = szRaw ? Number(szRaw) : null;
     S.formItem.cskuErr = "";
-    let cskuAutoWarn = null;
     if (S.formItem.editId) {
-      const oldP = findProduct(S.formItem.editId);
-      const newRights = S.formItem.rights || "";
-      let auto = null;
-      // เปลี่ยนลิขสิทธิ์ และไม่ได้แก้ SKU กลางเอง → เปลี่ยนรหัสกลุ่มอัตโนมัติ
-      if (oldP && rightsOf(oldP) !== newRights && csku && csku === normCsku(oldP.csku)) {
-        const r = withRightsCsku(oldP, newRights, null);
-        if (r.warn) cskuAutoWarn = r.warn;
-        else if (normCsku(r.q.csku) !== csku) auto = r.q;
-      }
-      S.pack.list = products().map((p) => String(p.id) === String(S.formItem.editId) ? {
+      // แก้ SKU กลางเอง → รหัสเก่ากลายเป็นรหัสเลิกใช้ ห้ามนำกลับมาใช้
+      if (oldP0 && normCsku(oldP0.csku) && normCsku(oldP0.csku) !== csku) cskuRetire([oldP0.csku]);
+      S.pack.list = products().map((p) => { if (String(p.id) !== String(S.formItem.editId)) return p; const q = {
         ...p, n: name, v: variant, c: group, g: group,
         p: priceRaw ? Number(priceRaw) : null,
         sp,
@@ -3860,11 +3871,13 @@ function startApp() {
         ph: !!S.formItem.ph, vd: !!S.formItem.vd, up: !!S.formItem.up, ex: !!S.formItem.ex,
         rights: S.formItem.rights || "",
         sku: (S.formItem.sku || "").trim(),
-        csku: auto ? auto.csku : csku,
+        csku,
         aka: (S.formItem.aka || "").trim(),
         set: (S.formItem.set || "").trim(),
-      } : p);
-      S.pack.list = products().map((p) => { if (String(p.id) !== String(S.formItem.editId)) return p; const q = { ...p }; if (auto) { q.csku_old = auto.csku_old; q.csku_chg = auto.csku_chg; } if (!q.csku_chg) { delete q.csku_chg; delete q.csku_old; } return q; });
+      };
+        if (size_cm != null) q.size_cm = size_cm; else delete q.size_cm;
+        if (!q.csku_chg) { delete q.csku_chg; delete q.csku_old; }
+        return q; });
     } else {
       S.pack.list = [{
         id: uid(), n: name, v: variant, c: group, g: group,
@@ -3875,13 +3888,13 @@ function startApp() {
         rights: S.formItem.rights || "",
         sku: (S.formItem.sku || "").trim(),
         csku,
+        ...(size_cm != null ? { size_cm } : {}),
         aka: (S.formItem.aka || "").trim(),
         set: (S.formItem.set || "").trim(),
       }, ...products()];
     }
     syncGroupOrder();
     persist(true);
-    if (cskuAutoWarn) cskuWarn([cskuAutoWarn]);
     S.expanded[group] = true;
     S.importNote = S.formItem.editId ? "บันทึกการแก้ไขแล้ว" : "เพิ่มรายการแล้ว";
     S.formItem = { ...emptyForm(), group, set: (S.formItem.set || "").trim() };
@@ -4086,13 +4099,6 @@ function startApp() {
       else if (act === "f-rights") {
         grabManualForm();
         S.formItem.rights = v;
-        // สินค้าใหม่ (ยังไม่มีบนแพลตฟอร์ม): สลับรหัสกลุ่มในช่องทันที ถ้าไม่ซ้ำ
-        if (!S.formItem.editId && normCsku(S.formItem.csku)) {
-          const nc = cskuForRights(S.formItem.csku, v);
-          const own = cskuOwner(nc, null);
-          if (own) S.formItem.cskuErr = "เปลี่ยนรหัสกลุ่มไม่ได้: " + cskuDupMsg(own) + " — กรุณาแก้เอง";
-          else { S.formItem.csku = nc; S.formItem.cskuErr = ""; }
-        }
       }
       else if (act === "f-tog") { grabManualForm(); S.formItem[v] = !S.formItem[v]; }
       else if (act === "reset-form") { S.formItem = emptyForm(); S.importNote = ""; }
@@ -4197,6 +4203,8 @@ function startApp() {
         persist();
       }
       else if (act === "csku-done") {
+        const dp = findProduct(id);
+        if (dp && dp.csku_old) cskuRetire([dp.csku_old]);
         S.pack.list = products().map((p) => { if (String(p.id) !== String(id)) return p; const q = { ...p }; delete q.csku_chg; delete q.csku_old; return q; });
         persist();
       }
@@ -4565,6 +4573,7 @@ function startApp() {
         ...(oldP && oldP.csku ? { csku: oldP.csku } : {}),
         ...(oldP && oldP.csku_old ? { csku_old: oldP.csku_old } : {}),
         ...(oldP && oldP.csku_chg ? { csku_chg: true } : {}),
+        ...(oldP && oldP.size_cm != null ? { size_cm: oldP.size_cm } : {}),
         aka: oldP && oldP.aka ? oldP.aka : "",
         ex: !!(oldP && oldP.ex),
         ...(oldP && oldP.img ? { img: oldP.img } : {}),
@@ -4586,7 +4595,7 @@ function startApp() {
       list = incoming;
     }
     const order = S.pack.order && S.pack.order.length ? S.pack.order : [];
-    S.pack = { list, order, updatedAt: Date.now(), ...(S.pack.costCfg ? { costCfg: S.pack.costCfg } : {}) };
+    S.pack = { list, order, updatedAt: Date.now(), ...(S.pack.costCfg ? { costCfg: S.pack.costCfg } : {}), ...(S.pack.csku_retired ? { csku_retired: S.pack.csku_retired } : {}) };
     persist();
     S.importNote = "นำเข้าแล้ว " + list.length.toLocaleString() + " รายการ" + (skipped ? " (ข้ามแถวว่าง " + skipped.toLocaleString() + ")" : "");
     S.showImport = false;

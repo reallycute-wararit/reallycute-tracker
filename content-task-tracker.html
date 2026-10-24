@@ -480,6 +480,58 @@
       .toolbar .rowbtns { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
       .toolbar .ghost { flex: 0 0 auto; white-space: nowrap; min-height: 38px; }
     }
+
+    /* ==== preview: brand channel colors + collapsible social ==== */
+    .plat-pills { flex-wrap: wrap; overflow: visible; gap: 7px; }
+    .plat-pills .pill { border: 1px solid transparent; box-shadow: none; }
+    .social-tog {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      width: 100%; margin: 4px 0 8px; padding: 8px 12px; border-radius: 12px;
+      border: 1px solid #D7E4F2; background: #F7FBFF; color: #1C3554;
+      font-size: 13px; font-weight: 600; cursor: pointer; text-align: left;
+    }
+    .social-tog:hover { border-color: #2E6BB7; }
+    .social-tog .soc-count { font-size: 12px; font-weight: 700; color: #2E6BB7; background: #E8F1FB; padding: 2px 8px; border-radius: 999px; }
+    .social-tog .soc-chev { color: #8AA0B5; font-size: 12px; }
+    .social-sum { margin: -4px 0 12px; padding: 8px 10px; border-radius: 10px; background: #F7FBFF; color: #5B6F86; font-size: 12px; line-height: 1.45; }
+    /* Shopee family — distinguishable oranges */
+    .plat-pills .pill.ch-shopee_wararit { background: #FFF1EC; color: #C2410C; border-color: #FDBA8C; }
+    .plat-pills .pill.ch-shopee_wararit.on { background: #EA580C; color: #fff; border-color: #EA580C; }
+    .plat-pills .pill.ch-shopee_riri { background: #FFF4ED; color: #C2410C; border-color: #FDBA74; }
+    .plat-pills .pill.ch-shopee_riri.on { background: #F97316; color: #fff; border-color: #F97316; }
+    .plat-pills .pill.ch-shopee_reallycute { background: #FFF0F0; color: #9F1239; border-color: #FDA4AF; }
+    .plat-pills .pill.ch-shopee_reallycute.on { background: #E11D48; color: #fff; border-color: #E11D48; }
+    /* Lazada blue/purple */
+    .plat-pills .pill.ch-lazada { background: #F3E8FF; color: #5B21B6; border-color: #C4B5FD; }
+    .plat-pills .pill.ch-lazada.on { background: #7C3AED; color: #fff; border-color: #7C3AED; }
+    /* TikTok Shop — black / cyan vibe */
+    .plat-pills .pill.ch-tiktok_shop { background: #ECFEFF; color: #0E7490; border-color: #67E8F9; }
+    .plat-pills .pill.ch-tiktok_shop.on { background: #111827; color: #67E8F9; border-color: #111827; }
+    /* ThaiMart green */
+    .plat-pills .pill.ch-thaimart { background: #ECFDF5; color: #047857; border-color: #6EE7B7; }
+    .plat-pills .pill.ch-thaimart.on { background: #059669; color: #fff; border-color: #059669; }
+    /* LINE My Shop */
+    .plat-pills .pill.ch-line_myshop { background: #ECFDF3; color: #15803D; border-color: #86EFAC; }
+    .plat-pills .pill.ch-line_myshop.on { background: #06C755; color: #fff; border-color: #06C755; }
+    /* Social brands */
+    .plat-pills .pill.ch-facebook,
+    .plat-pills .pill.ch-fb_dollshop { background: #EFF6FF; color: #1D4ED8; border-color: #93C5FD; }
+    .plat-pills .pill.ch-facebook.on,
+    .plat-pills .pill.ch-fb_dollshop.on { background: #1877F2; color: #fff; border-color: #1877F2; }
+    .plat-pills .pill.ch-ig { background: #FDF2F8; color: #BE185D; border-color: #F9A8D4; }
+    .plat-pills .pill.ch-ig.on { background: #E1306C; color: #fff; border-color: #E1306C; }
+    .plat-pills .pill.ch-threads { background: #F4F4F5; color: #27272A; border-color: #D4D4D8; }
+    .plat-pills .pill.ch-threads.on { background: #000000; color: #fff; border-color: #000000; }
+    .plat-pills .pill.ch-x { background: #F4F4F5; color: #3F3F46; border-color: #A1A1AA; }
+    .plat-pills .pill.ch-x.on { background: #14171A; color: #fff; border-color: #14171A; }
+    .plat-pills .pill.ch-tt_dollshop,
+    .plat-pills .pill.ch-tt_land { background: #ECFEFF; color: #0E7490; border-color: #67E8F9; }
+    .plat-pills .pill.ch-tt_dollshop.on,
+    .plat-pills .pill.ch-tt_land.on { background: #111827; color: #67E8F9; border-color: #111827; }
+    .plat-pills .pill.ch-youtube { background: #FEF2F2; color: #B91C1C; border-color: #FCA5A5; }
+    .plat-pills .pill.ch-youtube.on { background: #FF0000; color: #fff; border-color: #FF0000; }
+    .plat-pills .pill.ch-line_voom { background: #ECFDF3; color: #15803D; border-color: #86EFAC; }
+    .plat-pills .pill.ch-line_voom.on { background: #06C755; color: #fff; border-color: #06C755; }
   </style>
 </head>
 <body>
@@ -987,7 +1039,8 @@ function startApp() {
     { id: "line_myshop", group: "ร้านค้า", label: "Line My Shop" },
   ];
   const SOCIAL = [
-    { id: "facebook", group: "โซเชียล", label: "Facebook" },
+    { id: "facebook", group: "โซเชียล", label: "Facebook : เพจหลัก" },
+    { id: "fb_dollshop", group: "โซเชียล", label: "Facebook : เพจรอง" },
     { id: "ig", group: "โซเชียล", label: "Instagram" },
     { id: "threads", group: "โซเชียล", label: "Threads" },
     { id: "x", group: "โซเชียล", label: "X" },
@@ -1196,7 +1249,7 @@ function startApp() {
     saleLinkQ: {},
     saleNote: "",
     showPost: false,
-    postForm: { productIds: [], q: "", date: "", photo: true, video: false, platforms: {}, caption: "", note: "", editId: null },
+    postForm: { productIds: [], q: "", date: "", photo: true, video: false, platforms: {}, caption: "", note: "", editId: null, socialOpen: null },
     calCursor: (function () { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); })(),
     calMode: "month", // month = ตารางเดือน, list = รายการ
     calFilter: "all", // all | ph | vd | both
@@ -2048,16 +2101,18 @@ function startApp() {
   function openPostForm(productId) {
     const fromSel = selectedIds();
     const ids = productId ? [String(productId)] : fromSel.slice();
+    const _plats0 = defaultPlatformState(ids);
     S.postForm = {
       productIds: ids,
       q: "",
       date: todayISO(),
       photo: true,
       video: false,
-      platforms: defaultPlatformState(ids),
+      platforms: _plats0,
       caption: "",
       note: "",
       editId: null,
+      socialOpen: SOCIAL.some((c) => _plats0[c.id]),
     };
     S.showPost = true;
   }
@@ -2079,6 +2134,7 @@ function startApp() {
       caption: capText,
       note: po.note || "",
       editId: po.id,
+      socialOpen: SOCIAL.some((c) => plats[c.id]),
     };
     S.showPost = true;
   }
@@ -3333,11 +3389,20 @@ function startApp() {
         const warn = mode === "mixed" ? "มีทั้งสินค้าปลอดภัยและรอตรวจสอบในโพสต์เดียวกัน — จำกัดช่องทางตามสินค้าที่รอตรวจสอบ" : (mode === "review" ? "สินค้ากลุ่มรอตรวจสอบ: ลงได้เฉพาะช่องทางที่กำหนด" : (mode === "unset" ? "ยังไม่ได้ระบุลิขสิทธิ์ของสินค้าที่แท็ก — เลือกช่องทางเองได้ แต่ควรตั้งค่าที่สินค้าก่อน" : "ลิขสิทธิ์แท้ / Original design ลงได้ทุกช่องทาง"));
         const sales = SALES.filter((c) => mode !== "review" && mode !== "mixed" ? true : REVIEW_OK[c.id]);
         const social = SOCIAL.filter((c) => mode !== "review" && mode !== "mixed" ? true : REVIEW_OK[c.id]);
+        const socSel = social.filter((c) => f.platforms[c.id]);
+        const socN = socSel.length;
+        const socOpen = f.socialOpen == null ? socN > 0 : !!f.socialOpen;
+        const socNames = socSel.map((c) => c.label).join(" · ");
         return `<div class="warn">${warn}</div>
         <div class="lbl">ช่องทางการขาย</div>
-        <div class="pills">${sales.map((c) => `<button class="pill ${f.platforms[c.id] ? "on" : ""}" data-act="post-plat" data-v="${c.id}">${c.group === "Shopee" ? "Shopee " : ""}${c.label}</button>`).join("")}</div>
-        <div class="lbl">สื่อโซเชียล</div>
-        <div class="pills">${social.map((c) => `<button class="pill ${f.platforms[c.id] ? "on" : ""}" data-act="post-plat" data-v="${c.id}">${c.label}</button>`).join("")}</div>`;
+        <div class="pills plat-pills">${sales.map((c) => `<button class="pill ch-${c.id} ${f.platforms[c.id] ? "on" : ""}" data-act="post-plat" data-v="${c.id}">${c.group === "Shopee" ? "Shopee " : ""}${c.label}</button>`).join("")}</div>
+        <button type="button" class="social-tog" data-act="post-social-tog" aria-expanded="${socOpen}">
+          <span>สื่อโซเชียล${socN ? ` <span class="soc-count">${socN}</span>` : ""}</span>
+          <span class="soc-chev">${socOpen ? "พับ ▴" : "ขยาย ▾"}</span>
+        </button>
+        ${socOpen
+          ? `<div class="pills plat-pills">${social.map((c) => `<button class="pill ch-${c.id} ${f.platforms[c.id] ? "on" : ""}" data-act="post-plat" data-v="${c.id}">${c.label}</button>`).join("")}</div>`
+          : (socN ? `<div class="social-sum">เลือกแล้ว: ${esc(socNames)}</div>` : "")}`;
       })()}
       <div class="lbl">แคปชันรวม</div>
       <textarea class="field capbox" id="postCaption" rows="18" placeholder="1. Caption Facebook / Instagram / LINE VOOM&#10;&#10;2. ชื่อหัวข้อคลิป YouTube / Reels&#10;&#10;3. ชื่อสินค้า Shopee / Lazada / TikTok Shop&#10;&#10;4. Caption Lemon8">${esc(f.caption || "")}</textarea>
@@ -3997,7 +4062,15 @@ function startApp() {
       else if (act === "post-plat") {
         const mode = selectionRights(S.postForm.productIds);
         const allowed = new Set(allowedChannelIds(mode === "review" || mode === "mixed" ? "review" : "official"));
-        if (allowed.has(v)) S.postForm.platforms[v] = !S.postForm.platforms[v];
+        if (allowed.has(v)) {
+          S.postForm.platforms[v] = !S.postForm.platforms[v];
+          if (SOCIAL.some((c) => c.id === v) && S.postForm.platforms[v]) S.postForm.socialOpen = true;
+        }
+      }
+      else if (act === "post-social-tog") {
+        const n = SOCIAL.filter((c) => S.postForm.platforms[c.id]).length;
+        const cur = S.postForm.socialOpen == null ? n > 0 : !!S.postForm.socialOpen;
+        S.postForm.socialOpen = !cur;
       }
       else if (act === "save-post") savePost();
       else if (act === "del-post") { S.posts = S.posts.filter((p) => String(p.id) !== String(id)); persistPosts(); S.showPost = false; S.postForm.editId = null; S.calDelAsk = ""; }

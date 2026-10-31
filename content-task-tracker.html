@@ -1047,10 +1047,13 @@ function startApp() {
     { id: "tt_dollshop", group: "โซเชียล", label: "TikTok reallycutedollshop" },
     { id: "tt_land", group: "โซเชียล", label: "TikTok reallycuteland" },
     { id: "youtube", group: "โซเชียล", label: "YouTube" },
-    { id: "line_voom", group: "โซเชียล", label: "Line Voom" },
+  ];
+  // ช่องที่เลิกใช้แล้ว: ซ่อนจากปุ่มเลือก แต่เก็บไว้ใน CHANNEL_MAP เพื่อให้โพสต์เก่าที่อ้างถึงยังแสดง/ไม่หาย
+  const RETIRED_CHANNELS = [
+    { id: "line_voom", group: "โซเชียล", label: "Line Voom", retired: true },
   ];
   const CHANNELS = SALES.concat(SOCIAL);
-  const CHANNEL_MAP = Object.fromEntries(CHANNELS.map((c) => [c.id, c]));
+  const CHANNEL_MAP = Object.fromEntries(CHANNELS.concat(RETIRED_CHANNELS).map((c) => [c.id, c]));
   const REVIEW_OK = { shopee_wararit: 1, shopee_riri: 1, lazada: 1, tiktok_shop: 1, thaimart: 1, tt_dollshop: 1 };
   const RIGHTS = [
     { id: "official", label: "ลิขสิทธิ์แท้" },
@@ -3826,7 +3829,8 @@ function startApp() {
     const labels = ids.map((pid) => { const p = findProduct(pid); return p ? labelOf(p) : ""; }).filter(Boolean);
     const mode = selectionRights(ids);
     const allowed = new Set(allowedChannelIds(mode === "review" || mode === "mixed" ? "review" : "official"));
-    const platforms = CHANNELS.map((c) => c.id).filter((id) => f.platforms[id] && allowed.has(id));
+    const platforms = CHANNELS.map((c) => c.id).filter((id) => f.platforms[id] && allowed.has(id))
+      .concat(RETIRED_CHANNELS.map((c) => c.id).filter((id) => f.platforms[id])); // คงข้อมูลช่องที่เลิกใช้ไว้
     const rec = {
       id: f.editId || uid(),
       productIds: ids,

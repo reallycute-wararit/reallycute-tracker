@@ -2048,7 +2048,7 @@ function startApp() {
     }
   }
   function scheduleBackup() {
-    if (!S.backupOn || !backupHandle) return;
+    try { if (!S.backupOn || !backupHandle) return; } catch (e) { return; }
     clearTimeout(backupTimer);
     backupTimer = setTimeout(() => { writeBackupNow().catch(() => {}); }, 800);
   }

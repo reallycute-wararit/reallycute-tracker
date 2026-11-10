@@ -6,7 +6,7 @@
   <title>ติดตามงาน reallyCute</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background: #F3F7FC; color: #1C3554; font-family: "Segoe UI", "Noto Sans Thai", Tahoma, sans-serif; }
+    html, body { margin: 0; min-height: 100%; background: #F3F7FC; color: #1C3554; font-family: "Segoe UI", "Noto Sans Thai", Tahoma, sans-serif; overflow-anchor: none; }
     button, input, textarea, select { font-family: inherit; }
     button { cursor: pointer; }
     .wrap { max-width: 1180px; margin: 0 auto; padding: 16px 20px 140px; }
@@ -85,8 +85,9 @@
     .danger-zone { margin-top: 28px; padding-top: 16px; border-top: 1px dashed #C5D8EE; }
     .btn-danger { background: #C0525A; color: #fff; border: none; border-radius: 12px; padding: 10px 14px; font-size: 13px; font-weight: 600; }
     .header-sticky { position: sticky; top: 0; z-index: 100; background: #F3F7FC; padding: 12px 0; margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
-    .tabs { display: flex; gap: 4px; margin: 0 0 16px; background: #D9E6F5; border-radius: 14px; padding: 4px; height: 48px; flex-shrink: 0; }
-    .tab { flex: 1; height: 40px; padding: 0 10px; border-radius: 11px; border: none; font-size: 13px; font-weight: 600; background: transparent; color: #5B6F86; white-space: nowrap; }
+    .tabs { display: flex; gap: 4px; margin: 0 0 16px; background: #D9E6F5; border-radius: 14px; padding: 4px; height: 48px; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: 1 0 auto; height: 40px; padding: 0 10px; border-radius: 11px; border: none; font-size: 13px; font-weight: 600; background: transparent; color: #5B6F86; white-space: nowrap; }
     .tab.on { background: #fff; color: #2E6BB7; box-shadow: 0 1px 5px rgba(0,0,0,.08); }
     .bars { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
     .barbit { height: 7px; border-radius: 4px; width: 100%; display: block; }
@@ -106,6 +107,19 @@
     @media (min-width: 900px) {
       .dashgrid { grid-template-columns: 1fr 1fr 1fr 1fr; }
     }
+
+    .act-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 12px; }
+    .act-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+    @media (min-width: 800px) { .act-grid { grid-template-columns: 1fr 1fr; } }
+    .act-card { background: #fff; border-radius: 16px; padding: 12px 14px; box-shadow: 0 1px 6px rgba(0,0,0,.05); text-align: left; border: none; }
+    .act-card .nm { font-weight: 700; color: #1C3554; font-size: 15px; }
+    .act-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .act-row { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #EEF4FB; }
+    .act-row:last-child { border-bottom: none; }
+    .act-when { flex: 0 0 118px; font-size: 12px; color: #5B6F86; }
+    .act-sum { font-size: 14px; color: #1C3554; font-weight: 600; line-height: 1.4; }
+    .act-sub { font-size: 12.5px; color: #5B6F86; margin-top: 3px; line-height: 1.45; }
+    #listArea, #listArea * { overflow-anchor: none; }
     /* ==== Sales tab layout (sx-*) ==== */
     .sx-card { background: #fff; border-radius: 18px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(46,107,183,.10); margin-bottom: 14px; }
     .sx-head { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: none; padding: 0; text-align: left; color: #1C3554; font-size: 15.5px; font-weight: 700; min-height: 32px; }
@@ -316,7 +330,7 @@
     .catgrid { gap: 12px; }
     .catbox { border-radius: 16px; box-shadow: 0 2px 10px rgba(46,107,183,.10); border: 1px solid #E6EFF9; }
     @supports (overflow: clip) { .catbox { overflow: clip; } }
-    .catbox:not(.open) { content-visibility: auto; contain-intrinsic-size: auto 96px; }
+    .catbox:not(.open) { overflow-anchor: none; }
     .catbox.complete { background: #FFFBEA; border-color: #F0D48A; }
     .ck-cat { display: flex; align-items: flex-start; gap: 8px; padding: 12px 12px 12px 10px; background: #fff; }
     .ck-cat > .handle { margin-top: 6px; }
@@ -356,7 +370,7 @@
       .ck-cnt { padding: 2px 8px; }
     }
     /* แถวสินค้า */
-    .item.ck-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 12px; padding: 12px 12px 12px 10px; border-bottom: 1px solid #EEF4FB; background: #fff; content-visibility: auto; contain-intrinsic-size: auto 176px; }
+    .item.ck-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 12px; padding: 12px 12px 12px 10px; border-bottom: 1px solid #EEF4FB; background: #fff; overflow-anchor: none; }
     .item.ck-row:hover { background: #FAFCFF; }
     .item.ck-row.selected { background: #EAF3FF; }
     .item.ck-row.done { opacity: 1; }
@@ -417,7 +431,7 @@
     .ck-t:hover, .ck-a:hover { filter: brightness(.96); }
     .ck-t:focus-visible, .ck-a:focus-visible, .ck-pill:focus-visible, .ck-add:focus-visible, .ck-cmore:focus-visible, .ck-cat-main:focus-visible, .rm-i:focus-visible { outline: 2px solid #2E6BB7; outline-offset: 2px; }
     @media (min-width: 1000px) {
-      .item.ck-row { align-items: center; contain-intrinsic-size: auto 92px; }
+      .item.ck-row { align-items: center; }
       .ck-lead { padding-top: 0; }
       .ck-ctl { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 14px; }
       .ck-tog { display: flex; gap: 6px; }
@@ -886,6 +900,645 @@
         const MAP = { products: "tuka-products-v2", sales: "tuka-sales-v1", posts: "tuka-posts-v1" };
         const TS_PREFIX = "tuka-last-synced-";
 
+        // SYNC_LIB_START
+        // รวมข้อมูล 3 ทาง (ฐานที่ซิงก์ล่าสุด / ของในแท็บนี้ / ของบนคลาวด์) โดยไม่เปลี่ยนรูปแบบก้อนที่บอทอ่าน
+        function cloneData(v) {
+          if (v == null || typeof v !== "object") return v;
+          if (typeof structuredClone === "function") { try { return structuredClone(v); } catch (e) {} }
+          return JSON.parse(JSON.stringify(v));
+        }
+        function stable(v) {
+          if (v == null || typeof v !== "object") return JSON.stringify(v);
+          if (Array.isArray(v)) return "[" + v.map(stable).join(",") + "]";
+          const keys = Object.keys(v).sort();
+          return "{" + keys.map((k) => JSON.stringify(k) + ":" + stable(v[k])).join(",") + "}";
+        }
+        function sameVal(a, b) {
+          if (a === b) return true;
+          if (a == null || b == null) return false;
+          if (typeof a !== "object" && typeof b !== "object") return false;
+          return stable(a) === stable(b);
+        }
+        function hasOwn(o, k) { return !!o && Object.prototype.hasOwnProperty.call(o, k); }
+        function changedFields(a, b) {
+          const keys = new Set([].concat(Object.keys(a || {}), Object.keys(b || {})));
+          const out = [];
+          keys.forEach((k) => {
+            if (k === "id") return;
+            if (hasOwn(a, k) !== hasOwn(b, k) || !sameVal(a && a[k], b && b[k])) out.push(k);
+          });
+          return out;
+        }
+        function mergeFields(base, local, remote) {
+          base = base || {}; local = local || {}; remote = remote || {};
+          const keys = new Set([].concat(Object.keys(base), Object.keys(local), Object.keys(remote)));
+          const out = {};
+          keys.forEach((k) => {
+            if (k === "id") {
+              out.id = local.id != null ? local.id : (remote.id != null ? remote.id : base.id);
+              return;
+            }
+            const hb = hasOwn(base, k), hl = hasOwn(local, k), hr = hasOwn(remote, k);
+            const bv = hb ? base[k] : undefined, lv = hl ? local[k] : undefined, rv = hr ? remote[k] : undefined;
+            const lc = hl !== hb || !sameVal(lv, bv);
+            const rc = hr !== hb || !sameVal(rv, bv);
+            if (lc) { if (hl) out[k] = lv; }
+            else if (rc) { if (hr) out[k] = rv; }
+            else if (hr) out[k] = rv;
+            else if (hl) out[k] = lv;
+          });
+          return out;
+        }
+        function dedupeIds(ids) {
+          const out = [], seen = new Set();
+          (ids || []).forEach((id) => {
+            const k = String(id);
+            if (!k || seen.has(k)) return;
+            seen.add(k); out.push(k);
+          });
+          return out;
+        }
+        function mergeIdOrder(baseIds, localIds, remoteIds, allow) {
+          const keep = (ids) => dedupeIds(ids).filter((id) => allow.has(id));
+          const b = keep(baseIds), l = keep(localIds), r = keep(remoteIds);
+          const seq = (a, c) => a.length === c.length && a.every((x, i) => x === c[i]);
+          if (seq(l, b)) return dedupeIds(r.concat(Array.from(allow)));
+          if (seq(r, b)) return dedupeIds(l.concat(Array.from(allow)));
+          const out = r.slice();
+          const have = new Set(out);
+          l.forEach((id, i) => {
+            if (have.has(id)) return;
+            let at = -1;
+            for (let j = i - 1; j >= 0; j--) {
+              const k = out.indexOf(l[j]);
+              if (k >= 0) { at = k + 1; break; }
+            }
+            if (at < 0) at = Math.min(i, out.length);
+            out.splice(at, 0, id);
+            have.add(id);
+          });
+          allow.forEach((id) => { const s = String(id); if (!have.has(s)) { out.push(s); have.add(s); } });
+          return out;
+        }
+        function indexPack(pack) {
+          const items = new Map(), loc = new Map();
+          (pack && pack.list || []).forEach((p) => {
+            if (!p || p.id == null) return;
+            const id = String(p.id);
+            items.set(id, p); loc.set(id, "list");
+          });
+          (pack && pack.trash || []).forEach((p) => {
+            if (!p || p.id == null) return;
+            const id = String(p.id);
+            if (loc.has(id)) return;
+            items.set(id, p); loc.set(id, "trash");
+          });
+          return { items, loc };
+        }
+        function idsOf(list) { return (list || []).map((p) => (p && p.id != null ? String(p.id) : "")).filter(Boolean); }
+        function mergeStrOrder(base, local, remote) {
+          const all = new Set([].concat(base || [], local || [], remote || []).map((x) => String(x)));
+          return mergeIdOrder(base || [], local || [], remote || [], all);
+        }
+        function mergeCost(base, local, remote) {
+          if (!local && !remote) return undefined;
+          if (!local) return cloneData(remote);
+          if (!remote) return cloneData(local);
+          const b = base || {};
+          const fees = mergeFields(b.fees || {}, (local && local.fees) || {}, (remote && remote.fees) || {});
+          const shipChangedL = !sameVal(local.ship, b.ship);
+          const ship = shipChangedL ? local.ship : (!sameVal(remote.ship, b.ship) ? remote.ship : (remote.ship != null ? remote.ship : local.ship));
+          const out = { fees, ship };
+          const ts = Math.max(local.updatedAt || 0, remote.updatedAt || 0);
+          if (ts) out.updatedAt = ts;
+          return out;
+        }
+        function unionList(a, b) {
+          const s = new Set();
+          [].concat(a || [], b || []).forEach((x) => { const n = String(x == null ? "" : x).trim(); if (n) s.add(n); });
+          return Array.from(s).sort();
+        }
+        const PACK_KNOWN = { list: 1, order: 1, trash: 1, updatedAt: 1, csku_retired: 1, costCfg: 1 };
+        function mergeUnknown(base, local, remote) {
+          const clean = {};
+          const keys = new Set([].concat(Object.keys(base || {}), Object.keys(local || {}), Object.keys(remote || {})));
+          keys.forEach((k) => {
+            if (PACK_KNOWN[k]) return;
+            const piece = mergeFields(
+              hasOwn(base, k) ? { v: base[k] } : {},
+              hasOwn(local, k) ? { v: local[k] } : {},
+              hasOwn(remote, k) ? { v: remote[k] } : {}
+            );
+            if (hasOwn(piece, "v")) clean[k] = piece.v;
+          });
+          return clean;
+        }
+        function mergePack(base, local, remote) {
+          base = base || {}; local = local || {}; remote = remote || {};
+          const B = indexPack(base), L = indexPack(local), R = indexPack(remote);
+          const ids = new Set([].concat(Array.from(B.loc.keys()), Array.from(L.loc.keys()), Array.from(R.loc.keys())));
+          const merged = new Map(), where = new Map();
+          ids.forEach((id) => {
+            const b = B.items.get(id), l = L.items.get(id), r = R.items.get(id);
+            const bl = B.loc.get(id) || "gone", ll = L.loc.get(id) || "gone", rl = R.loc.get(id) || "gone";
+            let dest, obj;
+            if (ll === "gone" && rl === "gone") return;
+            if (rl === "gone") {
+              // คลาวด์ไม่มีตัวนี้แล้ว — ยอมลบเฉพาะตอนที่แท็บนี้ไม่ได้แก้เนื้อหา
+              if (!l) return;
+              if (b && !changedFields(b, l).length) return;
+              obj = Object.assign({}, l);
+              dest = ll;
+            } else if (ll === "gone") {
+              if (!r) return;
+              if (b && !changedFields(b, r).length) return;
+              obj = Object.assign({}, r);
+              dest = rl;
+            } else {
+              if (ll === rl) dest = ll;
+              else if (ll === bl) dest = rl;
+              else if (rl === bl) dest = ll;
+              else dest = ll;
+              obj = (l && r) ? mergeFields(b || {}, l, r) : Object.assign({}, l || r);
+            }
+            if (!obj || dest === "gone") return;
+            obj.id = l && l.id != null ? l.id : (r && r.id != null ? r.id : b.id);
+            merged.set(id, obj);
+            where.set(id, dest);
+          });
+          const listAllow = new Set(), trashAllow = new Set();
+          where.forEach((w, id) => { (w === "trash" ? trashAllow : listAllow).add(id); });
+          const list = mergeIdOrder(idsOf(base.list), idsOf(local.list), idsOf(remote.list), listAllow).map((id) => merged.get(id));
+          const trash = mergeIdOrder(idsOf(base.trash), idsOf(local.trash), idsOf(remote.trash), trashAllow).map((id) => merged.get(id));
+          const out = Object.assign({
+            list: list,
+            order: mergeStrOrder(base.order, local.order, remote.order),
+            trash: trash,
+            updatedAt: Math.max(local.updatedAt || 0, remote.updatedAt || 0),
+            csku_retired: unionList(local.csku_retired, remote.csku_retired),
+          }, mergeUnknown(base, local, remote));
+          const cost = mergeCost(base.costCfg, local.costCfg, remote.costCfg);
+          if (cost) out.costCfg = cost;
+          return out;
+        }
+        function indexRecords(arr) {
+          const items = new Map(), order = [];
+          (arr || []).forEach((p) => {
+            if (!p || p.id == null) return;
+            const id = String(p.id);
+            if (items.has(id)) return;
+            items.set(id, p); order.push(id);
+          });
+          return { items, order };
+        }
+        function mergeRecords(base, local, remote) {
+          const B = indexRecords(base), L = indexRecords(local), R = indexRecords(remote);
+          const ids = new Set([].concat(Array.from(B.items.keys()), Array.from(L.items.keys()), Array.from(R.items.keys())));
+          const merged = new Map();
+          ids.forEach((id) => {
+            const b = B.items.get(id), l = L.items.get(id), r = R.items.get(id);
+            if (l && r) merged.set(id, mergeFields(b || {}, l, r));
+            else if (l && !r) { if (!(b && !changedFields(b, l).length)) merged.set(id, Object.assign({}, l)); }
+            else if (r && !l) { if (!(b && !changedFields(b, r).length)) merged.set(id, Object.assign({}, r)); }
+          });
+          const allow = new Set(merged.keys());
+          return mergeIdOrder(B.order, L.order, R.order, allow).map((id) => merged.get(id));
+        }
+        function mergeValue(key, base, local, remote) {
+          if (key === "products") return mergePack(base, local, remote);
+          if (Array.isArray(local) || Array.isArray(remote) || Array.isArray(base)) return mergeRecords(base, local, remote);
+          if (local == null) return cloneData(remote);
+          if (remote == null) return cloneData(local);
+          return mergeFields(base || {}, local, remote);
+        }
+        function itemLabel(p) {
+          if (!p) return "";
+          const n = p.n || p.label || p.name || "";
+          const v = p.v && p.v !== n ? " / " + p.v : "";
+          return String(n + v).slice(0, 140);
+        }
+        function briefItem(p, fields) {
+          const o = { id: String(p.id), label: itemLabel(p) };
+          if (fields && fields.length) o.fields = fields.slice(0, 8);
+          return o;
+        }
+        function capList(arr) {
+          const all = arr || [];
+          return { items: all.slice(0, 20), more: Math.max(0, all.length - 20), count: all.length };
+        }
+        function diffPack(base, local) {
+          const B = indexPack(base || {}), L = indexPack(local || {});
+          const added = [], edited = [], trashed = [], restored = [], purged = [];
+          L.items.forEach((p, id) => {
+            const bp = B.items.get(id);
+            const bl = B.loc.get(id) || "gone", ll = L.loc.get(id);
+            if (!bp) added.push(briefItem(p));
+            else if (bl === "trash" && ll === "list") restored.push(briefItem(p, changedFields(bp, p)));
+            else if (bl === "list" && ll === "trash") trashed.push(briefItem(p));
+            else {
+              const fields = changedFields(bp, p);
+              if (fields.length) edited.push(briefItem(p, fields));
+            }
+          });
+          B.items.forEach((p, id) => { if (!L.items.has(id)) purged.push(briefItem(p)); });
+          return {
+            added: added, edited: edited, trashed: trashed, restored: restored, purged: purged,
+            orderChanged: stable((base && base.order) || []) !== stable((local && local.order) || []),
+            costChanged: !sameVal(base && base.costCfg, local && local.costCfg),
+            retiredChanged: stable((base && base.csku_retired) || []) !== stable((local && local.csku_retired) || []),
+          };
+        }
+        function diffRecords(base, local) {
+          const B = indexRecords(base), L = indexRecords(local);
+          const added = [], edited = [], removed = [];
+          L.items.forEach((p, id) => {
+            const b = B.items.get(id);
+            if (!b) added.push(briefItem(p));
+            else {
+              const fields = changedFields(b, p);
+              if (fields.length) edited.push(briefItem(p, fields));
+            }
+          });
+          B.items.forEach((p, id) => { if (!L.items.has(id)) removed.push(briefItem(p)); });
+          return { added: added, edited: edited, removed: removed };
+        }
+        function diffValue(key, base, local) {
+          if (key === "products") return diffPack(base, local);
+          if (Array.isArray(local) || Array.isArray(base)) return diffRecords(base, local);
+          return { added: [], edited: [], removed: [] };
+        }
+        function diffEmpty(d) {
+          if (!d) return true;
+          const n = ["added", "edited", "removed", "trashed", "restored", "purged"].reduce((s, k) => s + ((d[k] || []).length), 0);
+          return n === 0 && !d.orderChanged && !d.costChanged && !d.retiredChanged;
+        }
+        function summaryFromDiff(d) {
+          if (!d) return "บันทึก";
+          const bits = [];
+          const n = (k) => (d[k] || []).length;
+          if (n("added")) bits.push("เพิ่ม " + n("added"));
+          if (n("edited")) bits.push("แก้ไข " + n("edited"));
+          if (n("trashed")) bits.push("ย้ายถังขยะ " + n("trashed"));
+          if (n("restored")) bits.push("กู้คืน " + n("restored"));
+          if (n("purged")) bits.push("ลบถาวร " + n("purged"));
+          if (n("removed")) bits.push("ลบ " + n("removed"));
+          if (d.orderChanged) bits.push("เรียงหมวด");
+          if (d.costChanged) bits.push("ตั้งค่ากำไร");
+          if (d.retiredChanged) bits.push("เลิกใช้ SKU");
+          return bits.join(" · ") || "บันทึก";
+        }
+        function detailFromDiff(d) {
+          const out = {};
+          ["added", "edited", "removed", "trashed", "restored", "purged"].forEach((k) => {
+            if (!(d[k] || []).length) return;
+            const c = capList(d[k]);
+            out[k] = c.items;
+            out[k + "Count"] = c.count;
+            if (c.more) out[k + "More"] = c.more;
+          });
+          if (d.orderChanged) out.orderChanged = true;
+          if (d.costChanged) out.costChanged = true;
+          if (d.retiredChanged) out.retiredChanged = true;
+          return out;
+        }
+        function actorName() {
+          try {
+            const s = globalThis.localStorage && localStorage.getItem("tuka-actor-name");
+            const t = String(s || "").trim().slice(0, 80);
+            return t || "ไม่ระบุชื่อ";
+          } catch (e) { return "ไม่ระบุชื่อ"; }
+        }
+        globalThis.__mergeValue = mergeValue;
+        globalThis.__diffValue = diffValue;
+        globalThis.__summaryFromDiff = summaryFromDiff;
+        globalThis.__diffEmpty = diffEmpty;
+        globalThis.__actorName = actorName;
+        // SYNC_LIB_END
+
+        function isSyncData(key, v) {
+          if (key === "products") return !!v && typeof v === "object" && !Array.isArray(v) && Array.isArray(v.list);
+          if (key === "posts" || key === "sales") return Array.isArray(v);
+          return false;
+        }
+        const Sync = {
+          base: {}, local: {}, rev: {}, dirty: {}, busy: {}, again: {}, bootstrap: {}, timers: {}, gen: {},
+          activityMode: "",
+        };
+        function syncRemember(key, value, rev) {
+          if (!isSyncData(key, value)) return;
+          Sync.base[key] = cloneData(value);
+          Sync.local[key] = value;
+          if (rev) Sync.rev[key] = rev;
+        }
+        window.__syncRemember = syncRemember;
+        window.__syncHas = (key) => !!Sync.rev[key];
+        window.__syncSetLocal = (key, value) => { if (value != null) Sync.local[key] = value; };
+        window.__syncMarkBootstrap = (key) => { Sync.bootstrap[key] = true; Sync.dirty[key] = true; };
+        window.__syncBind = (key, value) => {
+          if (!isSyncData(key, value)) return;
+          if (!Sync.base[key]) Sync.base[key] = cloneData(value);
+          Sync.local[key] = value;
+        };
+        async function fetchSyncRow(key) {
+          const { data, error } = await sb.from("app_data").select("value,updated_at").eq("key", key).maybeSingle();
+          if (error) throw error;
+          if (!data) return null;
+          return { value: await gzipDecompress(data.value), updated_at: data.updated_at };
+        }
+        async function casWrite(key, value, expectRev) {
+          const packed = await gzipCompress(value);
+          const nowIso = new Date().toISOString();
+          if (!expectRev) {
+            const { error } = await sb.from("app_data").upsert({ key, value: packed, updated_at: nowIso });
+            if (error) return { ok: false, message: error.message || "บันทึกไม่สำเร็จ", retry: /fetch|network|Failed/i.test(error.message || "") };
+            return { ok: true, updated_at: nowIso };
+          }
+          const { data, error } = await sb.from("app_data").update({ value: packed, updated_at: nowIso }).eq("key", key).eq("updated_at", expectRev).select("updated_at");
+          if (error) return { ok: false, message: error.message || "บันทึกไม่สำเร็จ", retry: /fetch|network|Failed/i.test(error.message || "") };
+          if (!data || !data.length) return { ok: false, conflict: true };
+          return { ok: true, updated_at: data[0].updated_at || nowIso };
+        }
+        function missingActivityTable(error) {
+          if (!error) return false;
+          const msg = (error.message || "") + " " + (error.code || "") + " " + (error.details || "");
+          return error.code === "PGRST205" || /activity_log|schema cache|does not exist|42P01/i.test(msg);
+        }
+        async function appendActivityFallback(entry) {
+          const rec = {
+            id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+            created_at: new Date().toISOString(),
+            actor: entry.actor,
+            action: entry.action,
+            summary: entry.summary,
+            detail: entry.detail || {},
+          };
+          for (let i = 0; i < 4; i++) {
+            const row = await fetchSyncRow("activity");
+            let entries = [];
+            if (row && row.value) {
+              const v = row.value;
+              entries = Array.isArray(v) ? v.slice() : (v && Array.isArray(v.entries) ? v.entries.slice() : []);
+            }
+            if (entries.some((e) => e && e.id === rec.id)) break;
+            entries.unshift(rec);
+            if (entries.length > 300) entries.length = 300;
+            const packed = await gzipCompress({ v: 1, entries: entries });
+            const nowIso = new Date().toISOString();
+            if (!row) {
+              const { error } = await sb.from("app_data").insert({ key: "activity", value: packed, updated_at: nowIso });
+              if (!error) break;
+              if (!/duplicate|23505/i.test(error.message || "")) break;
+              continue;
+            }
+            const { data, error } = await sb.from("app_data").update({ value: packed, updated_at: nowIso }).eq("key", "activity").eq("updated_at", row.updated_at).select("updated_at");
+            if (!error && data && data.length) break;
+          }
+        }
+        async function logActivity(entry) {
+          const row = { actor: entry.actor, action: entry.action, summary: entry.summary, detail: entry.detail || {} };
+          const ins = await sb.from("activity_log").insert(row);
+          if (!ins.error) {
+            Sync.activityMode = "table";
+            if (window.__onActivity) window.__onActivity();
+            return;
+          }
+          if (!missingActivityTable(ins.error)) { console.warn("activity", ins.error); return; }
+          Sync.activityMode = "fallback";
+          try { await appendActivityFallback(entry); } catch (e) { console.warn("activity fallback", e); }
+          if (window.__onActivity) window.__onActivity();
+        }
+        async function writeActivityFor(key, before, after) {
+          const bootstrap = !!Sync.bootstrap[key];
+          Sync.bootstrap[key] = false;
+          let summary, detail;
+          const diff = diffValue(key, before, after);
+          const bigBoot = bootstrap && ((diff.added || []).length > 30 || (diff.edited || []).length > 30);
+          if (bigBoot) {
+            const n = countOf(after);
+            summary = key === "products" ? "ส่งข้อมูลสินค้าในเครื่องขึ้นคลาวด์ (" + n.toLocaleString() + " รายการ)" : "ส่งข้อมูลในเครื่องขึ้นคลาวด์";
+            detail = { bootstrap: true, key: key, count: n };
+          } else if (!diffEmpty(diff)) {
+            summary = summaryFromDiff(diff);
+            detail = detailFromDiff(diff);
+            detail.key = key;
+          } else return;
+          await logActivity({ actor: actorName(), action: "save-" + key, summary: summary, detail: detail });
+        }
+        async function storeLocalCopy(key, value) {
+          if (key === "products") {
+            try { await ProductStore.save(value); } catch (e) {}
+            return;
+          }
+          const lsKey = MAP[key];
+          if (!lsKey) return;
+          try { localStorage.setItem(lsKey, JSON.stringify(value)); window.__storageWarn(lsKey, null); }
+          catch (e) { (window.__tukaMem = window.__tukaMem || {})[lsKey] = value; }
+        }
+        async function absorbRemote(key, hint) {
+          if (!MAP[key] || Sync.busy[key]) return;
+          Sync.busy[key] = true;
+          try {
+            let value = null, rev = "";
+            if (hint && hint.value && hint.updated_at) {
+              value = await gzipDecompress(hint.value);
+              rev = hint.updated_at;
+            }
+            if (!isSyncData(key, value)) {
+              const row = await fetchSyncRow(key);
+              if (!row) return;
+              value = row.value; rev = row.updated_at;
+            }
+            if (!isSyncData(key, value) || !rev || rev === Sync.rev[key]) return;
+            if (!Sync.dirty[key]) {
+              syncRemember(key, value, rev);
+              try { localStorage.setItem(TS_PREFIX + key, rev); } catch (e) {}
+              await storeLocalCopy(key, Sync.local[key]);
+              if (window.__onRemoteData) window.__onRemoteData(key, Sync.local[key], { merged: false });
+              window.__setSyncBadge("☁️ มีอัปเดตจากคนอื่น — โหลดแล้ว", "#1E5F3E", "#D4EDDA");
+              return;
+            }
+            const merged = mergeValue(key, Sync.base[key], Sync.local[key], value);
+            Sync.base[key] = cloneData(value);
+            Sync.rev[key] = rev;
+            Sync.local[key] = merged;
+            if (window.__onRemoteData) window.__onRemoteData(key, merged, { merged: true });
+            window.__setSyncBadge("☁️ รวมการแก้ของคนอื่นกับการแก้ที่ยังไม่บันทึกแล้ว", "#1E5F3E", "#D4EDDA");
+          } catch (e) {
+            console.warn("absorb", key, e);
+          } finally {
+            Sync.busy[key] = false;
+            if (Sync.again[key]) { Sync.again[key] = false; scheduleSync(key); }
+          }
+        }
+        window.__absorbRemote = absorbRemote;
+        async function flushSync(key, attempt) {
+          if (Sync.busy[key]) { Sync.again[key] = true; return; }
+          Sync.busy[key] = true;
+          const gen = Sync.gen[key] || 0;
+          try {
+            let local = Sync.local[key];
+            if (!isSyncData(key, local)) return;
+            if (!Sync.rev[key]) {
+              const existing = await fetchSyncRow(key);
+              if (existing && isSyncData(key, existing.value)) {
+                if (!Sync.base[key]) {
+                  syncRemember(key, existing.value, existing.updated_at);
+                  Sync.dirty[key] = false;
+                  try { localStorage.setItem(TS_PREFIX + key, existing.updated_at); } catch (e) {}
+                  await storeLocalCopy(key, Sync.local[key]);
+                  if (window.__onRemoteData) window.__onRemoteData(key, Sync.local[key], { merged: false });
+                  window.__setSyncBadge("⚠️ โหลดข้อมูลคลาวด์ชุดล่าสุดแล้ว การแก้รอบที่แล้วยังไม่ถูกส่ง — กรุณาแก้ซ้ำ", "#7A1E1E", "#FADBD8");
+                  return;
+                }
+                Sync.rev[key] = existing.updated_at;
+              }
+            }
+            if (key === "products" && window.__findCskuDups) {
+              const dups = window.__findCskuDups(local);
+              if (dups.length) {
+                window.__setSyncBadge("⚠️ ยังไม่บันทึกขึ้นคลาวด์: SKU กลางซ้ำ " + dups.slice(0, 3).join(", "), "#7A1E1E", "#FADBD8");
+                return;
+              }
+            }
+            for (let guard = 0; guard < 5; guard++) {
+              let remote = null;
+              if (Sync.rev[key]) {
+                const row = await fetchSyncRow(key);
+                if (row && row.updated_at && row.updated_at !== Sync.rev[key] && isSyncData(key, row.value)) remote = row;
+              }
+              let toWrite = local;
+              if (remote) {
+                toWrite = mergeValue(key, Sync.base[key], local, remote.value);
+                Sync.base[key] = cloneData(remote.value);
+                Sync.rev[key] = remote.updated_at;
+                Sync.local[key] = toWrite;
+                local = toWrite;
+                if (window.__onRemoteData) window.__onRemoteData(key, toWrite, { merged: true });
+              }
+              const result = await casWrite(key, toWrite, Sync.rev[key] || "");
+              if (result.ok) {
+                const beforeBase = Sync.base[key];
+                const writtenSnap = cloneData(toWrite);
+                try { await writeActivityFor(key, beforeBase, writtenSnap); } catch (e) { console.warn("activity", e); }
+                Sync.base[key] = writtenSnap;
+                Sync.rev[key] = result.updated_at;
+                try { localStorage.setItem(TS_PREFIX + key, result.updated_at); } catch (e) {}
+                await storeLocalCopy(key, toWrite);
+                if ((Sync.gen[key] || 0) !== gen) { Sync.dirty[key] = true; Sync.again[key] = true; }
+                else { Sync.dirty[key] = false; Sync.local[key] = toWrite; }
+                window.__setSyncBadge(remote ? "☁️ บันทึกขึ้นคลาวด์แล้ว (รวมกับข้อมูลใหม่)" : "☁️ บันทึกขึ้นคลาวด์แล้ว", "#1E5F3E", "#D4EDDA");
+                return;
+              }
+              if (result.conflict) continue;
+              if (result.retry && attempt < 3) {
+                window.__setSyncBadge("🔄 กำลังลองใหม่... (" + (attempt + 1) + "/3)", "#7A5C00", "#FFF3CD");
+                setTimeout(() => flushSync(key, attempt + 1), Math.pow(2, attempt) * 1000);
+                return;
+              }
+              window.__setSyncBadge("⚠️ บันทึกขึ้นคลาวด์ไม่สำเร็จ: " + (result.message || "ไม่ทราบสาเหตุ"), "#7A1E1E", "#FADBD8");
+              return;
+            }
+            window.__setSyncBadge("⚠️ มีคนแก้พร้อมกันหลายรอบ ยังบันทึกไม่สำเร็จ — แก้ต่อแล้วระบบจะลองใหม่", "#7A1E1E", "#FADBD8");
+            Sync.dirty[key] = true;
+          } catch (e) {
+            console.warn("flush", key, e);
+            if (attempt < 3) {
+              window.__setSyncBadge("🔄 กำลังลองใหม่... (" + (attempt + 1) + "/3)", "#7A5C00", "#FFF3CD");
+              setTimeout(() => flushSync(key, attempt + 1), Math.pow(2, attempt) * 1000);
+            } else {
+              window.__setSyncBadge("⚠️ " + (e.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์"), "#7A1E1E", "#FADBD8");
+            }
+          } finally {
+            Sync.busy[key] = false;
+            if (Sync.again[key]) { Sync.again[key] = false; scheduleSync(key); }
+          }
+        }
+        function scheduleSync(key) {
+          Sync.gen[key] = (Sync.gen[key] || 0) + 1;
+          Sync.dirty[key] = true;
+          if (Sync.busy[key]) { Sync.again[key] = true; return; }
+          clearTimeout(Sync.timers[key]);
+          window.__setSyncBadge("🔄 กำลังบันทึกขึ้นคลาวด์...", "#7A5C00", "#FFF3CD");
+          Sync.timers[key] = setTimeout(() => { flushSync(key, 0); }, 3000);
+        }
+        window.__cloudSync = (key, value) => {
+          if (!MAP[key]) return;
+          if (value !== undefined) Sync.local[key] = value;
+          scheduleSync(key);
+        };
+        let pollTimer = 0;
+        async function pollSync() {
+          if (Sync.polling) return;
+          Sync.polling = true;
+          try {
+            const { data, error } = await sb.from("app_data").select("key,updated_at").in("key", ["products", "posts", "sales"]);
+            if (error || !data) return;
+            for (const row of data) {
+              if (!row || !MAP[row.key] || !row.updated_at || row.updated_at === Sync.rev[row.key]) continue;
+              await absorbRemote(row.key);
+            }
+          } catch (e) { console.warn("poll", e); }
+          finally { Sync.polling = false; }
+        }
+        function armPoll() {
+          clearInterval(pollTimer);
+          pollTimer = setInterval(pollSync, document.hidden ? 20000 : 8000);
+        }
+        async function loadActivity() {
+          const table = await sb.from("activity_log").select("id,created_at,actor,action,summary,detail").order("created_at", { ascending: false }).limit(200);
+          if (!table.error) {
+            Sync.activityMode = "table";
+            return { entries: table.data || [], source: "table", ready: true, tableReady: true, error: "" };
+          }
+          if (!missingActivityTable(table.error)) {
+            return { entries: [], source: "error", ready: true, tableReady: false, error: table.error.message || "อ่านกิจกรรมไม่สำเร็จ" };
+          }
+          try {
+            const row = await fetchSyncRow("activity");
+            const v = row && row.value;
+            const entries = !v ? [] : Array.isArray(v) ? v : (Array.isArray(v.entries) ? v.entries : []);
+            Sync.activityMode = "fallback";
+            return { entries: entries, source: "app_data", ready: true, tableReady: false, error: "" };
+          } catch (e) {
+            return { entries: [], source: "none", ready: true, tableReady: false, error: "" };
+          }
+        }
+        window.__loadActivity = async () => {
+          try {
+            const res = await loadActivity();
+            window.__activityCache = res;
+            if (window.__paintActivity) window.__paintActivity(res);
+          } catch (e) {
+            console.warn("loadActivity", e);
+            if (window.__activityCache && window.__activityCache.entries && window.__activityCache.entries.length) return;
+            const res = { entries: [], source: "error", ready: true, tableReady: true, error: "ยังโหลดบันทึกกิจกรรมไม่ได้ — ตรวจการเชื่อมคลาวด์" };
+            window.__activityCache = res;
+            if (window.__paintActivity) window.__paintActivity(res);
+          }
+        };
+        function watchRealtime() {
+          try {
+            sb.channel("tracker-app-data").on("postgres_changes", { event: "*", schema: "public", table: "app_data" }, (payload) => {
+              const row = payload && payload.new;
+              if (!row || !row.key || !MAP[row.key]) return;
+              if (row.updated_at && row.updated_at === Sync.rev[row.key]) return;
+              absorbRemote(row.key, row.value ? row : null);
+            }).subscribe(() => {});
+            sb.channel("tracker-activity").on("postgres_changes", { event: "INSERT", schema: "public", table: "activity_log" }, () => {
+              if (window.__onActivity) window.__onActivity();
+            }).subscribe(() => {});
+          } catch (e) { console.warn("realtime", e); }
+        }
+        window.__syncStart = () => {
+          if (window.__syncStarted) return;
+          window.__syncStarted = true;
+          armPoll();
+          document.addEventListener("visibilitychange", () => { armPoll(); if (!document.hidden) pollSync(); });
+          watchRealtime();
+          setTimeout(() => { if (window.__loadActivity) window.__loadActivity(); }, 400);
+        };
+
+
         // ขั้นที่ 1: เช็คแค่ "เวลาอัปเดตล่าสุด" ก่อน (ข้อมูลเล็กมาก ไม่กินโควตา)
         // จะดึงข้อมูลก้อนใหญ่จริงๆ ก็ต่อเมื่อคลาวด์มีของใหม่กว่าที่เรามีอยู่แล้วเท่านั้น
         const { data: metaRows, error: metaErr } = await sb.from("app_data").select("key,updated_at");
@@ -929,76 +1582,26 @@
             }
             if (stored) { window.__storageWarn(lsKey, null); try { localStorage.setItem(TS_PREFIX + row.key, row.updated_at); } catch (e) {} }
             else window.__storageWarn(lsKey, STORAGE_FULL_MSG);
+            if (isSyncData(row.key, cloudVal)) syncRemember(row.key, row.key === "products" ? ProductStore.cache : ((window.__tukaMem && window.__tukaMem[lsKey]) || cloudVal), row.updated_at);
           } else if (localCount > 0) {
             // ในเครื่องมีข้อมูลจริงมากกว่า (เช่น คลาวด์ยังว่างเปล่าจากตอนตั้งค่าครั้งแรก) -> ดันของในเครื่องขึ้นคลาวด์แทน กันไม่ให้ข้อมูลจริงหาย
-            toPush.push({ key: row.key, value: localVal });
+            const cloudOk = isSyncData(row.key, cloudVal) && cloudCount > 0;
+            syncRemember(row.key, cloudOk ? cloudVal : localVal, row.updated_at);
+            if (cloudOk) Sync.local[row.key] = localVal;
+            Sync.bootstrap[row.key] = true;
+            Sync.dirty[row.key] = true;
+            toPush.push(row.key);
           }
         }
-
-        // debounced push ขึ้น cloud ทุกครั้งที่มีการบันทึกในเครื่อง (หน่วงเวลานานขึ้นเพื่อรวมการแก้ไขหลายจุดเป็นการส่งครั้งเดียว)
-        const timers = {};
-        const retryAttempts = {}; // track retry attempts per key
-
-        const syncWithRetry = async (key, value, attempt = 0) => {
-          try {
-            if (key === "products" && window.__findCskuDups) {
-              const d = window.__findCskuDups(value);
-              if (d.length) {
-                window.__setSyncBadge("⚠️ ยังไม่บันทึกขึ้นคลาวด์: SKU กลางซ้ำ " + d.slice(0, 3).join(", "), "#7A1E1E", "#FADBD8");
-                return;
-              }
-            }
-            const packed = await gzipCompress(value);
-            const nowIso = new Date().toISOString();
-
-            const { error } = await sb.from("app_data").upsert({ key, value: packed, updated_at: nowIso });
-
-            if (error) {
-              console.warn("cloud sync error:", error.message);
-              const errorMsg = error.message || "ไม่ทราบสาเหตุ";
-
-              // Retry logic for network-like errors
-              if ((error.message?.includes("Failed to fetch") || error.message?.includes("Network")) && attempt < 3) {
-                const delayMs = Math.pow(2, attempt) * 1000; // exponential backoff: 1s, 2s, 4s
-                console.log(`Retrying sync for key "${key}" in ${delayMs}ms (attempt ${attempt + 1}/3)`);
-                window.__setSyncBadge(`🔄 กำลังลองใหม่... (${attempt + 1}/3)`, "#7A5C00", "#FFF3CD");
-                setTimeout(() => syncWithRetry(key, value, attempt + 1), delayMs);
-              } else {
-                window.__setSyncBadge(`⚠️ บันทึกขึ้นคลาวด์ไม่สำเร็จ: ${errorMsg}`, "#7A1E1E", "#FADBD8");
-              }
-            } else {
-              localStorage.setItem(TS_PREFIX + key, nowIso);
-              window.__setSyncBadge("☁️ บันทึกขึ้นคลาวด์แล้ว", "#1E5F3E", "#D4EDDA");
-              retryAttempts[key] = 0; // reset retry counter on success
-            }
-          } catch (networkError) {
-            console.error("Network error during cloud sync:", networkError);
-
-            // Retry logic for network errors thrown by fetch
-            if (attempt < 3) {
-              const delayMs = Math.pow(2, attempt) * 1000;
-              console.log(`Retrying sync for key "${key}" in ${delayMs}ms (attempt ${attempt + 1}/3) - Network error`);
-              window.__setSyncBadge(`🔄 กำลังลองใหม่... (${attempt + 1}/3)`, "#7A5C00", "#FFF3CD");
-              setTimeout(() => syncWithRetry(key, value, attempt + 1), delayMs);
-            } else {
-              const errorMsg = networkError.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์";
-              window.__setSyncBadge(`⚠️ ${errorMsg}`, "#7A1E1E", "#FADBD8");
-            }
-          }
-        };
-
-        window.__cloudSync = (key, value) => {
-          window.__setSyncBadge("🔄 กำลังบันทึกขึ้นคลาวด์...", "#7A5C00", "#FFF3CD");
-          clearTimeout(timers[key]);
-          timers[key] = setTimeout(async () => {
-            retryAttempts[key] = 0;
-            syncWithRetry(key, value, 0);
-          }, 3000);
-        };
+        (metaRows || []).forEach((row) => {
+          if (!row || !MAP[row.key] || Sync.rev[row.key]) return;
+          const local = row.key === "products" ? ProductStore.cache : readLocal(MAP[row.key]);
+          if (isSyncData(row.key, local)) syncRemember(row.key, local, row.updated_at);
+        });
 
         if (toPush.length) {
           window.__setSyncBadge("🔄 กำลังส่งข้อมูลในเครื่องขึ้นคลาวด์ครั้งแรก...", "#7A5C00", "#FFF3CD");
-          toPush.forEach((item) => window.__cloudSync(item.key, item.value));
+          toPush.forEach((key) => window.__cloudSync(key));
         } else {
           window.__setSyncBadge("☁️ เชื่อมต่อคลาวด์สำเร็จ", "#1E5F3E", "#D4EDDA");
         }
@@ -1008,6 +1611,7 @@
       } finally {
         loading.remove();
         startApp();
+        if (window.__syncStart) window.__syncStart();
       }
     }
 
@@ -1230,6 +1834,9 @@ function startApp() {
     renameTarget: "",
     textInput: "",
     view: "list",
+    showActor: false,
+    activity: { entries: [], source: "", ready: false, tableReady: true, error: "" },
+    actLimit: 40,
     posts: load(POSTS_KEY, SEED_POSTS),
     sales: load(SALES_KEY, SEED_SALES),
     saleShop: "Shopee wararit.th",
@@ -1265,6 +1872,42 @@ function startApp() {
   let persistTimer = null;
   let pendingSaleFile = null;
   S.saleImportMonth = defaultSaleImportMonth();
+  function overlayOpen() {
+    return !!(S.showImport || S.showPost || S.showMulti || S.imgEdit || S.showGuide || S.showCostCfg || S.showMove || S.showMerge || S.showRename || S.showNewGroup || S.showRights || S.showSet || S.showStrip || S.showActor || S.deleteId || S.deleteCat || S.confirmClear || S.confirmClearSales || S.confirmSale || S.deleteSaleId);
+  }
+  function currentActor() {
+    try { return (localStorage.getItem("tuka-actor-name") || "").trim().slice(0, 80) || "ไม่ระบุชื่อ"; }
+    catch (e) { return "ไม่ระบุชื่อ"; }
+  }
+  if (window.__syncBind) {
+    window.__syncBind("products", S.pack);
+    window.__syncBind("posts", S.posts);
+    window.__syncBind("sales", S.sales);
+  }
+  window.__onRemoteData = (key, value) => {
+    if (!value) return;
+    if (key === "products" && value && Array.isArray(value.list)) {
+      const hold = captureScrollHold();
+      S.pack = value;
+      if (Array.isArray(value.trash)) { S.trash = value.trash; save(TRASH_KEY, S.trash); }
+      if (!overlayOpen() && S.view === "list" && document.getElementById("listArea")) { renderListOnly(); settleScrollHold(hold); }
+      else if (!overlayOpen()) render();
+    } else if (key === "posts" && Array.isArray(value)) {
+      S.posts = value;
+      if (!overlayOpen() && (S.view === "cal" || S.view === "dash")) render();
+    } else if (key === "sales" && Array.isArray(value)) {
+      S.sales = value;
+      if (!overlayOpen() && (S.view === "sales" || S.view === "dash")) render();
+    }
+  };
+  window.__paintActivity = (res) => {
+    S.activity = res || S.activity;
+    if ((S.view === "activity" || S.view === "dash") && !overlayOpen()) render();
+  };
+  window.__onActivity = () => {
+    if ((S.view === "activity" || S.view === "dash") && window.__loadActivity) window.__loadActivity();
+  };
+  if (window.__activityCache) S.activity = window.__activityCache;
   function persist(now) {
     S.pack.updatedAt = Date.now();
     S.pack.trash = S.trash || [];
@@ -2731,6 +3374,50 @@ function startApp() {
     return true;
   }
 
+  let _scrollHold = null;
+  function captureScrollHold() {
+    const headerH = (document.querySelector(".header-sticky") || {}).offsetHeight || 0;
+    const line = headerH + 8;
+    const root = document.getElementById("listArea");
+    if (!root) return { y: window.scrollY };
+    const items = root.querySelectorAll(".item");
+    for (let i = 0; i < items.length; i++) {
+      const r = items[i].getBoundingClientRect();
+      if (r.bottom > line + 4 && r.top < window.innerHeight) return { kind: "item", id: items[i].getAttribute("data-drag-item"), top: r.top, y: window.scrollY };
+    }
+    const boxes = root.querySelectorAll(".catbox");
+    for (let i = 0; i < boxes.length; i++) {
+      const r = boxes[i].getBoundingClientRect();
+      if (r.bottom > line + 4 && r.top < window.innerHeight) return { kind: "cat", id: boxes[i].getAttribute("data-drop-group"), top: r.top, y: window.scrollY };
+    }
+    return { y: window.scrollY };
+  }
+  function restoreScrollHold(hold) {
+    if (!hold) return 0;
+    let el = null;
+    if (hold.kind === "item" && hold.id) el = document.querySelector('#listArea .item[data-drag-item="' + CSS.escape(hold.id) + '"]');
+    else if (hold.kind === "cat" && hold.id) el = document.querySelector('#listArea .catbox[data-drop-group="' + CSS.escape(hold.id) + '"]');
+    if (!el) {
+      if (hold.y != null && Math.abs(window.scrollY - hold.y) > 1) window.scrollTo(0, hold.y);
+      return 0;
+    }
+    const dy = el.getBoundingClientRect().top - hold.top;
+    if (Math.abs(dy) > 0.5) window.scrollBy(0, dy);
+    return dy;
+  }
+  function settleScrollHold(hold) {
+    if (!hold) return;
+    restoreScrollHold(hold);
+    let n = 0, last = 0, flips = 0;
+    const tick = () => {
+      const dy = restoreScrollHold(hold);
+      if (last && dy && last * dy < 0) flips++;
+      if (dy) last = dy;
+      n++;
+      if (n < 8 && flips < 2 && Math.abs(dy) > 0.5) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
   function render() {
     const app = document.getElementById("app");
     const list = products();
@@ -2747,10 +3434,11 @@ function startApp() {
           <button class="tab ${S.view === "cal" ? "on" : ""}" data-act="view" data-v="cal">ปฏิทิน</button>
           <button class="tab ${S.view === "sales" ? "on" : ""}" data-act="view" data-v="sales">ยอดขาย</button>
           <button class="tab ${S.view === "trash" ? "on" : ""}" data-act="view" data-v="trash">ถังขยะ</button>
+          <button class="tab ${S.view === "activity" ? "on" : ""}" data-act="view" data-v="activity">กิจกรรม</button>
         </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap">
-        <div class="tiny">${S.pack.updatedAt ? "อัปเดต " + new Date(S.pack.updatedAt).toLocaleDateString("th-TH") : ""}${S.backupStatus ? " · " + S.backupStatus : ""}</div>
+        <div class="tiny">${S.pack.updatedAt ? "อัปเดต " + new Date(S.pack.updatedAt).toLocaleDateString("th-TH") : ""}${S.backupStatus ? " · " + S.backupStatus : ""} <button class="ghost" data-act="actor-open">${esc(currentActor() === "ไม่ระบุชื่อ" ? "ตั้งชื่อผู้ใช้" : "ผู้ใช้: " + currentActor())}</button></div>
         <div class="rowbtns menu">
           <button class="ghost" data-act="open-import">นำเข้า/อัปเดต</button>
           <button class="ghost ${S.showMenu ? "on" : ""}" data-act="toggle-menu" aria-label="เมนูเพิ่มเติม" title="เมนูเพิ่มเติม">⋯ เพิ่มเติม</button>
@@ -2772,6 +3460,8 @@ function startApp() {
       html += salesHTML();
     } else if (S.view === "trash") {
       html += trashHTML();
+    } else if (S.view === "activity") {
+      html += activityHTML();
     } else if (!list.length) {
       html += `<div class="warn" style="text-align:center">ยังไม่มีข้อมูลจาก Tukkacenter — กด "นำเข้า/อัปเดต" แล้ววางตารางสินค้า</div>`;
     } else {
@@ -2815,10 +3505,11 @@ function startApp() {
         2. ใส่รหัสผ่านทีม แล้วกด «เข้าใช้งาน» (ขอรหัสจากคุณ susi หรือ IT · ห้ามโพสต์รหัสในกลุ่ม)<br>
         3. ดูป้ายมุมขวาบน: «☁️ บันทึกขึ้นคลาวด์แล้ว» = ปลอดภัย · «🔄 กำลังบันทึก…» = รอก่อนปิด · «⚠️» = ไม่สำเร็จ แคปจอแจ้ง IT<br><br>
         <b>⭐ กฎทอง</b><br>
-        1. เปิด tracker แค่ 1 แท็บ ปิดแท็บเก่าทุกแท็บก่อนเปิดใหม่<br>
+        1. เปิดได้หลายแท็บและหลายคนพร้อมกัน ระบบรวมรายการให้ ไม่เขียนทับทั้งก้อน<br>
         2. เมื่อแจ้งว่าอัปเดตเว็บ: ปิดแท็บเก่าหมด แล้วกด Ctrl+Shift+R (มือถือ: ปิดแล้วเปิดใหม่)<br>
-        3. อย่าแก้สินค้าชิ้นเดียวกันพร้อมกันสองเครื่อง/สองคน<br>
-        4. รอ «☁️ บันทึกขึ้นคลาวด์แล้ว» ก่อนปิดหน้า<br><br>
+        3. แก้คนละสินค้าได้พร้อมกัน ถ้าสองคนแก้ช่องเดียวกันของสินค้าชิ้นเดียวกัน คนที่บันทึกทีหลังได้ช่องนั้น<br>
+        4. รอ «☁️ บันทึกขึ้นคลาวด์แล้ว» ก่อนปิดหน้า ถ้าขึ้นว่า «รวมกับข้อมูลใหม่» แปลว่ามีคนอื่นแก้ระหว่างนั้น<br>
+        5. กด «ตั้งชื่อผู้ใช้» ให้เป็นชื่อจริงหรือชื่อบอท เพื่อให้แท็บกิจกรรมบอกได้ว่าใครทำอะไร<br><br>
         <b>สำรองข้อมูล</b><br>
         ระบบส่งออก CSV ให้อัตโนมัติทุกวันอาทิตย์ 18:00 เข้า NAS โฟลเดอร์ [สำรองข้อมูล] ไม่ต้องกดส่งออกเองทุกสัปดาห์<br><br>
         <b>🔒 ปุ่มอันตราย (ถามรหัสผ่านซ้ำ)</b><br>
@@ -2904,6 +3595,13 @@ function startApp() {
     if (S.showStrip) html += textSheet("ลบคำในชื่อสินค้า (หมวด " + S.renameTarget + ")", "strip-ok", "", "คำที่จะลบ เช่น เคโระ");
     if (S.showNewGroup) html += textSheet("สร้างหมวดใหม่", "create-group", S.textInput, "เช่น ตุ๊กตา 15 นิ้ว / ผ้าห่มฮู้ด");
 
+    if (S.showActor) html += `<div class="overlay" data-act="actor-cancel"><div class="sheet" data-stop="1" role="dialog" aria-label="ชื่อผู้ใช้">
+      <div style="font-size:17px;font-weight:700;color:#2E6BB7;margin-bottom:6px">ชื่อที่ใช้บันทึกกิจกรรม</div>
+      <div class="muted" style="margin-bottom:10px">ชื่อนี้ติดไปกับทุกครั้งที่เครื่องนี้บันทึก เช่น ริต้า, แอดมิน, บอท-sku</div>
+      <input id="actorName" class="field" maxlength="80" placeholder="ชื่อคนหรือชื่อบอท" value="${esc(currentActor() === "ไม่ระบุชื่อ" ? "" : currentActor())}" />
+      <button class="btn on" data-act="actor-save">บันทึกชื่อ</button>
+      <button class="ghost" data-act="actor-cancel" style="width:100%;justify-content:center;margin-top:8px">ยกเลิก</button>
+    </div></div>`;
     const csOld = app.querySelector(".cx-sheet");
     const csTop = csOld ? csOld.scrollTop : 0, csKey = csOld ? csOld.getAttribute("data-day") : "";
     app.innerHTML = html;
@@ -2911,8 +3609,93 @@ function startApp() {
     bind();
     lastSearchKey = S.search.trim().toLowerCase();
     syncChrome();
+    if (_scrollHold) { const hold = _scrollHold; _scrollHold = null; settleScrollHold(hold); }
   }
 
+
+  const ACT_FIELD = { ph: "รูป", vd: "วิดีโอ", up: "อัปโหลด", ex: "คัดออก", g: "หมวด", c: "หมวด", n: "ชื่อ", v: "ตัวเลือก", p: "ต้นทุน", sp: "ราคาขาย", s: "สต็อก", rights: "ลิขสิทธิ์", sku: "SKU", csku: "SKU กลาง", csku_old: "SKU เดิม", csku_chg: "ป้ายแก้ SKU", set: "ชุด", aka: "ชื่อในร้าน", img: "รูปสินค้า", imgs: "รูปเพิ่ม", size_cm: "ไซซ์", caption: "แคปชัน", note: "โน้ต", date: "วันที่", qty: "จำนวน", rev: "ยอด", shop: "ร้าน", productId: "สินค้าที่ผูก", platforms: "ช่องทาง", label: "ชื่อ" };
+  function fmtWhen(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleString("th-TH", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  }
+  function actCount(d, key) {
+    if (!d) return 0;
+    if (d[key + "Count"] != null) return d[key + "Count"];
+    return (d[key] || []).length;
+  }
+  function activityActors(entries) {
+    const map = new Map();
+    (entries || []).forEach((e) => {
+      const name = e.actor || "ไม่ระบุชื่อ";
+      let a = map.get(name);
+      if (!a) { a = { name: name, saves: 0, added: 0, edited: 0, removed: 0, restored: 0, last: "" }; map.set(name, a); }
+      const d = e.detail || {};
+      a.saves++;
+      a.added += actCount(d, "added");
+      a.edited += actCount(d, "edited");
+      a.removed += actCount(d, "removed") + actCount(d, "trashed") + actCount(d, "purged");
+      a.restored += actCount(d, "restored");
+      if (!a.last || String(e.created_at) > String(a.last)) a.last = e.created_at;
+    });
+    return Array.from(map.values()).sort((x, y) => String(y.last).localeCompare(String(x.last)));
+  }
+  function actLines(e) {
+    const d = e.detail || {};
+    const rows = [];
+    const push = (arr, verb) => (arr || []).slice(0, 3).forEach((it) => {
+      const fields = (it.fields || []).map((f) => ACT_FIELD[f] || f).slice(0, 4).join(", ");
+      rows.push(verb + " " + (it.label || it.id || "") + (fields ? " (" + fields + ")" : ""));
+    });
+    push(d.added, "เพิ่ม");
+    push(d.edited, "แก้");
+    push(d.trashed, "ย้ายถังขยะ");
+    push(d.restored, "กู้คืน");
+    push(d.removed, "ลบ");
+    push(d.purged, "ลบถาวร");
+    return rows;
+  }
+  function activityDashHTML() {
+    const st = S.activity || { entries: [], ready: false };
+    const entries = st.entries || [];
+    const top = entries.slice(0, 3);
+    return `<div class="card" style="margin-top:14px">
+      <div class="act-head">
+        <div>
+          <div style="font-weight:700;color:#1C3554">กิจกรรมล่าสุด</div>
+          <div class="tiny">ใครแก้สินค้า โพสต์ หรือยอดขาย</div>
+        </div>
+        <button class="ghost" data-act="view" data-v="activity">เปิดแท็บกิจกรรม</button>
+      </div>
+      ${!st.ready ? `<div class="tiny">กำลังโหลดบันทึกกิจกรรม...</div>` : (!top.length ? `<div class="empty" style="padding:18px 8px">ยังไม่มีบันทึกกิจกรรม</div>` : top.map((e) => `<div class="act-row"><div class="act-when">${esc(fmtWhen(e.created_at))}<div>${esc(e.actor || "ไม่ระบุชื่อ")}</div></div><div><div class="act-sum">${esc(e.summary || "")}</div></div></div>`).join(""))}
+    </div>`;
+  }
+  function activityHTML() {
+    const st = S.activity || { entries: [], ready: false, tableReady: true, error: "" };
+    const entries = st.entries || [];
+    const actors = activityActors(entries);
+    const limit = S.actLimit || 40;
+    const shown = entries.slice(0, limit);
+    const updated = S.pack && S.pack.updatedAt ? new Date(S.pack.updatedAt).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" }) : "";
+    const who = currentActor();
+    return `<div class="act-head">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:#1C3554">กิจกรรมของคนและบอท</div>
+          <div class="tiny">บันทึกเมื่อมีการเซฟจากหน้านี้ และเมื่อบอทส่งรายการเข้ามา</div>
+        </div>
+        <button class="ghost" data-act="actor-open">${esc(who === "ไม่ระบุชื่อ" ? "ตั้งชื่อผู้ใช้" : "ผู้ใช้: " + who)}</button>
+      </div>
+      ${updated ? `<div class="card" style="margin-bottom:12px"><div class="tiny">เวลาที่ก้อนสินค้าถูกบันทึกล่าสุด (ข้อมูลเดิมไม่มีชื่อผู้แก้)</div><div style="font-weight:700;margin-top:4px">${esc(updated)}</div></div>` : ""}
+      ${st.error ? `<div class="warn">${esc(st.error)}</div>` : ""}
+      ${!st.ready ? `<div class="card">กำลังโหลดบันทึกกิจกรรม...</div>` : ""}
+      ${st.ready && !entries.length ? `<div class="card"><div class="empty" style="padding:28px 12px">ยังไม่มีบันทึกกิจกรรม<br>เมื่อมีการบันทึกสินค้า โพสต์ หรือยอดขาย รายการจะมาอยู่ตรงนี้<br><span class="tiny">บอทส่งบันทึกเข้าตาราง activity_log ได้ วิธีอยู่ใน README</span></div>${st.tableReady === false ? `<div class="tiny" style="padding:0 8px 12px">ยังไม่ได้สร้างตาราง activity_log — ระบบจะเก็บกิจกรรมสำรองไว้ก่อน จนกว่าจะรัน SQL ใน supabase/migrations</div>` : ""}</div>` : ""}
+      ${actors.length ? `<div class="act-grid">${actors.map((a) => `<div class="act-card"><div class="nm">${esc(a.name)}</div><div class="tiny">ล่าสุด ${esc(fmtWhen(a.last) || "-")}</div><div class="act-meta"><span class="ck-cnt">บันทึก ${a.saves}</span><span class="ck-cnt">เพิ่ม ${a.added}</span><span class="ck-cnt">แก้ ${a.edited}</span><span class="ck-cnt">ลบ ${a.removed}</span>${a.restored ? `<span class="ck-cnt">กู้ ${a.restored}</span>` : ""}</div></div>`).join("")}</div>` : ""}
+      ${shown.length ? `<div class="card"><div style="font-weight:700;color:#1C3554;margin-bottom:4px">ไทม์ไลน์</div>${shown.map((e) => {
+        const lines = actLines(e);
+        return `<div class="act-row"><div class="act-when">${esc(fmtWhen(e.created_at))}</div><div style="min-width:0;flex:1"><div class="tiny">${esc(e.actor || "ไม่ระบุชื่อ")}</div><div class="act-sum">${esc(e.summary || "")}</div>${lines.length ? `<div class="act-sub">${lines.map(esc).join("<br>")}</div>` : ""}</div></div>`;
+      }).join("")}${entries.length > shown.length ? `<button class="ghost" data-act="act-more" style="margin-top:8px">แสดงเพิ่มอีก ${Math.min(40, entries.length - shown.length)} รายการ</button>` : ""}</div>` : ""}`;
+  }
   function dashHTML() {
     const st = stats();
     const last = lastPostMap();
@@ -2991,7 +3774,8 @@ function startApp() {
             </button>`;
           }).join("");
         })()}
-      </div>`;
+      </div>
+      ${activityDashHTML()}`;
   }
   function postCardHTML(po) {
     const names = postProductIds(po).map((pid) => {
@@ -4006,7 +4790,7 @@ function startApp() {
       let skipRender = false;
       if (act !== "row-menu" && act !== "cat-menu") closeRowMenu();
 
-      if (act === "view") { S.view = v; S.showMenu = false; S.calSheet = ""; S.calDelAsk = ""; }
+      if (act === "view") { S.view = v; S.showMenu = false; S.calSheet = ""; S.calDelAsk = ""; if (v === "activity" && window.__loadActivity) window.__loadActivity(); }
       else if (act === "row-menu") { openRowMenu(btn); return; }
       else if (act === "cat-menu") { openCatMenu(btn); return; }
       else if (act === "rm-close") { skipRender = true; }
@@ -4015,6 +4799,15 @@ function startApp() {
       else if (act === "toggle-more-filters") { S.showMoreFilters = !S.showMoreFilters; }
       else if (act === "filter") S.filter = v;
       else if (act === "toggle-menu") S.showMenu = !S.showMenu;
+      else if (act === "actor-open") S.showActor = true;
+      else if (act === "actor-cancel") S.showActor = false;
+      else if (act === "actor-save") {
+        const el = document.getElementById("actorName");
+        const name = String((el && el.value) || "").trim().slice(0, 80);
+        try { localStorage.setItem("tuka-actor-name", name); } catch (e) {}
+        S.showActor = false;
+      }
+      else if (act === "act-more") S.actLimit = (S.actLimit || 40) + 40;
       else if (act === "toggle-skip") S.expandedSkip[v] = !(S.expandedSkip[v] === true);
       else if (act === "dash-go") { S.view = "list"; S.filter = v || "all"; S.showMenu = false; }
       else if (act === "dash-month") S.dashMonth = v;
@@ -4088,7 +4881,7 @@ function startApp() {
       else if (act === "cal-del-no") S.calDelAsk = "";
       else if (act === "cal-prev") shiftMonth(-1);
       else if (act === "cal-next") shiftMonth(1);
-      else if (act === "toggle-org") { S.organize = !S.organize; S.selected = {}; }
+      else if (act === "toggle-org") { _scrollHold = captureScrollHold(); S.organize = !S.organize; S.selected = {}; }
       else if (act === "toggle-cat") S.expanded[v] = !(S.expanded[v] === true);
       else if (act === "toggle-set") S.expandedSet[v] = !(S.expandedSet[v] === true);
       else if (act === "ask-clear-sales") S.confirmClearSales = true;

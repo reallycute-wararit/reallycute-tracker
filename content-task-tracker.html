@@ -5601,8 +5601,9 @@ function startApp() {
   function prepStatusLabel(id) { return (PREP_STATUS.find((t) => t.id === id) || {}).label || "ยังไม่ทำ"; }
   function prepDefaults(type) {
     if (type === "licensed") return { channels: PREP_CHANNELS.slice(0, 2), shops: ["Shopee reallycute.th", "Lazada", "TikTok Shop", "Line My Shop"] };
-    if (type === "original") return { channels: PREP_CHANNELS.slice(0, 2), shops: SALE_SHOPS.slice() };
-    if (type === "unlicensed") return { channels: PREP_CHANNELS.slice(2, 4), shops: SALE_SHOPS.slice() };
+    // reallycute.th ขายเฉพาะสินค้าลิขสิทธิ์แท้ — ออริจินอล/ไม่มีลิขสิทธิ์ ลงทุกร้านยกเว้น reallycute.th
+    if (type === "original") return { channels: PREP_CHANNELS.slice(0, 2), shops: SALE_SHOPS.filter((n) => n !== "Shopee reallycute.th") };
+    if (type === "unlicensed") return { channels: PREP_CHANNELS.slice(2, 4), shops: SALE_SHOPS.filter((n) => n !== "Shopee reallycute.th") };
     return { channels: [], shops: [] };
   }
   function prepTplKey(type) { return type === "unlicensed" ? "unlicensed" : (type === "licensed" || type === "original") ? "licensed" : ""; }

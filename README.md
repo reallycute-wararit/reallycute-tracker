@@ -145,3 +145,18 @@ node sync-merge.test.mjs
 ```
 
 เทสต์นี้ไม่ต่อ Supabase และไม่เขียนข้อมูลจริง
+
+## แท็บงานเตรียม (แคมเปญ)
+
+วางแผนงานเตรียมคอนเทนต์ทั้งสัปดาห์ (สัปดาห์เริ่มวันเสาร์) ข้อมูลอยู่ในตารางใหม่ ไม่แตะ `app_data`
+
+| ตาราง | ความหมาย |
+| --- | --- |
+| `campaigns` | 1 แคมเปญ = 1 ชุดโพสต์: `name`, `post_start`, `post_end`, `image_date`, `city`, `product_type` (`licensed` / `original` / `unlicensed` / null = รอเลือก), `channels`, `shops`, `product_ids` (jsonb), `note`, `media_kind`, `media_url`, `caption`, `post_id` |
+| `campaign_tasks` | งานย่อย: `campaign_id`, `sort`, `title`, `detail`, `assignee` (ริตา / Claude / Grok bot / อัตโนมัติ), `due_date`, `status` (`todo` / `doing` / `done`), `template_key` (`schedule_post` = งานตั้งเวลาโพสต์) |
+
+- ลบจากหน้าเว็บ = ใส่ `deleted_at` (เห็นในแท็บถังขยะ 7 วัน กู้คืนได้) anon ไม่มีสิทธิ์ DELETE
+- ทุกการเพิ่ม/แก้/ติ๊ก/ลบ/กู้คืน บันทึกลง `activity_log` (action `campaign-*` / `task-*`)
+- งาน `schedule_post` เสร็จ → ปุ่ม «บันทึกการโพสต์» เปิดฟอร์มเดิมในปฏิทิน กรอกสินค้า วันที่ ชนิดสื่อ ช่องทาง แคปชั่นให้
+- SQL: `supabase/migrations/20261114140000_prep_campaigns.sql` (รันแล้วกับโปรเจกต์นี้)
+- บอทอ่าน/เขียนได้ด้วย anon key ผ่าน REST `/rest/v1/campaigns` และ `/rest/v1/campaign_tasks` แล้ว insert `activity_log` ทุกครั้ง

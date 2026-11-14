@@ -644,8 +644,33 @@
     const APP_PASSWORD = "Reallycute@tracker1996"; // เปลี่ยนรหัสผ่านตรงนี้ได้เลย (ตั้งเองแล้วบันทึกไฟล์ทับ)
     const GATE_SESSION_KEY = "tuka-gate-ok";
 
+    // ==== จำการเข้าใช้งาน 30 วันในเบราว์เซอร์เดิม (ต่อเว็บไซต์ — ลิงก์ทดลองกับเว็บจริงจำแยกกัน) ====
+    // เก็บแค่วันหมดอายุ + ลายนิ้วมือของรหัส (ไม่เก็บรหัสจริง) ถ้าเปลี่ยน APP_PASSWORD ทุกเครื่องต้องใส่รหัสใหม่
+    const GATE_REMEMBER_KEY = "tuka-gate-remember";
+    const GATE_REMEMBER_MS = 30 * 24 * 60 * 60 * 1000;
+    function gatePrint() {
+      let h = 0x811c9dc5;
+      const t = "tuka-gate|" + APP_PASSWORD;
+      for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+      return h.toString(36);
+    }
+    function gateRemembered() {
+      try {
+        const v = JSON.parse(localStorage.getItem(GATE_REMEMBER_KEY) || "null");
+        if (!v || v.p !== gatePrint() || !(Number(v.until) > Date.now())) { localStorage.removeItem(GATE_REMEMBER_KEY); return false; }
+        return true;
+      } catch (e) { return false; }
+    }
+    function gateRemember() {
+      try { localStorage.setItem(GATE_REMEMBER_KEY, JSON.stringify({ until: Date.now() + GATE_REMEMBER_MS, p: gatePrint() })); } catch (e) {}
+    }
+    window.__gateLogout = () => {
+      try { localStorage.removeItem(GATE_REMEMBER_KEY); } catch (e) {}
+      try { sessionStorage.removeItem(GATE_SESSION_KEY); } catch (e) {}
+    };
     function showGate(onOk) {
-      if (sessionStorage.getItem(GATE_SESSION_KEY) === "1") { onOk(); return; }
+      if (gateRemembered()) { try { sessionStorage.setItem(GATE_SESSION_KEY, "1"); } catch (e) {} onOk(); return; }
+      if (sessionStorage.getItem(GATE_SESSION_KEY) === "1") { gateRemember(); onOk(); return; }
       const ov = document.createElement("div");
       ov.id = "gateOverlay";
       ov.innerHTML = `<div id="gateBox">
@@ -654,6 +679,7 @@
         <div style="font-size:13px;color:#7A8CA0;margin-top:4px">ใส่รหัสผ่านเพื่อเข้าใช้งาน</div>
         <input type="password" id="gatePw" placeholder="รหัสผ่าน" />
         <div id="gateMsg"></div>
+        <div style="font-size:12px;color:#7A8CA0;margin:-2px 0 10px">เบราว์เซอร์นี้จะจำไว้ 30 วัน · ออกจากระบบได้ที่เมนู ⋯ เพิ่มเติม</div>
         <button id="gateBtn">เข้าใช้งาน</button>
       </div>`;
       document.body.appendChild(ov);
@@ -662,6 +688,7 @@
       const tryEnter = () => {
         if (pwInput.value === APP_PASSWORD) {
           sessionStorage.setItem(GATE_SESSION_KEY, "1");
+          gateRemember();
           ov.remove();
           onOk();
         } else {
@@ -1449,6 +1476,7 @@
           }
         }
         window.__absorbRemote = absorbRemote;
+        window.__syncPending = () => Object.keys(Sync.dirty).some((k) => Sync.dirty[k]) || Object.keys(Sync.busy).some((k) => Sync.busy[k]);
         window.__logActivity = logActivity;
         async function flushSync(key, attempt) {
           if (Sync.busy[key]) { Sync.again[key] = true; return; }
@@ -3529,6 +3557,7 @@ function startApp() {
             <button class="ghost" data-act="export-json">ส่งไฟล์ให้พนักงาน</button>
             <button class="ghost" data-act="open-guide">คู่มือส่งต่อ</button>
             <button class="ghost" data-act="open-costcfg">ตั้งค่ากำไร (ค่าธรรมเนียม/ค่าส่ง)</button>
+            <button class="ghost" data-act="logout" style="color:#C0525A;border-color:#EED9D6">ออกจากระบบ</button>
             <button class="ghost ${S.backupOn && backupHandle ? "on" : ""}" data-act="pick-backup">${S.backupOn && backupHandle ? "โฟลเดอร์สำรองพร้อม" : "ตั้งโฟลเดอร์สำรองอัตโนมัติ"}</button>
           </div>` : ""}
         </div>
@@ -4891,6 +4920,20 @@ function startApp() {
       else if (act === "toggle-more-filters") { S.showMoreFilters = !S.showMoreFilters; }
       else if (act === "filter") S.filter = v;
       else if (act === "toggle-menu") S.showMenu = !S.showMenu;
+      else if (act === "logout") {
+        // รอให้การแก้ที่ยังไม่ขึ้นคลาวด์บันทึกก่อน (สูงสุด ~15 วินาที) แล้วค่อยออก
+        S.showMenu = false;
+        btn.disabled = true;
+        btn.textContent = "กำลังออกจากระบบ…";
+        let waited = 0;
+        const go = () => {
+          if (window.__syncPending && window.__syncPending() && waited < 15000) { waited += 500; setTimeout(go, 500); return; }
+          if (window.__gateLogout) window.__gateLogout();
+          location.reload();
+        };
+        go();
+        return;
+      }
       else if (act === "actor-open") S.showActor = true;
       else if (act === "actor-cancel") S.showActor = false;
       else if (act === "actor-save") {

@@ -546,6 +546,65 @@
     .plat-pills .pill.ch-youtube.on { background: #FF0000; color: #fff; border-color: #FF0000; }
     .plat-pills .pill.ch-line_voom { background: #ECFDF3; color: #15803D; border-color: #86EFAC; }
     .plat-pills .pill.ch-line_voom.on { background: #06C755; color: #fff; border-color: #06C755; }
+    /* ==== งานเตรียม (pp-*) ==== */
+    .cx-chip.plan { background: #fff; border: 1.5px dashed #9B7BD1; border-left: 3px dashed #9B7BD1; color: #5B3F8F; }
+    .cx-dot.plan { background: #fff; border: 1.5px dashed #9B7BD1; box-sizing: border-box; }
+    .pp-calplan { margin: 6px 0 10px; display: flex; flex-direction: column; gap: 6px; }
+    .pp-calbtn { width: 100%; text-align: left; padding: 8px 10px; font-size: 13px; cursor: pointer; }
+    .pp-filters { display: flex; flex-direction: column; gap: 0; margin-bottom: 8px; }
+    .pp-filters .pills { margin-bottom: 8px; align-items: center; flex-wrap: wrap; overflow: visible; }
+    .pp-ts { display: none; }
+    .pp-fl { flex: 0 0 auto; font-size: 12px; color: #5B6F86; font-weight: 600; margin-right: 2px; }
+    .pp-week { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 10px; }
+    .pp-day { background: #F7FAFD; border: 1px solid #E3ECF6; border-radius: 14px; padding: 10px; min-width: 0; }
+    .pp-day.today { border-color: #2E6BB7; box-shadow: 0 0 0 1px #2E6BB7 inset; }
+    .pp-dh { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #1C3554; font-size: 14px; }
+    .pp-dh .tag { font-size: 11px; font-weight: 700; color: #fff; background: #2E6BB7; border-radius: 999px; padding: 1px 8px; }
+    .pp-add { margin-left: auto; width: 30px; height: 30px; border-radius: 9px; border: 1px dashed #A9BDD4; background: #fff; color: #2E6BB7; font-size: 18px; line-height: 1; }
+    .pp-empty { font-size: 12px; color: #8AA0B5; padding: 6px 2px; }
+    .pp-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+    .pp-card { background: #fff; border-radius: 12px; padding: 10px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 4px solid #A9BDD4; min-width: 0; }
+    .pp-card.t-licensed { border-left-color: #2E6BB7; }
+    .pp-card.t-original { border-left-color: #5DB071; }
+    .pp-card.t-unlicensed { border-left-color: #E08A3C; }
+    .pp-head { display: block; width: 100%; text-align: left; border: none; background: none; padding: 0; cursor: pointer; }
+    .pp-name { display: block; font-size: 15px; font-weight: 700; color: #1C3554; line-height: 1.35; }
+    .pp-meta { display: flex; flex-wrap: wrap; gap: 4px 8px; font-size: 11.5px; color: #5B6F86; margin-top: 4px; }
+    .pp-type { background: #EEF4FB; color: #2E6BB7; border-radius: 999px; padding: 0 8px; font-weight: 600; }
+    .pp-wait { color: #B7791F; }
+    .pp-posted { color: #25623A; font-weight: 600; }
+    .pp-prog { display: flex; align-items: center; gap: 8px; margin: 8px 0 6px; }
+    .pp-prog .bar { flex: 1; }
+    .pp-tasks { display: flex; flex-direction: column; gap: 2px; }
+    .pp-task { display: flex; gap: 8px; align-items: flex-start; padding: 4px 0; }
+    .pp-task.done .pp-tt { text-decoration: line-through; color: #8AA0B5; }
+    .pp-ck { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 8px; border: 2px solid #A9BDD4; background: #fff; color: #fff; font-weight: 800; font-size: 14px; line-height: 1; padding: 0; cursor: pointer; }
+    .pp-task.done .pp-ck, .pp-te.done .pp-ck { background: #5DB071; border-color: #5DB071; }
+    .pp-task.doing .pp-ck { border-color: #E0A23C; }
+    .pp-tb { min-width: 0; flex: 1; }
+    .pp-tt { font-size: 13px; line-height: 1.4; color: #1C3554; word-break: break-word; }
+    .pp-who { font-weight: 600; color: #5B6F86; }
+    .pp-who.w-0 { color: #C0525A; } .pp-who.w-1 { color: #B7791F; } .pp-who.w-2 { color: #2E6BB7; } .pp-who.w-3 { color: #5DB071; }
+    .pp-log { margin-top: 8px; width: 100%; justify-content: center; }
+    .pp-sheet .pp-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .pp-sheet .pills.pp-wrapp { flex-wrap: wrap; overflow: visible; }
+    .pp-sheet select.field { background: #fff; }
+    .pp-picked { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 10px; }
+    .pp-chip { display: inline-flex; align-items: center; gap: 2px; background: #EEF4FB; color: #1C3554; border-radius: 999px; padding: 2px 4px 2px 10px; font-size: 12px; }
+    .pp-sec { border-top: 1px solid #E3ECF6; margin-top: 16px; padding-top: 12px; }
+    .pp-te { border: 1px solid #E3ECF6; border-radius: 12px; padding: 8px; margin-top: 8px; }
+    .pp-te.done { background: #F4FBF5; }
+    .pp-te-top { display: flex; align-items: center; gap: 6px; }
+    .pp-te .field.pp-in { margin: 6px 0 0; padding: 8px 10px; font-size: 13.5px; }
+    .pp-te-top .field.pp-in { margin: 0; flex: 1; min-width: 0; }
+    @media (max-width: 699px) {
+      .pp-week, .pp-list { grid-template-columns: 1fr; }
+      .pp-tl { display: none; } .pp-ts { display: inline; }
+      .pp-wrap .cx-nav { width: 100%; }
+      .pp-wrap .cx-title { flex: 1; text-align: center; white-space: nowrap; }
+      .pp-sheet .pp-grid3 { grid-template-columns: 1fr 1fr; }
+      .pp-ck { width: 30px; height: 30px; }
+    }
   </style>
 </head>
 <body>
@@ -1371,6 +1430,7 @@
           }
         }
         window.__absorbRemote = absorbRemote;
+        window.__logActivity = logActivity;
         async function flushSync(key, attempt) {
           if (Sync.busy[key]) { Sync.again[key] = true; return; }
           Sync.busy[key] = true;
@@ -1873,7 +1933,7 @@ function startApp() {
   let pendingSaleFile = null;
   S.saleImportMonth = defaultSaleImportMonth();
   function overlayOpen() {
-    return !!(S.showImport || S.showPost || S.showMulti || S.imgEdit || S.showGuide || S.showCostCfg || S.showMove || S.showMerge || S.showRename || S.showNewGroup || S.showRights || S.showSet || S.showStrip || S.showActor || S.deleteId || S.deleteCat || S.confirmClear || S.confirmClearSales || S.confirmSale || S.deleteSaleId);
+    return !!(S.showImport || S.showPost || S.showMulti || S.imgEdit || S.showGuide || S.showCostCfg || S.showMove || S.showMerge || S.showRename || S.showNewGroup || S.showRights || S.showSet || S.showStrip || S.showActor || S.deleteId || S.deleteCat || S.confirmClear || S.confirmClearSales || S.confirmSale || S.deleteSaleId || S.prepEdit);
   }
   function currentActor() {
     try { return (localStorage.getItem("tuka-actor-name") || "").trim().slice(0, 80) || "ไม่ระบุชื่อ"; }
@@ -3434,6 +3494,7 @@ function startApp() {
           <button class="tab ${S.view === "dash" ? "on" : ""}" data-act="view" data-v="dash">ภาพรวม</button>
           <button class="tab ${S.view === "list" ? "on" : ""}" data-act="view" data-v="list">เช็คลิสต์</button>
           <button class="tab ${S.view === "cal" ? "on" : ""}" data-act="view" data-v="cal">ปฏิทิน</button>
+          <button class="tab ${S.view === "prep" ? "on" : ""}" data-act="view" data-v="prep">งานเตรียม</button>
           <button class="tab ${S.view === "sales" ? "on" : ""}" data-act="view" data-v="sales">ยอดขาย</button>
           <button class="tab ${S.view === "trash" ? "on" : ""}" data-act="view" data-v="trash">ถังขยะ</button>
           <button class="tab ${S.view === "activity" ? "on" : ""}" data-act="view" data-v="activity">กิจกรรม</button>
@@ -3458,6 +3519,8 @@ function startApp() {
       html += dashHTML();
     } else if (S.view === "cal") {
       html += calendarHTML();
+    } else if (S.view === "prep") {
+      html += prepHTML();
     } else if (S.view === "sales") {
       html += salesHTML();
     } else if (S.view === "trash") {
@@ -3578,6 +3641,7 @@ function startApp() {
       <button class="ghost" style="width:100%;justify-content:center" data-act="cancel-clear">ยกเลิก</button>
     </div></div>`;
     if (S.showPost) html += postSheet();
+    if (S.prepEdit) html += prepSheet();
     if (S.showImport) html += importSheet();
     if (S.showCostCfg) html += costCfgSheet();
     if (S.showMulti) html += multiSheet();
@@ -3859,6 +3923,7 @@ function startApp() {
         <button class="cx-nb" data-act="cal-close" aria-label="ปิด" style="font-size:18px">✕</button>
       </div>
       ${list.length ? `<div class="cx-sbad"><span class="cx-badge" style="background:#EEF4FB;color:#3B5373">${list.length} โพสต์</span>${["ph", "vd", "both"].filter((k) => c[k]).map((k) => `<span class="cx-badge ${k}">${CAL_GLYPH[k]} ${CAL_KIND[k]} ${c[k]}</span>`).join("")}</div>` : ""}
+      ${prepCalSheetHTML(iso)}
       ${list.length ? list.map((po) => calPostRow(po, look)).join("") : `<div class="cx-empty"><div style="font-size:34px">🗓️</div><b>ยังไม่มีโพสต์ในวันนี้</b><br>กดปุ่มด้านล่างเพื่อบันทึกโพสต์ของวันนี้</div>`}
       <div class="cx-foot"><button class="cx-add" data-act="cal-add" data-v="${iso}">+ เพิ่มโพสต์ ${esc(short)}</button></div>
     </div></div>`;
@@ -3902,10 +3967,13 @@ function startApp() {
         }).join("");
         const more = evs.length > MAXC ? `<span class="cx-more">+${evs.length - MAXC} อีก</span>` : "";
         const dots = evs.slice(0, 4).map((po) => `<span class="cx-dot ${postKind(po)}"></span>`).join("") + (evs.length > 4 ? `<i>+${evs.length - 4}</i>` : "");
-        const aria = "วันที่ " + d + (evs.length ? " มี " + evs.length + " โพสต์" : " ยังไม่มีโพสต์") + (iso === today ? " (วันนี้)" : "");
+        const planN = filt === "all" ? prepPlannedOn(iso).length : 0;
+        const plan = planN ? prepCalChips(iso) : "";
+        const planDots = planN ? `<span class="cx-dot plan" title="แคมเปญที่วางแผน"></span>` : "";
+        const aria = "วันที่ " + d + (evs.length ? " มี " + evs.length + " โพสต์" : " ยังไม่มีโพสต์") + (planN ? " แคมเปญที่วางแผน " + planN : "") + (iso === today ? " (วันนี้)" : "");
         cells += `<div class="${cls}" data-act="cal-day" data-v="${iso}" role="button" tabindex="0" aria-label="${aria}">
           <div class="cx-ch"><span class="cx-n">${d}</span>${evs.length ? `<span class="cx-cnt">${evs.length}</span>` : `<button class="cx-addh" data-act="cal-add" data-v="${iso}" tabindex="-1" aria-label="เพิ่มโพสต์วันที่ ${d}" title="เพิ่มโพสต์วันนี้">+</button>`}</div>
-          ${evs.length ? `<div class="cx-chips">${chips}${more}</div><div class="cx-dots">${dots}</div>` : ""}
+          ${evs.length || planN ? `<div class="cx-chips">${chips}${more}${plan}</div><div class="cx-dots">${dots}${planDots}</div>` : ""}
         </div>`;
       }
       const trail = (7 - ((startPad + daysIn) % 7)) % 7;
@@ -3941,6 +4009,7 @@ function startApp() {
       <div class="cx-filters" role="group" aria-label="กรองชนิดโพสต์">
         ${fchip("all", "ทั้งหมด")}${fchip("ph", "รูป")}${fchip("vd", "วิดีโอ")}${fchip("both", "ทั้งคู่")}
         <span class="cx-sum">โพสต์ใน ${days} วัน</span>
+        ${filt === "all" && P.ready && prepLive().some((c) => c.post_start && c.post_start.slice(0, 7) <= S.calCursor && (c.post_end || c.post_start).slice(0, 7) >= S.calCursor) ? `<span class="cx-f" style="cursor:default"><span class="cx-dot plan"></span>เส้นประ = แคมเปญที่วางแผน</span>` : ""}
       </div>
       ${!isList && monthPosts.length ? `<div class="cx-hint">แตะวันที่เพื่อดูรายการของวันนั้นและเพิ่มโพสต์</div>` : ""}
       ${body}${emptyMsg}
@@ -3964,7 +4033,7 @@ function startApp() {
             <button class="ghost" style="color:#C0525A;border-color:#E8C4C4" data-act="drop-trash" data-id="${p.id}">ลบทิ้งเลย</button>
           </div>
         </div>`;
-      }).join("") : `<div class="empty">ถังขยะว่าง</div>`}`;
+      }).join("") : `<div class="empty">ถังขยะว่าง</div>`}${prepTrashHTML()}`;
   }
   function salesHTML() {
     const rows = S.sales || [];
@@ -4633,6 +4702,7 @@ function startApp() {
     if (f.editId) S.posts = S.posts.map((p) => String(p.id) === String(f.editId) ? rec : p);
     else S.posts = [rec, ...S.posts];
     persistPosts();
+    if (f.campaignId && !f.editId && window.__prepLinked) window.__prepLinked(f.campaignId, rec.id);
     ids.forEach((pid) => {
       const p = findProduct(pid);
       if (!p) return;
@@ -4792,7 +4862,8 @@ function startApp() {
       let skipRender = false;
       if (act !== "row-menu" && act !== "cat-menu") closeRowMenu();
 
-      if (act === "view") { S.view = v; S.showMenu = false; S.calSheet = ""; S.calDelAsk = ""; if (v === "activity" && window.__loadActivity) window.__loadActivity(); }
+      if (act === "view") { S.view = v; S.showMenu = false; S.calSheet = ""; S.calDelAsk = ""; if (v === "activity" && window.__loadActivity) window.__loadActivity(); if (v === "prep" || v === "cal" || v === "trash") prepLoad(); }
+      else if (act.indexOf("prep-") === 0) { if (prepClick(act, id, v) === false) skipRender = true; }
       else if (act === "row-menu") { openRowMenu(btn); return; }
       else if (act === "cat-menu") { openCatMenu(btn); return; }
       else if (act === "rm-close") { skipRender = true; }
@@ -5329,6 +5400,7 @@ function startApp() {
     };
 
     bindDrag();
+    prepBind();
   }
 
   function bindDrag() {
@@ -5474,9 +5546,602 @@ function startApp() {
     S.pasteRaw = ""; S.fileName = ""; S.headers = []; S.rows = [];
   }
 
+  // ==== งานเตรียม (แคมเปญ + งานย่อย) — ตาราง Supabase campaigns / campaign_tasks ====
+  // ไม่แตะ app_data · ลบ = ใส่ deleted_at (ไปถังขยะ กู้คืนได้) · ทุกการแก้บันทึกลง activity_log
+  const PREP_CITIES = ["Huggie Hill", "Puffie Pillow Place", "Meowlin Town", "Barkshire Park", "Starry Guest Street", "Blubbub Bay", "Wildsnug Valley", "Aurora Glade", "Dreamy Creek", "Cuddlepals Corner", "Featherly Forest", "Pixieplum Plaza", "Lilypond Lagoon"];
+  const PREP_TYPES = [
+    { id: "licensed", label: "ลิขสิทธิ์แท้" },
+    { id: "original", label: "ออริจินอล" },
+    { id: "unlicensed", label: "ไม่มีลิขสิทธิ์" },
+  ];
+  const PREP_CHANNELS = ["Facebook ReallyCuteDollsShop", "TikTok reallycuteland", "Facebook reallycutedollsandgift", "TikTok reallycutedollshop"];
+  // เพจ/ช่องของแคมเปญ -> ปุ่มช่องทางในฟอร์มบันทึกการโพสต์เดิม
+  const PREP_CH_TO_PLAT = { "Facebook ReallyCuteDollsShop": "facebook", "Facebook reallycutedollsandgift": "fb_dollshop", "TikTok reallycuteland": "tt_land", "TikTok reallycutedollshop": "tt_dollshop" };
+  const PREP_SHOP_TO_PLAT = { "Shopee wararit.th": "shopee_wararit", "Shopee ployririta": "shopee_riri", "Shopee riri.th": "shopee_riri", "Shopee reallycute.th": "shopee_reallycute", "Lazada": "lazada", "TikTok Shop": "tiktok_shop", "ThaiMart": "thaimart", "Line My Shop": "line_myshop" };
+  const PREP_ASSIGNEES = ["ริตา", "Claude", "Grok bot", "อัตโนมัติ"];
+  const PREP_STATUS = [
+    { id: "todo", label: "ยังไม่ทำ" },
+    { id: "doing", label: "กำลังทำ" },
+    { id: "done", label: "เสร็จ" },
+  ];
+  const PREP_TPL = {
+    licensed: [
+      ["ริตา", "ส่งรูปสินค้าจริง + ราคาทุน + ขนาด + เนื้อผ้า", "lic_1"],
+      ["Claude", "ส่ง prompt ฉาก (โพสต์ + หน้าร้าน 1:1)", "lic_2"],
+      ["Claude", "ส่งเรฟวางข้อความ + prompt ตัวอักษรชื่อคอลเลกชัน", "lic_3"],
+      ["ริตา", "สร้างรูปใน ChatGPT/Grok แล้วส่งให้ Claude เช็ก", "lic_4"],
+      ["ริตา", "แต่งรูป + เติมเงา + ใส่ข้อความ + โลโก้ Reallycute", "lic_5"],
+      ["Claude", "เช็กรูปสุดท้ายเทียบสินค้าจริง", "lic_6"],
+      ["ริตา", "บันทึกรูปลงโฟลเดอร์ P:\\…\\REALLYCUTELAND + ตั้งเลขชุด", "lic_7"],
+      ["Claude", "ส่งแคปชั่น 6 ช่อง + ข้อมูลลงร้าน + ข้อความส่งต่อบอท", "lic_8"],
+      ["Grok bot", "ADMIN ตั้งเวลาโพสต์", "schedule_post"],
+      ["Grok bot", "พนักงานลงสินค้า ลงร้าน", "lic_10"],
+      ["ริตา", "โพสต์ Lemon8", "lic_11"],
+    ],
+    unlicensed: [
+      ["ริตา", "ทำรูป/คลิป", "unl_1"],
+      ["Grok bot", "ตั้งเวลาโพสต์", "schedule_post"],
+      ["Grok bot", "ลงร้าน", "unl_3"],
+    ],
+  };
+  const PREP_FIELD_LABEL = { name: "ชื่อแคมเปญ", post_start: "วันโพสต์เริ่ม", post_end: "วันโพสต์จบ", image_date: "วันทำรูป", city: "เมือง", product_type: "ประเภทสินค้า", channels: "เพจ/ช่อง", shops: "ร้านที่ลงขาย", product_ids: "สินค้าที่ใช้", media_kind: "ชนิดสื่อ", media_url: "ลิงก์รูป/วิดีโอ", caption: "แคปชั่น", note: "หมายเหตุ", post_id: "โพสต์ที่บันทึก", title: "ชื่องาน", detail: "รายละเอียด", assignee: "ผู้ทำ", due_date: "วันกำหนด", status: "สถานะ" };
+  Object.keys(PREP_FIELD_LABEL).forEach((k) => { if (!(k in ACT_FIELD)) ACT_FIELD[k] = PREP_FIELD_LABEL[k]; });
+  const P = { campaigns: [], tasks: [], ready: false, error: "", sig: "", dirtyWhileOpen: false };
+  window.__prepState = P;
+  Object.assign(S, {
+    prepMode: "week",
+    prepWeek: prepWeekStart(todayISO()),
+    prepFA: "all",
+    prepFOpen: false,
+    prepFType: "all",
+    prepEdit: null,
+    prepNote: "",
+  });
+  function prepTypeLabel(id) { return (PREP_TYPES.find((t) => t.id === id) || {}).label || "รอเลือก"; }
+  function prepStatusLabel(id) { return (PREP_STATUS.find((t) => t.id === id) || {}).label || "ยังไม่ทำ"; }
+  function prepDefaults(type) {
+    if (type === "licensed") return { channels: PREP_CHANNELS.slice(0, 2), shops: ["Shopee reallycute.th", "Lazada", "TikTok Shop", "Line My Shop"] };
+    if (type === "original") return { channels: PREP_CHANNELS.slice(0, 2), shops: SALE_SHOPS.slice() };
+    if (type === "unlicensed") return { channels: PREP_CHANNELS.slice(2, 4), shops: SALE_SHOPS.slice() };
+    return { channels: [], shops: [] };
+  }
+  function prepTplKey(type) { return type === "unlicensed" ? "unlicensed" : (type === "licensed" || type === "original") ? "licensed" : ""; }
+  function prepWeekStart(iso) {
+    const [y, m, d] = String(iso).split("-").map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() - ((dt.getDay() + 1) % 7)); // สัปดาห์เริ่มวันเสาร์ (ตามแผนงานเตรียม ส.–ศ.)
+    return localISO(dt);
+  }
+  function prepAddDays(iso, n) { const [y, m, d] = String(iso).split("-").map(Number); return localISO(new Date(y, m - 1, d + n)); }
+  function prepShortRange(a, b) {
+    const da = new Date(a + "T00:00:00"), db = new Date(b + "T00:00:00");
+    const mon = (d) => d.toLocaleDateString("th-TH", { month: "short" });
+    return da.getMonth() === db.getMonth() ? da.getDate() + "–" + db.getDate() + " " + mon(db) : da.getDate() + " " + mon(da) + " – " + db.getDate() + " " + mon(db);
+  }
+  function prepDay(iso) { return iso ? calDayLabel(iso, false) : ""; }
+  function prepRange(c) {
+    if (!c.post_start) return "ยังไม่กำหนดวันโพสต์";
+    return c.post_end && c.post_end !== c.post_start ? prepDay(c.post_start) + " – " + prepDay(c.post_end) : prepDay(c.post_start);
+  }
+  function prepLive() { return P.campaigns.filter((c) => !c.deleted_at); }
+  function prepCampaign(id) { return P.campaigns.find((c) => String(c.id) === String(id)); }
+  function prepTasksOf(cid, all) {
+    return P.tasks.filter((t) => String(t.campaign_id) === String(cid) && (all || !t.deleted_at)).sort((a, b) => (a.sort || 0) - (b.sort || 0) || String(a.created_at).localeCompare(String(b.created_at)));
+  }
+  function prepProgress(cid) {
+    const ts = prepTasksOf(cid);
+    const done = ts.filter((t) => t.status === "done").length;
+    return { done, total: ts.length, pct: ts.length ? Math.round(done / ts.length * 100) : 0 };
+  }
+  function prepScheduleDone(cid) {
+    const ts = prepTasksOf(cid);
+    const sch = ts.filter((t) => t.template_key === "schedule_post" || /ตั้งเวลาโพสต์/.test(t.title || ""));
+    return sch.length > 0 && sch.every((t) => t.status === "done");
+  }
+  function prepTaskVisible(t) {
+    if (S.prepFA !== "all" && t.assignee !== S.prepFA) return false;
+    if (S.prepFOpen && t.status === "done") return false;
+    return true;
+  }
+  function prepCampaignVisible(c) {
+    if (S.prepFType !== "all" && (c.product_type || "unset") !== S.prepFType) return false;
+    if (S.prepFOpen) { const pr = prepProgress(c.id); if (pr.total && pr.done === pr.total) return false; }
+    if (S.prepFA !== "all" && !prepTasksOf(c.id).some((t) => t.assignee === S.prepFA)) return false;
+    return true;
+  }
+  function prepSb() { return window.__sb || null; }
+  function prepActor() { return currentActor(); }
+  function prepLog(action, summary, detail) {
+    try {
+      if (window.__logActivity) window.__logActivity({ actor: prepActor(), action: action, summary: summary, detail: Object.assign({ key: "campaigns" }, detail || {}) });
+    } catch (e) { console.warn("prep log", e); }
+  }
+  async function prepLoad(force) {
+    const sb = prepSb();
+    if (!sb) { P.ready = true; P.error = "ยังไม่ได้เชื่อมคลาวด์ — แท็บงานเตรียมต้องต่ออินเทอร์เน็ต"; return; }
+    try {
+      const [a, b] = await Promise.all([
+        sb.from("campaigns").select("*").order("created_at", { ascending: true }),
+        sb.from("campaign_tasks").select("*").order("sort", { ascending: true }),
+      ]);
+      if (a.error || b.error) throw (a.error || b.error);
+      const sig = JSON.stringify([a.data, b.data]);
+      const changed = sig !== P.sig;
+      P.campaigns = a.data || []; P.tasks = b.data || []; P.sig = sig; P.error = ""; P.ready = true;
+      if (changed || force) {
+        if (S.view === "prep" || S.view === "cal" || S.view === "trash") {
+          if (!overlayOpen()) render(); else P.dirtyWhileOpen = true;
+        }
+      }
+    } catch (e) {
+      console.warn("prep load", e);
+      P.ready = true;
+      P.error = "โหลดงานเตรียมไม่สำเร็จ: " + ((e && e.message) || "ไม่ทราบสาเหตุ");
+      if (S.view === "prep" && !overlayOpen()) render();
+    }
+  }
+  function prepUpsertLocal(list, row) {
+    const i = list.findIndex((x) => String(x.id) === String(row.id));
+    if (i >= 0) list[i] = row; else list.push(row);
+  }
+  async function prepUpdate(table, id, patch) {
+    const sb = prepSb();
+    if (!sb) throw new Error("ยังไม่ได้เชื่อมคลาวด์");
+    const body = Object.assign({}, patch, { updated_by: prepActor() });
+    const { data, error } = await sb.from(table).update(body).eq("id", id).select();
+    if (error) throw error;
+    const row = data && data[0];
+    if (row) prepUpsertLocal(table === "campaigns" ? P.campaigns : P.tasks, row);
+    return row;
+  }
+  async function prepInsert(table, rows) {
+    const sb = prepSb();
+    if (!sb) throw new Error("ยังไม่ได้เชื่อมคลาวด์");
+    const who = prepActor();
+    const body = rows.map((r) => Object.assign({}, r, { created_by: who, updated_by: who }));
+    const { data, error } = await sb.from(table).insert(body).select();
+    if (error) throw error;
+    (data || []).forEach((row) => prepUpsertLocal(table === "campaigns" ? P.campaigns : P.tasks, row));
+    return data || [];
+  }
+  function prepFail(e) {
+    S.prepNote = "⚠️ บันทึกไม่สำเร็จ: " + ((e && e.message) || "ไม่ทราบสาเหตุ");
+    render();
+  }
+  function prepBlankForm() {
+    return { name: "", post_start: "", post_end: "", image_date: todayISO(), city: "", cityOther: "", product_type: "", channels: [], shops: [], product_ids: [], note: "", media_kind: "photo", media_url: "", caption: "" };
+  }
+  function prepFormFrom(c) {
+    const inList = PREP_CITIES.includes(c.city);
+    return {
+      name: c.name || "", post_start: c.post_start || "", post_end: c.post_end || "", image_date: c.image_date || "",
+      city: !c.city ? "" : inList ? c.city : "__other", cityOther: inList ? "" : (c.city || ""),
+      product_type: c.product_type || "", channels: (c.channels || []).slice(), shops: (c.shops || []).slice(),
+      product_ids: (c.product_ids || []).map(String), note: c.note || "", media_kind: c.media_kind || "photo", media_url: c.media_url || "", caption: c.caption || "",
+    };
+  }
+  function prepOpen(id, presetDate) {
+    const c = id ? prepCampaign(id) : null;
+    const form = c ? prepFormFrom(c) : prepBlankForm();
+    if (!c && presetDate) form.image_date = presetDate;
+    S.prepEdit = { id: c ? c.id : null, form: form, q: "", msg: "", askDel: "" };
+    S.prepNote = "";
+  }
+  function prepClose() {
+    S.prepEdit = null;
+    if (P.dirtyWhileOpen) P.dirtyWhileOpen = false;
+  }
+  function prepRowFromForm(f) {
+    const city = f.city === "__other" ? String(f.cityOther || "").trim() : (f.city || "");
+    let ps = f.post_start || null, pe = f.post_end || null;
+    if (ps && !pe) pe = ps;
+    if (!ps && pe) { ps = pe; }
+    if (ps && pe && pe < ps) { const t = ps; ps = pe; pe = t; }
+    return {
+      name: String(f.name || "").trim(), post_start: ps, post_end: pe, image_date: f.image_date || null, city: city,
+      product_type: f.product_type || null, channels: f.channels || [], shops: f.shops || [], product_ids: (f.product_ids || []).map(String),
+      note: String(f.note || "").trim(), media_kind: f.media_kind || "photo", media_url: String(f.media_url || "").trim(), caption: String(f.caption || ""),
+    };
+  }
+  function prepSame(a, b) { return JSON.stringify(a == null ? null : a) === JSON.stringify(b == null ? null : b); }
+  async function prepSaveCampaign() {
+    const ed = S.prepEdit;
+    if (!ed) return;
+    const row = prepRowFromForm(ed.form);
+    if (!row.name) { ed.msg = "ใส่ชื่อแคมเปญก่อน"; render(); return; }
+    ed.msg = "กำลังบันทึก…"; render();
+    try {
+      if (!ed.id) {
+        const [c] = await prepInsert("campaigns", [row]);
+        ed.id = c.id;
+        ed.form = prepFormFrom(c);
+        ed.msg = "✓ สร้างแคมเปญแล้ว — เพิ่มงานย่อยหรือกด «ใช้เทมเพลต» ด้านล่าง";
+        prepLog("campaign-add", "เพิ่มแคมเปญ «" + c.name + "»", { added: [{ id: c.id, label: c.name }], addedCount: 1 });
+      } else {
+        const cur = prepCampaign(ed.id) || {};
+        const patch = {};
+        Object.keys(row).forEach((k) => { if (!prepSame(row[k], cur[k])) patch[k] = row[k]; });
+        if (!Object.keys(patch).length) { ed.msg = "ไม่มีอะไรเปลี่ยน"; render(); return; }
+        const c = await prepUpdate("campaigns", ed.id, patch);
+        ed.form = prepFormFrom(c || Object.assign({}, cur, patch));
+        ed.msg = "✓ บันทึกแล้ว";
+        prepLog("campaign-edit", "แก้แคมเปญ «" + row.name + "» (" + Object.keys(patch).map((k) => PREP_FIELD_LABEL[k] || ACT_FIELD[k] || k).join(", ") + ")", { edited: [{ id: ed.id, label: row.name, fields: Object.keys(patch) }], editedCount: 1 });
+      }
+    } catch (e) { ed.msg = "⚠️ บันทึกไม่สำเร็จ: " + ((e && e.message) || ""); }
+    render();
+  }
+  async function prepTrashCampaign(id) {
+    const c = prepCampaign(id);
+    if (!c) return;
+    try {
+      await prepUpdate("campaigns", id, { deleted_at: new Date().toISOString(), deleted_by: prepActor() });
+      prepLog("campaign-trash", "ย้ายแคมเปญ «" + c.name + "» ไปถังขยะ", { trashed: [{ id: c.id, label: c.name }] });
+      S.prepEdit = null;
+      S.prepNote = "ย้ายแคมเปญ «" + c.name + "» ไปถังขยะแล้ว · กู้คืนได้ที่แท็บถังขยะ";
+      render();
+    } catch (e) { prepFail(e); }
+  }
+  async function prepRestoreCampaign(id) {
+    const c = prepCampaign(id);
+    if (!c) return;
+    try {
+      await prepUpdate("campaigns", id, { deleted_at: null, deleted_by: null });
+      prepLog("campaign-restore", "กู้คืนแคมเปญ «" + c.name + "»", { restored: [{ id: c.id, label: c.name }] });
+      S.trashNote = "กู้คืนแคมเปญ «" + c.name + "» แล้ว";
+      render();
+    } catch (e) { prepFail(e); }
+  }
+  async function prepAddTasks(cid, specs, why) {
+    const c = prepCampaign(cid);
+    if (!c) return;
+    const base = prepTasksOf(cid, true).reduce((n, t) => Math.max(n, t.sort || 0), 0);
+    const rows = specs.map((s, i) => Object.assign({ campaign_id: cid, sort: base + i + 1, title: "", detail: "", assignee: "ริตา", due_date: c.image_date || null, status: "todo", template_key: null }, s));
+    try {
+      const made = await prepInsert("campaign_tasks", rows);
+      if (why === "template") {
+        prepLog("campaign-template", "ใช้เทมเพลต " + made.length + " งาน ในแคมเปญ «" + c.name + "»", { added: made.slice(0, 20).map((t) => ({ id: t.id, label: c.name + " · " + t.title })), addedCount: made.length });
+        if (S.prepEdit) S.prepEdit.msg = "✓ เพิ่มงานจากเทมเพลต " + made.length + " งาน";
+      } else {
+        made.forEach((t) => prepLog("task-add", "เพิ่มงาน «" + (t.title || "งานใหม่") + "» ในแคมเปญ «" + c.name + "»", { added: [{ id: t.id, label: c.name + " · " + (t.title || "งานใหม่") }], addedCount: 1 }));
+      }
+      render();
+    } catch (e) { prepFail(e); }
+  }
+  function prepTemplateTasks(cid, key) {
+    const c = prepCampaign(cid);
+    const tpl = PREP_TPL[key];
+    if (!c || !tpl) return;
+    const img = c.image_date || null;
+    const before = c.post_start ? prepAddDays(c.post_start, -1) : img;
+    const due = (i, n) => {
+      if (key === "licensed") { if (i <= 7) return img; if (i <= 9) return before && img && before < img ? img : before; return c.post_start || before; }
+      return i === 0 ? img : (before && img && before < img ? img : before);
+    };
+    prepAddTasks(cid, tpl.map(([who, title, tk], i) => ({ assignee: who, title: title, template_key: tk, due_date: due(i, tpl.length) })), "template");
+  }
+  async function prepSetTask(id, patch, quiet) {
+    const t = P.tasks.find((x) => String(x.id) === String(id));
+    if (!t) return;
+    const c = prepCampaign(t.campaign_id) || { name: "" };
+    const real = {};
+    Object.keys(patch).forEach((k) => { if (!prepSame(patch[k], t[k])) real[k] = patch[k]; });
+    if (!Object.keys(real).length) return;
+    try {
+      const row = await prepUpdate("campaign_tasks", id, real);
+      const title = (row && row.title) || t.title || "งาน";
+      if ("deleted_at" in real) {
+        if (real.deleted_at) prepLog("task-trash", "ย้ายงาน «" + title + "» (แคมเปญ «" + c.name + "») ไปถังขยะ", { trashed: [{ id: id, label: c.name + " · " + title }] });
+        else prepLog("task-restore", "กู้คืนงาน «" + title + "» (แคมเปญ «" + c.name + "»)", { restored: [{ id: id, label: c.name + " · " + title }] });
+      } else if (Object.keys(real).length === 1 && "status" in real) {
+        prepLog("task-status", (real.status === "done" ? "ติ๊กเสร็จ: " : "เปลี่ยนสถานะเป็น «" + prepStatusLabel(real.status) + "»: ") + title + " (แคมเปญ «" + c.name + "»)", { edited: [{ id: id, label: c.name + " · " + title, fields: ["status"] }], editedCount: 1, status: real.status });
+      } else {
+        prepLog("task-edit", "แก้งาน «" + title + "» (แคมเปญ «" + c.name + "»)", { edited: [{ id: id, label: c.name + " · " + title, fields: Object.keys(real) }], editedCount: 1 });
+      }
+      if (!quiet) render();
+    } catch (e) { prepFail(e); }
+  }
+  window.__prepLinked = async (cid, postId) => {
+    const c = prepCampaign(cid);
+    if (!c) return;
+    try {
+      await prepUpdate("campaigns", cid, { post_id: String(postId) });
+      prepLog("campaign-posted", "บันทึกการโพสต์จากแคมเปญ «" + c.name + "»", { edited: [{ id: cid, label: c.name, fields: ["post_id"] }], editedCount: 1, postId: String(postId) });
+    } catch (e) { console.warn("prep link", e); }
+  };
+  function prepOpenPostLog(cid) {
+    const c = prepCampaign(cid);
+    if (!c) return;
+    const ids = (c.product_ids || []).map(String).filter((pid) => findProduct(pid));
+    openPostForm("");
+    const plats = {};
+    CHANNELS.forEach((ch) => { plats[ch.id] = false; });
+    (c.channels || []).forEach((n) => { if (PREP_CH_TO_PLAT[n]) plats[PREP_CH_TO_PLAT[n]] = true; });
+    (c.shops || []).forEach((n) => { if (PREP_SHOP_TO_PLAT[n]) plats[PREP_SHOP_TO_PLAT[n]] = true; });
+    const note = ["แคมเปญ: " + c.name, c.media_url ? "สื่อ: " + c.media_url : ""].filter(Boolean).join(" · ");
+    Object.assign(S.postForm, {
+      productIds: ids,
+      date: c.post_start || todayISO(),
+      photo: c.media_kind !== "video",
+      video: c.media_kind === "video" || c.media_kind === "both",
+      platforms: plats,
+      caption: c.caption || "",
+      note: note,
+      socialOpen: SOCIAL.some((ch) => plats[ch.id]),
+      campaignId: c.id,
+    });
+    S.prepEdit = null;
+    S.view = "cal";
+    S.calCursor = (c.post_start || todayISO()).slice(0, 7);
+    S.calSheet = "";
+    S.showPost = true;
+  }
+  // ---- หน้าจอ ----
+  function prepTaskLine(t, compact) {
+    const done = t.status === "done";
+    return `<div class="pp-task ${done ? "done" : ""} ${t.status === "doing" ? "doing" : ""}">
+      <button class="pp-ck" data-act="prep-tick" data-id="${esc(t.id)}" role="checkbox" aria-checked="${done}" aria-label="${done ? "ยกเลิกเสร็จ" : "ติ๊กเสร็จ"}: ${esc(t.title)}">${done ? "✓" : ""}</button>
+      <div class="pp-tb"><div class="pp-tt">${esc(t.title || "(ไม่มีชื่องาน)")}</div>
+      <div class="tiny"><span class="pp-who w-${esc(PREP_ASSIGNEES.indexOf(t.assignee))}">${esc(t.assignee || "ไม่ระบุ")}</span>${t.due_date ? " · กำหนด " + esc(prepDay(t.due_date)) : ""}${t.status === "doing" ? ` · <b style="color:#B7791F">กำลังทำ</b>` : ""}${!compact && t.detail ? " · " + esc(t.detail) : ""}</div></div>
+    </div>`;
+  }
+  function prepBar(pr) {
+    return `<div class="pp-prog"><div class="bar"><i style="width:${pr.pct}%;background:${pr.total && pr.done === pr.total ? "#5DB071" : "#2E6BB7"}"></i></div><span class="tiny">${pr.done}/${pr.total}</span></div>`;
+  }
+  function prepCard(c, opts) {
+    const o = opts || {};
+    const pr = prepProgress(c.id);
+    const ts = prepTasksOf(c.id).filter(prepTaskVisible);
+    const canLog = prepScheduleDone(c.id);
+    return `<div class="pp-card t-${esc(c.product_type || "unset")}">
+      <button class="pp-head" data-act="prep-open" data-id="${esc(c.id)}">
+        <span class="pp-name">${esc(c.name)}</span>
+        <span class="pp-meta"><span class="pp-type">${esc(prepTypeLabel(c.product_type))}</span>${c.city ? `<span>🏡 ${esc(c.city)}</span>` : `<span class="pp-wait">เมืองรอเลือก</span>`}<span>📣 ${esc(prepRange(c))}</span>${o.showImg && c.image_date ? `<span>🎨 ทำรูป ${esc(prepDay(c.image_date))}</span>` : ""}${c.post_id ? `<span class="pp-posted">✓ บันทึกโพสต์แล้ว</span>` : ""}</span>
+      </button>
+      ${prepBar(pr)}
+      ${o.tasks === false ? "" : (ts.length ? `<div class="pp-tasks">${ts.map((t) => prepTaskLine(t, true)).join("")}</div>` : (pr.total ? `<div class="tiny" style="padding:4px 2px">ไม่มีงานที่ตรงตัวกรอง</div>` : `<div class="tiny" style="padding:4px 2px">ยังไม่มีงานย่อย — แตะชื่อแคมเปญเพื่อเพิ่มหรือใช้เทมเพลต</div>`))}
+      ${canLog ? `<button class="ghost pp-log" data-act="prep-log-post" data-id="${esc(c.id)}">📝 บันทึกการโพสต์</button>` : ""}
+    </div>`;
+  }
+  function prepFiltersHTML() {
+    const fa = (id, lb) => `<button class="pill ${S.prepFA === id ? "on" : ""}" data-act="prep-fa" data-v="${esc(id)}">${esc(lb)}</button>`;
+    const ft = (id, lb) => `<button class="pill ${S.prepFType === id ? "on" : ""}" data-act="prep-ft" data-v="${esc(id)}">${esc(lb)}</button>`;
+    return `<div class="pp-filters">
+      <div class="pills" role="group" aria-label="กรองผู้ทำ"><span class="pp-fl">ผู้ทำ</span>${fa("all", "ทุกคน")}${PREP_ASSIGNEES.map((a) => fa(a, a)).join("")}</div>
+      <div class="pills" role="group" aria-label="กรองประเภท"><span class="pp-fl">ประเภท</span>${ft("all", "ทั้งหมด")}${PREP_TYPES.map((t) => ft(t.id, t.label)).join("")}${ft("unset", "รอเลือก")}
+        <button class="pill ${S.prepFOpen ? "on" : ""}" data-act="prep-fopen" aria-pressed="${S.prepFOpen}">${S.prepFOpen ? "✓ " : ""}ยังไม่เสร็จ</button></div>
+    </div>`;
+  }
+  function prepHTML() {
+    const isWeek = S.prepMode !== "list";
+    const start = S.prepWeek;
+    const end = prepAddDays(start, 6);
+    const today = todayISO();
+    let body = "";
+    if (!P.ready) body = `<div class="card">กำลังโหลดงานเตรียม…</div>`;
+    else if (isWeek) {
+      const live = prepLive().filter(prepCampaignVisible);
+      const days = [];
+      for (let i = 0; i < 7; i++) days.push(prepAddDays(start, i));
+      body = `<div class="pp-week">${days.map((iso) => {
+        const cs = live.filter((c) => c.image_date === iso);
+        return `<div class="pp-day ${iso === today ? "today" : ""}">
+          <div class="pp-dh"><b>${esc(calDayLabel(iso, false))}</b>${iso === today ? `<span class="tag">วันนี้</span>` : ""}<button class="pp-add" data-act="prep-new" data-v="${iso}" aria-label="เพิ่มแคมเปญวันทำรูป ${esc(prepDay(iso))}" title="เพิ่มแคมเปญวันนี้">+</button></div>
+          ${cs.length ? cs.map((c) => prepCard(c)).join("") : `<div class="pp-empty">ไม่มีแคมเปญที่ต้องทำรูปวันนี้</div>`}
+        </div>`;
+      }).join("")}</div>`;
+      const undated = live.filter((c) => !c.image_date);
+      if (undated.length) body += `<div class="card" style="margin-top:12px"><div style="font-weight:700;color:#1C3554;margin-bottom:8px">ยังไม่กำหนดวันทำรูป</div>${undated.map((c) => prepCard(c, { tasks: false })).join("")}</div>`;
+    } else {
+      const live = prepLive().filter(prepCampaignVisible).slice().sort((a, b) => (a.post_start || "9999").localeCompare(b.post_start || "9999") || (a.image_date || "9999").localeCompare(b.image_date || "9999") || String(a.name).localeCompare(String(b.name), "th"));
+      body = live.length ? `<div class="pp-list">${live.map((c) => prepCard(c, { showImg: true })).join("")}</div>` : `<div class="card"><div class="empty">ยังไม่มีแคมเปญที่ตรงตัวกรอง</div></div>`;
+    }
+    const nAll = prepLive().length;
+    return `<div class="cx-card pp-wrap">
+      <div class="cx-top">
+        ${isWeek ? `<div class="cx-nav">
+          <button class="cx-nb" data-act="prep-week" data-v="-7" aria-label="สัปดาห์ก่อน">‹</button>
+          <div class="cx-title" aria-live="polite"><span class="pp-tl">${esc(prepDay(start))} – ${esc(prepDay(end))}</span><span class="pp-ts">${esc(prepShortRange(start, end))}</span></div>
+          <button class="cx-nb" data-act="prep-week" data-v="7" aria-label="สัปดาห์ถัดไป">›</button>
+          <button class="cx-today" data-act="prep-week" data-v="0" ${start === prepWeekStart(today) ? "disabled" : ""}>สัปดาห์นี้</button>
+        </div>` : `<div class="cx-title">แคมเปญทั้งหมด ${nAll} · เรียงตามวันโพสต์</div>`}
+        <div class="cx-right">
+          <div class="cx-seg" role="group" aria-label="มุมมอง">
+            <button class="${isWeek ? "on" : ""}" data-act="prep-mode" data-v="week" aria-pressed="${isWeek}">🗓 สัปดาห์</button>
+            <button class="${isWeek ? "" : "on"}" data-act="prep-mode" data-v="list" aria-pressed="${!isWeek}">☰ รายการ</button>
+          </div>
+          <button class="cx-add" data-act="prep-new" data-v="">+ แคมเปญใหม่</button>
+        </div>
+      </div>
+      ${prepFiltersHTML()}
+      ${P.error ? `<div class="warn">${esc(P.error)}</div>` : ""}
+      ${S.prepNote ? `<div class="warn" style="background:#EEF6EE;color:#25623A">${esc(S.prepNote)} <button class="ghost" data-act="prep-note-x">ปิด</button></div>` : ""}
+      ${body}
+    </div>`;
+  }
+  function prepSheet() {
+    const ed = S.prepEdit;
+    const f = ed.form;
+    const c = ed.id ? prepCampaign(ed.id) : null;
+    const tasks = ed.id ? prepTasksOf(ed.id) : [];
+    const q = (ed.q || "").trim().toLowerCase();
+    const picked = (f.product_ids || []).map((pid) => findProduct(pid)).filter(Boolean);
+    const matches = q ? products().filter((p) => !p.ex && ((p.n || "").toLowerCase().includes(q) || (p.v || "").toLowerCase().includes(q) || groupOf(p).toLowerCase().includes(q))).slice(0, 10) : [];
+    const tplKey = prepTplKey(f.product_type);
+    const pill = (act, val, on, lb) => `<button type="button" class="pill ${on ? "on" : ""}" data-act="${act}" data-v="${esc(val)}" aria-pressed="${on}">${esc(lb)}</button>`;
+    return `<div class="overlay" data-act="prep-close"><div class="sheet pp-sheet" data-stop="1" role="dialog" aria-modal="true" aria-label="แคมเปญ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px">
+        <div style="font-size:17px;font-weight:700;color:#2E6BB7">${ed.id ? "แคมเปญ: " + esc(c ? c.name : f.name) : "แคมเปญใหม่"}</div>
+        <button class="iconbtn" data-act="prep-close" aria-label="ปิด">✕</button>
+      </div>
+      <div class="lbl">ชื่อแคมเปญ</div>
+      <input class="field" data-pf="name" id="ppName" placeholder="เช่น Mickey &amp; Friends" value="${esc(f.name)}" />
+      <div class="pp-grid3">
+        <div><div class="lbl">วันโพสต์ (เริ่ม)</div><input class="field" type="date" data-pf="post_start" value="${esc(f.post_start)}" /></div>
+        <div><div class="lbl">วันโพสต์ (จบ)</div><input class="field" type="date" data-pf="post_end" value="${esc(f.post_end)}" /></div>
+        <div><div class="lbl">วันทำรูป</div><input class="field" type="date" data-pf="image_date" value="${esc(f.image_date)}" /></div>
+      </div>
+      <div class="lbl">เมือง Reallycuteland</div>
+      <select class="field" data-pf="city" id="ppCity">
+        <option value="" ${!f.city ? "selected" : ""}>— รอเลือก —</option>
+        ${PREP_CITIES.map((n) => `<option value="${esc(n)}" ${f.city === n ? "selected" : ""}>${esc(n)}</option>`).join("")}
+        <option value="__other" ${f.city === "__other" ? "selected" : ""}>อื่นๆ (พิมพ์เอง)</option>
+      </select>
+      ${f.city === "__other" ? `<input class="field" data-pf="cityOther" placeholder="พิมพ์ชื่อเมือง" value="${esc(f.cityOther)}" />` : ""}
+      <div class="lbl">ประเภทสินค้า</div>
+      <div class="pills">${PREP_TYPES.map((t) => pill("prep-f-type", t.id, f.product_type === t.id, t.label)).join("")}${pill("prep-f-type", "", !f.product_type, "รอเลือก")}</div>
+      <div class="lbl">เพจ/ช่อง <span class="tiny">(เลือกอัตโนมัติจากประเภท แก้ได้)</span></div>
+      <div class="pills pp-wrapp">${PREP_CHANNELS.map((n) => pill("prep-f-ch", n, (f.channels || []).includes(n), n)).join("")}</div>
+      <div class="lbl">ร้านที่ลงขาย <span class="tiny">(อัตโนมัติจากประเภท แก้ได้)</span></div>
+      <div class="pills pp-wrapp">${SALE_SHOPS.map((n) => pill("prep-f-shop", n, (f.shops || []).includes(n), n)).join("")}</div>
+      <div class="lbl">สินค้าที่ใช้ <span class="tiny">(ค้นหาจากรายการสินค้าเดิม ว่างได้)</span></div>
+      <input class="field" id="ppQ" placeholder="พิมพ์ชื่อสินค้าแล้วกดเพิ่ม…" value="${esc(ed.q)}" />
+      ${picked.length ? `<div class="pp-picked">${picked.map((p) => `<span class="pp-chip">${esc(labelOf(p))}<button class="iconbtn" data-act="prep-f-prod" data-id="${esc(p.id)}" aria-label="เอาออก">✕</button></span>`).join("")}</div>` : ""}
+      ${matches.length ? `<div style="max-height:160px;overflow:auto;margin-bottom:10px">${matches.map((p) => { const on = (f.product_ids || []).includes(String(p.id)); return `<button class="ghost ${on ? "on" : ""}" style="width:100%;margin-bottom:4px;justify-content:flex-start" data-act="prep-f-prod" data-id="${esc(p.id)}">${on ? "✓ " : "+ "}${esc(labelOf(p))}</button>`; }).join("")}</div>` : ""}
+      <div class="lbl">รูป/วิดีโอสำหรับบันทึกการโพสต์</div>
+      <div class="pills">${pill("prep-f-media", "photo", f.media_kind === "photo", "📷 รูป")}${pill("prep-f-media", "video", f.media_kind === "video", "🎥 วิดีโอ")}${pill("prep-f-media", "both", f.media_kind === "both", "📷🎥 ทั้งคู่")}</div>
+      <input class="field" data-pf="media_url" placeholder="ลิงก์/ที่เก็บไฟล์รูปหรือวิดีโอ (ถ้ามี)" value="${esc(f.media_url)}" />
+      <div class="lbl">แคปชั่น (ถ้ามี — ใช้กรอกฟอร์มบันทึกการโพสต์)</div>
+      <textarea class="field" data-pf="caption" rows="4" placeholder="วางแคปชั่นจาก Claude ได้ที่นี่">${esc(f.caption)}</textarea>
+      <div class="lbl">หมายเหตุ</div>
+      <textarea class="field" data-pf="note" rows="2">${esc(f.note)}</textarea>
+      ${ed.msg ? `<div class="warn" role="status">${esc(ed.msg)}</div>` : ""}
+      <button class="btn on" data-act="prep-save">${ed.id ? "บันทึกการแก้ไขแคมเปญ" : "สร้างแคมเปญ"}</button>
+      ${ed.id ? `
+      <div class="pp-sec">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+          <div style="font-weight:700;color:#1C3554">งานย่อย ${tasks.length ? `<span class="tiny">${prepProgress(ed.id).done}/${tasks.length} เสร็จ</span>` : ""}</div>
+          <div class="rowbtns">
+            ${tplKey ? `<button class="ghost" data-act="prep-tpl" data-v="${tplKey}">ใช้เทมเพลต (${PREP_TPL[tplKey].length} งาน)</button>` : `<button class="ghost" data-act="prep-tpl" data-v="licensed">ใช้เทมเพลตลิขสิทธิ์/ออริจินอล (11)</button><button class="ghost" data-act="prep-tpl" data-v="unlicensed">ใช้เทมเพลตไม่มีลิขสิทธิ์ (3)</button>`}
+            <button class="ghost" data-act="prep-task-add">+ เพิ่มงาน</button>
+          </div>
+        </div>
+        ${tasks.length && tplKey ? `<div class="tiny" style="margin-top:4px">กดเทมเพลตอีกครั้งจะเพิ่มงานต่อท้าย ไม่ลบงานเดิม</div>` : ""}
+        ${tasks.map((t, i) => `<div class="pp-te ${t.status === "done" ? "done" : ""}" data-tid="${esc(t.id)}">
+          <div class="pp-te-top">
+            <button class="pp-ck" data-act="prep-tick" data-id="${esc(t.id)}" role="checkbox" aria-checked="${t.status === "done"}" aria-label="ติ๊กเสร็จ">${t.status === "done" ? "✓" : ""}</button>
+            <span class="tiny">${i + 1}.</span>
+            <input class="field pp-in" data-tf="title" data-tid="${esc(t.id)}" value="${esc(t.title)}" placeholder="ชื่องาน" aria-label="ชื่องาน" />
+            <button class="iconbtn" data-act="prep-task-del" data-id="${esc(t.id)}" title="ย้ายงานนี้ไปถังขยะ" aria-label="ลบงาน">🗑</button>
+          </div>
+          <input class="field pp-in" data-tf="detail" data-tid="${esc(t.id)}" value="${esc(t.detail)}" placeholder="รายละเอียด (ถ้ามี)" aria-label="รายละเอียด" />
+          <div class="pp-grid3">
+            <select class="field pp-in" data-tf="assignee" data-tid="${esc(t.id)}" aria-label="ผู้ทำ">${PREP_ASSIGNEES.concat(PREP_ASSIGNEES.includes(t.assignee) || !t.assignee ? [] : [t.assignee]).map((a) => `<option ${t.assignee === a ? "selected" : ""}>${esc(a)}</option>`).join("")}</select>
+            <input class="field pp-in" type="date" data-tf="due_date" data-tid="${esc(t.id)}" value="${esc(t.due_date || "")}" aria-label="วันกำหนด" />
+            <select class="field pp-in" data-tf="status" data-tid="${esc(t.id)}" aria-label="สถานะ">${PREP_STATUS.map((s) => `<option value="${s.id}" ${t.status === s.id ? "selected" : ""}>${s.label}</option>`).join("")}</select>
+          </div>
+        </div>`).join("")}
+        ${prepScheduleDone(ed.id) ? `<button class="btn on" style="margin-top:10px" data-act="prep-log-post" data-id="${esc(ed.id)}">📝 บันทึกการโพสต์ (เปิดฟอร์มในปฏิทิน)</button>` : `<div class="tiny" style="margin-top:8px">ปุ่ม «บันทึกการโพสต์» จะขึ้นเมื่องาน «ตั้งเวลาโพสต์» เสร็จ</div>`}
+        ${c && c.post_id ? `<div class="tiny" style="margin-top:6px">✓ บันทึกการโพสต์แล้ว</div>` : ""}
+      </div>
+      ${ed.askDel === "c" ? `<div class="cx-ask" style="margin-top:12px"><button class="yes" data-act="prep-del" data-id="${esc(ed.id)}">ย้ายแคมเปญไปถังขยะ</button><button data-act="prep-del-no">ยกเลิก</button></div>` : `<button class="ghost" style="width:100%;margin-top:12px;justify-content:center;color:#C0525A;border-color:#EED9D6" data-act="prep-del-ask">ลบแคมเปญนี้ (ไปถังขยะ)</button>`}` : `<div class="tiny" style="margin-top:8px">สร้างแคมเปญก่อน แล้วค่อยเพิ่มงานย่อยหรือใช้เทมเพลต</div>`}
+    </div></div>`;
+  }
+  // ปฏิทิน: แคมเปญที่วางแผนไว้ตามวันโพสต์ (ยังไม่ใช่โพสต์จริง)
+  function prepPlannedOn(iso) {
+    if (!P.ready) return [];
+    return prepLive().filter((c) => c.post_start && iso >= c.post_start && iso <= (c.post_end || c.post_start));
+  }
+  function prepCalChips(iso) {
+    return prepPlannedOn(iso).map((c) => `<span class="cx-chip plan" title="แคมเปญที่วางแผน: ${esc(c.name)}"><span class="g">🗓</span><span class="t">${esc(c.name)}</span></span>`).join("");
+  }
+  function prepCalSheetHTML(iso) {
+    const cs = prepPlannedOn(iso);
+    if (!cs.length) return "";
+    return `<div class="pp-calplan"><div class="tiny" style="margin-bottom:6px">แคมเปญที่วางแผนไว้ (เส้นประ = ยังไม่ใช่โพสต์จริง)</div>${cs.map((c) => `<button class="cx-chip plan pp-calbtn" data-act="prep-open" data-id="${esc(c.id)}"><span class="g">🗓</span><span class="t">${esc(c.name)} · ${esc(prepTypeLabel(c.product_type))} · งาน ${prepProgress(c.id).done}/${prepProgress(c.id).total}</span></button>`).join("")}</div>`;
+  }
+  function prepTrashHTML() {
+    if (!P.ready) return "";
+    const now = Date.now();
+    const recent = (x) => x.deleted_at && now - new Date(x.deleted_at).getTime() < TRASH_MS;
+    const cs = P.campaigns.filter(recent);
+    const ts = P.tasks.filter((t) => recent(t) && !(prepCampaign(t.campaign_id) || {}).deleted_at);
+    if (!cs.length && !ts.length) return "";
+    const left = (x) => Math.max(0, Math.ceil((TRASH_MS - (now - new Date(x.deleted_at).getTime())) / 86400000));
+    return `<div class="card" style="margin-top:14px"><div style="font-weight:700;color:#1C3554">งานเตรียมที่ลบ</div><div class="tiny">แคมเปญ ${cs.length} · งานย่อย ${ts.length} · กู้คืนได้ (แสดง 7 วัน ข้อมูลไม่ถูกลบถาวร)</div></div>
+      ${cs.map((c) => `<div class="postrow" style="cursor:default"><div style="font-size:13px;font-weight:500">🗓 แคมเปญ: ${esc(c.name)}</div><div class="tiny">ลบโดย ${esc(c.deleted_by || "ไม่ระบุชื่อ")} · งานย่อย ${prepTasksOf(c.id).length} งานติดไปด้วย · เหลือ ${left(c)} วัน</div><div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="prep-restore-c" data-id="${esc(c.id)}">กู้คืน</button></div></div>`).join("")}
+      ${ts.map((t) => `<div class="postrow" style="cursor:default"><div style="font-size:13px;font-weight:500">☑ งาน: ${esc(t.title || "(ไม่มีชื่องาน)")}</div><div class="tiny">แคมเปญ ${esc((prepCampaign(t.campaign_id) || {}).name || "")} · ลบโดย ${esc(t.deleted_by || "ไม่ระบุชื่อ")} · เหลือ ${left(t)} วัน</div><div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="prep-restore-t" data-id="${esc(t.id)}">กู้คืน</button></div></div>`).join("")}`;
+  }
+  // ปุ่มทั้งหมดของงานเตรียม: คืน false = ไม่ต้อง render ซ้ำ (ฟังก์ชัน async จะ render เอง)
+  function prepClick(act, id, v) {
+    const ed = S.prepEdit;
+    const f = ed && ed.form;
+    if (act === "prep-mode") { S.prepMode = v === "list" ? "list" : "week"; }
+    else if (act === "prep-week") { S.prepWeek = v === "0" ? prepWeekStart(todayISO()) : prepAddDays(S.prepWeek, Number(v) || 0); }
+    else if (act === "prep-fa") S.prepFA = v || "all";
+    else if (act === "prep-ft") S.prepFType = v || "all";
+    else if (act === "prep-fopen") S.prepFOpen = !S.prepFOpen;
+    else if (act === "prep-note-x") S.prepNote = "";
+    else if (act === "prep-new") prepOpen(null, v || "");
+    else if (act === "prep-open") prepOpen(id);
+    else if (act === "prep-close") prepClose();
+    else if (act === "prep-save") { prepSaveCampaign(); return false; }
+    else if (act === "prep-f-type" && f) { f.product_type = v || ""; const d = prepDefaults(f.product_type); f.channels = d.channels; f.shops = d.shops; }
+    else if (act === "prep-f-ch" && f) { f.channels = f.channels.includes(v) ? f.channels.filter((x) => x !== v) : f.channels.concat(v); }
+    else if (act === "prep-f-shop" && f) { f.shops = f.shops.includes(v) ? f.shops.filter((x) => x !== v) : SALE_SHOPS.filter((x) => x === v || f.shops.includes(x)); }
+    else if (act === "prep-f-media" && f) f.media_kind = v;
+    else if (act === "prep-f-prod" && f) { const s = String(id); f.product_ids = f.product_ids.includes(s) ? f.product_ids.filter((x) => x !== s) : f.product_ids.concat(s); }
+    else if (act === "prep-tpl" && ed && ed.id) { prepTemplateTasks(ed.id, v); return false; }
+    else if (act === "prep-task-add" && ed && ed.id) { prepAddTasks(ed.id, [{ title: "งานใหม่" }], "manual"); return false; }
+    else if (act === "prep-task-del") { prepSetTask(id, { deleted_at: new Date().toISOString(), deleted_by: prepActor() }); return false; }
+    else if (act === "prep-tick") { const t = P.tasks.find((x) => String(x.id) === String(id)); if (t) prepSetTask(id, { status: t.status === "done" ? "todo" : "done" }); return false; }
+    else if (act === "prep-del-ask" && ed) ed.askDel = "c";
+    else if (act === "prep-del-no" && ed) ed.askDel = "";
+    else if (act === "prep-del") { prepTrashCampaign(id); return false; }
+    else if (act === "prep-restore-c") { prepRestoreCampaign(id); return false; }
+    else if (act === "prep-restore-t") { prepSetTask(id, { deleted_at: null, deleted_by: null }); return false; }
+    else if (act === "prep-log-post") prepOpenPostLog(id);
+    return true;
+  }
+  function prepBind() {
+    const sheet = document.querySelector(".pp-sheet");
+    if (!sheet) return;
+    sheet.oninput = (e) => {
+      const el = e.target;
+      const k = el && el.getAttribute && el.getAttribute("data-pf");
+      if (k && S.prepEdit) {
+        S.prepEdit.form[k] = el.value;
+        if (k === "city") render();
+      }
+    };
+    sheet.onchange = (e) => {
+      const el = e.target;
+      const k = el && el.getAttribute && el.getAttribute("data-tf");
+      if (!k) return;
+      const tid = el.getAttribute("data-tid");
+      let val = el.value;
+      if (k === "due_date") val = val || null;
+      if (k === "title" && !String(val).trim()) { render(); return; }
+      prepSetTask(tid, { [k]: val });
+    };
+    const q = document.getElementById("ppQ");
+    if (q) q.oninput = () => {
+      if (!S.prepEdit) return;
+      S.prepEdit.q = q.value;
+      clearTimeout(q._t);
+      q._t = setTimeout(() => {
+        render();
+        const el = document.getElementById("ppQ");
+        if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+      }, 150);
+    };
+  }
+  // โหลดครั้งแรก + โพลทุก ~8 วินาที + realtime
+  let prepPollT = 0, prepRtT = 0;
+  function prepArm() { clearInterval(prepPollT); prepPollT = setInterval(() => prepLoad(), document.hidden ? 20000 : 8000); }
+  prepArm();
+  document.addEventListener("visibilitychange", () => { prepArm(); if (!document.hidden) prepLoad(); });
+  try {
+    const sb = prepSb();
+    if (sb) sb.channel("tracker-prep").on("postgres_changes", { event: "*", schema: "public", table: "campaigns" }, () => { clearTimeout(prepRtT); prepRtT = setTimeout(() => prepLoad(), 300); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "campaign_tasks" }, () => { clearTimeout(prepRtT); prepRtT = setTimeout(() => prepLoad(), 300); })
+      .subscribe(() => {});
+  } catch (e) { console.warn("prep realtime", e); }
+  prepLoad();
+
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     closeRowMenu(true);
+    if (S.prepEdit && !document.getElementById("pwAskOverlay")) { prepClose(); render(); return; }
     if (S.view === "cal" && S.calSheet && !S.showPost) { S.calSheet = ""; S.calDelAsk = ""; render(); }
   });
   window.addEventListener("resize", () => { const r = document.getElementById("rmRoot"); if (r && r._place) r._place(); }, { passive: true });

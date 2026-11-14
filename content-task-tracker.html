@@ -592,6 +592,24 @@
     .pp-picked { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 10px; }
     .pp-chip { display: inline-flex; align-items: center; gap: 2px; background: #EEF4FB; color: #1C3554; border-radius: 999px; padding: 2px 4px 2px 10px; font-size: 12px; }
     .pp-sec { border-top: 1px solid #E3ECF6; margin-top: 16px; padding-top: 12px; }
+    .pp-sh { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; color: #1C3554; }
+    .pp-sh > b { margin-right: auto; }
+    .pp-fw { display: flex; gap: 6px; align-items: flex-start; }
+    .pp-fw > .field, .pp-fw > .pills { flex: 1; min-width: 0; }
+    .pp-copy { flex: none; border: 1px solid #CFE0F2; background: #F4F8FD; color: #2E6BB7; border-radius: 8px; padding: 6px 8px; font-size: 12px; font-family: inherit; cursor: pointer; white-space: nowrap; min-height: 34px; }
+    .pp-copy.ok { background: #EEF6EE; color: #25623A; border-color: #BFE0C7; }
+    .pp-link { margin-bottom: 4px; }
+    .pp-sheet .pp-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .pp-pe { border: 1px solid #E3ECF6; border-radius: 10px; margin-top: 8px; background: #FBFDFF; }
+    .pp-pe.open { border-color: #B9D2EE; }
+    .pp-pe-h { width: 100%; display: flex; gap: 8px; align-items: center; background: none; border: 0; padding: 10px; text-align: left; font-family: inherit; cursor: pointer; flex-wrap: wrap; }
+    .pp-pe-l { font-weight: 700; color: #1C3554; }
+    .pp-pe-x { margin-left: auto; color: #6B7F99; }
+    .pp-pe-b { padding: 0 10px 10px; }
+    .pp-cl { display: flex; gap: 8px; align-items: center; margin: 10px 0 2px; font-size: 14px; cursor: pointer; }
+    .pp-cl input { width: 18px; height: 18px; }
+    .pp-ov { margin-top: 10px; }
+    .pp-ov summary { cursor: pointer; color: #2E6BB7; font-size: 13px; padding: 4px 0; }
     .pp-te { border: 1px solid #E3ECF6; border-radius: 12px; padding: 8px; margin-top: 8px; }
     .pp-te.done { background: #F4FBF5; }
     .pp-te-top { display: flex; align-items: center; gap: 6px; }
@@ -603,6 +621,7 @@
       .pp-wrap .cx-nav { width: 100%; }
       .pp-wrap .cx-title { flex: 1; text-align: center; white-space: nowrap; }
       .pp-sheet .pp-grid3 { grid-template-columns: 1fr 1fr; }
+      .pp-sheet .pp-grid2 { grid-template-columns: 1fr; gap: 0; }
       .pp-ck { width: 30px; height: 30px; }
     }
   </style>
@@ -4702,7 +4721,7 @@ function startApp() {
     if (f.editId) S.posts = S.posts.map((p) => String(p.id) === String(f.editId) ? rec : p);
     else S.posts = [rec, ...S.posts];
     persistPosts();
-    if (f.campaignId && !f.editId && window.__prepLinked) window.__prepLinked(f.campaignId, rec.id);
+    if (f.campaignId && !f.editId && window.__prepLinked) window.__prepLinked(f.campaignId, rec.id, f.campaignPostId);
     ids.forEach((pid) => {
       const p = findProduct(pid);
       if (!p) return;
@@ -4863,7 +4882,7 @@ function startApp() {
       if (act !== "row-menu" && act !== "cat-menu") closeRowMenu();
 
       if (act === "view") { S.view = v; S.showMenu = false; S.calSheet = ""; S.calDelAsk = ""; if (v === "activity" && window.__loadActivity) window.__loadActivity(); if (v === "prep" || v === "cal" || v === "trash") prepLoad(); }
-      else if (act.indexOf("prep-") === 0) { if (prepClick(act, id, v) === false) skipRender = true; }
+      else if (act.indexOf("prep-") === 0) { if (prepClick(act, id, v, btn) === false) skipRender = true; }
       else if (act === "row-menu") { openRowMenu(btn); return; }
       else if (act === "cat-menu") { openCatMenu(btn); return; }
       else if (act === "rm-close") { skipRender = true; }
@@ -5574,19 +5593,22 @@ function startApp() {
       ["Claude", "เช็กรูปสุดท้ายเทียบสินค้าจริง", "lic_6"],
       ["ริตา", "บันทึกรูปลงโฟลเดอร์ P:\\…\\REALLYCUTELAND + ตั้งเลขชุด", "lic_7"],
       ["Claude", "ส่งแคปชั่น 6 ช่อง + ข้อมูลลงร้าน + ข้อความส่งต่อบอท", "lic_8"],
-      ["Grok bot", "ADMIN ตั้งเวลาโพสต์", "schedule_post"],
+      ["Grok bot", "ADMIN ตั้งเวลาโพสต์ (ไม่รวม TikTok)", "schedule_post"],
       ["Grok bot", "พนักงานลงสินค้า ลงร้าน", "lic_10"],
-      ["ริตา", "โพสต์ Lemon8", "lic_11"],
+      ["ริตา", "โพสต์ TikTok + Lemon8", "lic_11"], // ริตาโพสต์ TikTok เอง — ADMIN ไม่ตั้งเวลา TikTok
     ],
     unlicensed: [
       ["ริตา", "ทำรูป/คลิป", "unl_1"],
-      ["Grok bot", "ตั้งเวลาโพสต์", "schedule_post"],
+      ["Grok bot", "ตั้งเวลาโพสต์ (ไม่รวม TikTok)", "schedule_post"],
       ["Grok bot", "ลงร้าน", "unl_3"],
     ],
   };
-  const PREP_FIELD_LABEL = { name: "ชื่อแคมเปญ", post_start: "วันโพสต์เริ่ม", post_end: "วันโพสต์จบ", image_date: "วันทำรูป", city: "เมือง", product_type: "ประเภทสินค้า", channels: "เพจ/ช่อง", shops: "ร้านที่ลงขาย", product_ids: "สินค้าที่ใช้", media_kind: "ชนิดสื่อ", media_url: "ลิงก์รูป/วิดีโอ", caption: "แคปชั่น", note: "หมายเหตุ", post_id: "โพสต์ที่บันทึก", title: "ชื่องาน", detail: "รายละเอียด", assignee: "ผู้ทำ", due_date: "วันกำหนด", status: "สถานะ" };
+  const PREP_FIELD_LABEL = { name: "ชื่อแคมเปญ", post_start: "วันโพสต์เริ่ม", post_end: "วันโพสต์จบ", image_date: "วันทำรูป", city: "เมือง", product_type: "ประเภทสินค้า", channels: "เพจ/ช่อง", shops: "ร้านที่ลงขาย", product_ids: "สินค้าที่ใช้", media_kind: "ชนิดสื่อ", media_url: "ลิงก์รูป/วิดีโอ", caption: "แคปชั่น", captions: "แคปชั่นแยกช่อง", listing: "ข้อมูลลงร้าน", label: "ชื่อโพสต์", note: "หมายเหตุ", post_id: "โพสต์ที่บันทึก", post_date: "วันโพสต์", post_time: "เวลาโพสต์", image_set: "เลขชุดรูป", folder_path: "พาธโฟลเดอร์", image_order: "ลำดับรูป", comment_link: "คอมเมนต์ลิงก์", comment_text: "ข้อความคอมเมนต์ลิงก์", title: "ชื่องาน", detail: "รายละเอียด", assignee: "ผู้ทำ", due_date: "วันกำหนด", status: "สถานะ" };
   Object.keys(PREP_FIELD_LABEL).forEach((k) => { if (!(k in ACT_FIELD)) ACT_FIELD[k] = PREP_FIELD_LABEL[k]; });
-  const P = { campaigns: [], tasks: [], ready: false, error: "", sig: "", dirtyWhileOpen: false };
+  // แคปชั่นแยกช่อง (ข้อมูลกลางให้บอทอื่นดึงผ่าน get_campaign) — yt_poll = ตัวเลือกโพล YouTube ชุมชน
+  const PREP_CAPS = [["fb_ig_tt", "Facebook / IG / TikTok"], ["x", "X"], ["threads", "Threads"], ["yt_community", "YouTube ชุมชน"], ["lemon8", "Lemon8"]];
+  const PREP_LIST_F = [["product_name", "ชื่อสินค้า", 1], ["options", "ตัวเลือก", 2], ["price", "ราคา", 1], ["description", "รายละเอียด", 4], ["keywords", "คีย์เวิร์ด", 2]];
+  const P = { campaigns: [], tasks: [], posts: [], ready: false, error: "", sig: "", dirtyWhileOpen: false };
   window.__prepState = P;
   Object.assign(S, {
     prepMode: "week",
@@ -5629,6 +5651,35 @@ function startApp() {
   function prepTasksOf(cid, all) {
     return P.tasks.filter((t) => String(t.campaign_id) === String(cid) && (all || !t.deleted_at)).sort((a, b) => (a.sort || 0) - (b.sort || 0) || String(a.created_at).localeCompare(String(b.created_at)));
   }
+  function prepPostsOf(cid, all) {
+    return P.posts.filter((x) => String(x.campaign_id) === String(cid) && (all || !x.deleted_at)).sort((a, b) => (a.post_date || "9999").localeCompare(b.post_date || "9999") || String(a.post_time || "").localeCompare(String(b.post_time || "")) || (a.sort || 0) - (b.sort || 0));
+  }
+  function prepPollList(v) { return (Array.isArray(v) ? v : String(v || "").split("\n")).map((x) => String(x).trim()).filter(Boolean); }
+  // แคปชั่นที่ใช้จริงของโพสต์ = แคปชั่นแคมเปญ ทับด้วยช่องที่โพสต์กรอกเอง
+  function prepCapsFor(c, post) {
+    const base = Object.assign({}, (c && c.captions) || {});
+    if (c && !base.fb_ig_tt && c.caption) base.fb_ig_tt = c.caption;
+    const ov = (post && post.captions) || {};
+    Object.keys(ov).forEach((k) => { const v = ov[k]; if (Array.isArray(v) ? v.length : String(v || "").trim()) base[k] = v; });
+    return base;
+  }
+  function prepCapsText(caps) {
+    const out = [];
+    PREP_CAPS.forEach(([k, lb]) => {
+      const v = String(caps[k] || "").trim();
+      const poll = k === "yt_community" ? prepPollList(caps.yt_poll) : [];
+      if (v || poll.length) out.push("【" + lb + "】\n" + v + (poll.length ? (v ? "\n" : "") + "โพล: " + poll.map((o, i) => (i + 1) + ") " + o).join("  ") : ""));
+    });
+    return out.join("\n\n");
+  }
+  function prepListingText(L) {
+    L = L || {};
+    const out = PREP_LIST_F.map(([k, lb]) => String(L[k] || "").trim() ? lb + ": " + String(L[k]).trim() : "").filter(Boolean);
+    if ((L.shops || []).length) out.push("ร้านที่ลง: " + L.shops.join(", "));
+    const links = L.links || {};
+    Object.keys(links).filter((k) => links[k]).forEach((k) => out.push("ลิงก์ " + k + ": " + links[k]));
+    return out.join("\n");
+  }
   function prepProgress(cid) {
     const ts = prepTasksOf(cid);
     const done = ts.filter((t) => t.status === "done").length;
@@ -5661,14 +5712,15 @@ function startApp() {
     const sb = prepSb();
     if (!sb) { P.ready = true; P.error = "ยังไม่ได้เชื่อมคลาวด์ — แท็บงานเตรียมต้องต่ออินเทอร์เน็ต"; return; }
     try {
-      const [a, b] = await Promise.all([
+      const [a, b, pp] = await Promise.all([
         sb.from("campaigns").select("*").order("created_at", { ascending: true }),
         sb.from("campaign_tasks").select("*").order("sort", { ascending: true }),
+        sb.from("campaign_posts").select("*").order("sort", { ascending: true }),
       ]);
-      if (a.error || b.error) throw (a.error || b.error);
-      const sig = JSON.stringify([a.data, b.data]);
+      if (a.error || b.error || pp.error) throw (a.error || b.error || pp.error);
+      const sig = JSON.stringify([a.data, b.data, pp.data]);
       const changed = sig !== P.sig;
-      P.campaigns = a.data || []; P.tasks = b.data || []; P.sig = sig; P.error = ""; P.ready = true;
+      P.campaigns = a.data || []; P.tasks = b.data || []; P.posts = pp.data || []; P.sig = sig; P.error = ""; P.ready = true;
       if (changed || force) {
         if (S.view === "prep" || S.view === "cal" || S.view === "trash") {
           if (!overlayOpen()) render(); else P.dirtyWhileOpen = true;
@@ -5685,6 +5737,7 @@ function startApp() {
     const i = list.findIndex((x) => String(x.id) === String(row.id));
     if (i >= 0) list[i] = row; else list.push(row);
   }
+  function prepList(table) { return table === "campaigns" ? P.campaigns : table === "campaign_posts" ? P.posts : P.tasks; }
   async function prepUpdate(table, id, patch) {
     const sb = prepSb();
     if (!sb) throw new Error("ยังไม่ได้เชื่อมคลาวด์");
@@ -5692,7 +5745,7 @@ function startApp() {
     const { data, error } = await sb.from(table).update(body).eq("id", id).select();
     if (error) throw error;
     const row = data && data[0];
-    if (row) prepUpsertLocal(table === "campaigns" ? P.campaigns : P.tasks, row);
+    if (row) prepUpsertLocal(prepList(table), row);
     return row;
   }
   async function prepInsert(table, rows) {
@@ -5702,7 +5755,7 @@ function startApp() {
     const body = rows.map((r) => Object.assign({}, r, { created_by: who, updated_by: who }));
     const { data, error } = await sb.from(table).insert(body).select();
     if (error) throw error;
-    (data || []).forEach((row) => prepUpsertLocal(table === "campaigns" ? P.campaigns : P.tasks, row));
+    (data || []).forEach((row) => prepUpsertLocal(prepList(table), row));
     return data || [];
   }
   function prepFail(e) {
@@ -5710,7 +5763,20 @@ function startApp() {
     render();
   }
   function prepBlankForm() {
-    return { name: "", post_start: "", post_end: "", image_date: todayISO(), city: "", cityOther: "", product_type: "", channels: [], shops: [], product_ids: [], note: "", media_kind: "photo", media_url: "", caption: "" };
+    return { name: "", post_start: "", post_end: "", image_date: todayISO(), city: "", cityOther: "", product_type: "", channels: [], shops: [], product_ids: [], note: "", captions: prepCapsForm({}), listing: prepListingForm({}, []) };
+  }
+  function prepCapsForm(caps) {
+    const o = {};
+    PREP_CAPS.forEach(([k]) => { o[k] = String(caps[k] || ""); });
+    o.yt_poll = prepPollList(caps.yt_poll).join("\n");
+    return o;
+  }
+  function prepListingForm(L, shops) {
+    const o = {};
+    PREP_LIST_F.forEach(([k]) => { o[k] = String(L[k] == null ? "" : L[k]); });
+    o.shops = Array.isArray(L.shops) ? L.shops.slice() : (shops || []).slice();
+    o.links = Object.assign({}, L.links || {});
+    return o;
   }
   function prepFormFrom(c) {
     const inList = PREP_CITIES.includes(c.city);
@@ -5718,14 +5784,15 @@ function startApp() {
       name: c.name || "", post_start: c.post_start || "", post_end: c.post_end || "", image_date: c.image_date || "",
       city: !c.city ? "" : inList ? c.city : "__other", cityOther: inList ? "" : (c.city || ""),
       product_type: c.product_type || "", channels: (c.channels || []).slice(), shops: (c.shops || []).slice(),
-      product_ids: (c.product_ids || []).map(String), note: c.note || "", media_kind: c.media_kind || "photo", media_url: c.media_url || "", caption: c.caption || "",
+      product_ids: (c.product_ids || []).map(String), note: c.note || "",
+      captions: prepCapsForm(prepCapsFor(c, null)), listing: prepListingForm(c.listing || {}, c.shops || []),
     };
   }
   function prepOpen(id, presetDate) {
     const c = id ? prepCampaign(id) : null;
     const form = c ? prepFormFrom(c) : prepBlankForm();
     if (!c && presetDate) form.image_date = presetDate;
-    S.prepEdit = { id: c ? c.id : null, form: form, q: "", msg: "", askDel: "" };
+    S.prepEdit = { id: c ? c.id : null, form: form, q: "", msg: "", askDel: "", links0: Object.assign({}, (form.listing && form.listing.links) || {}), postOpen: "" };
     S.prepNote = "";
   }
   function prepClose() {
@@ -5741,10 +5808,32 @@ function startApp() {
     return {
       name: String(f.name || "").trim(), post_start: ps, post_end: pe, image_date: f.image_date || null, city: city,
       product_type: f.product_type || null, channels: f.channels || [], shops: f.shops || [], product_ids: (f.product_ids || []).map(String),
-      note: String(f.note || "").trim(), media_kind: f.media_kind || "photo", media_url: String(f.media_url || "").trim(), caption: String(f.caption || ""),
+      note: String(f.note || "").trim(), captions: prepCapsRow(f.captions || {}), listing: prepListingRow(f.listing || {}),
     };
   }
-  function prepSame(a, b) { return JSON.stringify(a == null ? null : a) === JSON.stringify(b == null ? null : b); }
+  function prepCapsRow(fc) {
+    const o = {};
+    PREP_CAPS.forEach(([k]) => { if (String(fc[k] || "").trim()) o[k] = String(fc[k]); });
+    const poll = prepPollList(fc.yt_poll);
+    if (poll.length) o.yt_poll = poll;
+    return o;
+  }
+  function prepListingRow(fl) {
+    const o = {};
+    PREP_LIST_F.forEach(([k]) => { if (String(fl[k] || "").trim()) o[k] = String(fl[k]).trim(); });
+    o.shops = SALE_SHOPS.filter((n) => (fl.shops || []).includes(n));
+    const links = {};
+    Object.keys(fl.links || {}).forEach((k) => { if (String(fl.links[k] || "").trim()) links[k] = String(fl.links[k]).trim(); });
+    if (Object.keys(links).length) o.links = links;
+    return o;
+  }
+  // เทียบค่าแบบไม่สนลำดับคีย์ (jsonb ใน Postgres เรียงคีย์ใหม่)
+  function prepStable(v) {
+    if (Array.isArray(v)) return "[" + v.map(prepStable).join(",") + "]";
+    if (v && typeof v === "object") return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + prepStable(v[k])).join(",") + "}";
+    return JSON.stringify(v == null ? null : v);
+  }
+  function prepSame(a, b) { return prepStable(a) === prepStable(b); }
   async function prepSaveCampaign() {
     const ed = S.prepEdit;
     if (!ed) return;
@@ -5760,11 +5849,18 @@ function startApp() {
         prepLog("campaign-add", "เพิ่มแคมเปญ «" + c.name + "»", { added: [{ id: c.id, label: c.name }], addedCount: 1 });
       } else {
         const cur = prepCampaign(ed.id) || {};
+        // ลิงก์ร้านที่พนักงานลงสินค้ากรอกกลับระหว่างเปิดฟอร์ม: ถ้าในฟอร์มไม่ได้แก้ช่องนั้น ให้ใช้ค่าล่าสุดบนคลาวด์
+        const srvLinks = ((cur.listing || {}).links) || {};
+        const links = Object.assign({}, row.listing.links || {});
+        Object.keys(srvLinks).forEach((k) => { if ((ed.form.listing.links[k] || "") === (ed.links0[k] || "")) links[k] = srvLinks[k]; });
+        Object.keys(links).forEach((k) => { if (!links[k]) delete links[k]; });
+        if (Object.keys(links).length) row.listing.links = links; else delete row.listing.links;
         const patch = {};
         Object.keys(row).forEach((k) => { if (!prepSame(row[k], cur[k])) patch[k] = row[k]; });
         if (!Object.keys(patch).length) { ed.msg = "ไม่มีอะไรเปลี่ยน"; render(); return; }
         const c = await prepUpdate("campaigns", ed.id, patch);
         ed.form = prepFormFrom(c || Object.assign({}, cur, patch));
+        ed.links0 = Object.assign({}, ed.form.listing.links);
         ed.msg = "✓ บันทึกแล้ว";
         prepLog("campaign-edit", "แก้แคมเปญ «" + row.name + "» (" + Object.keys(patch).map((k) => PREP_FIELD_LABEL[k] || ACT_FIELD[k] || k).join(", ") + ")", { edited: [{ id: ed.id, label: row.name, fields: Object.keys(patch) }], editedCount: 1 });
       }
@@ -5808,17 +5904,24 @@ function startApp() {
       render();
     } catch (e) { prepFail(e); }
   }
+  function prepTplList(key, channels) {
+    const tpl = PREP_TPL[key] || [];
+    return key === "unlicensed" && (channels || []).some((n) => /tiktok/i.test(n)) ? tpl.concat([["ริตา", "โพสต์ TikTok", "unl_tiktok"]]) : tpl;
+  }
   function prepTemplateTasks(cid, key) {
     const c = prepCampaign(cid);
     const tpl = PREP_TPL[key];
     if (!c || !tpl) return;
     const img = c.image_date || null;
     const before = c.post_start ? prepAddDays(c.post_start, -1) : img;
-    const due = (i, n) => {
+    const due = (i, n, tk) => {
       if (key === "licensed") { if (i <= 7) return img; if (i <= 9) return before && img && before < img ? img : before; return c.post_start || before; }
+      if (tk === "unl_tiktok") return c.post_start || before;
       return i === 0 ? img : (before && img && before < img ? img : before);
     };
-    prepAddTasks(cid, tpl.map(([who, title, tk], i) => ({ assignee: who, title: title, template_key: tk, due_date: due(i, tpl.length) })), "template");
+    // ไม่มีลิขสิทธิ์: ถ้าแคมเปญลง TikTok ด้วย เพิ่มงาน «โพสต์ TikTok» ให้ริตา (ADMIN ไม่ตั้งเวลา TikTok)
+    const list = prepTplList(key, c.channels);
+    prepAddTasks(cid, list.map(([who, title, tk], i) => ({ assignee: who, title: title, template_key: tk, due_date: due(i, list.length, tk) })), "template");
   }
   async function prepSetTask(id, patch, quiet) {
     const t = P.tasks.find((x) => String(x.id) === String(id));
@@ -5838,41 +5941,108 @@ function startApp() {
       } else {
         prepLog("task-edit", "แก้งาน «" + title + "» (แคมเปญ «" + c.name + "»)", { edited: [{ id: id, label: c.name + " · " + title, fields: Object.keys(real) }], editedCount: 1 });
       }
-      if (!quiet) render();
+      if (!quiet) prepRenderKeep();
     } catch (e) { prepFail(e); }
   }
-  window.__prepLinked = async (cid, postId) => {
+  // ---- โพสต์ในแคมเปญ (ทีเซอร์ / โพสต์หลัก …) ----
+  async function prepAddPost(cid) {
+    const c = prepCampaign(cid);
+    if (!c) return;
+    const all = prepPostsOf(cid, true), live = prepPostsOf(cid);
+    const last = live[live.length - 1];
+    const row = { campaign_id: cid, sort: all.reduce((n, x) => Math.max(n, x.sort || 0), 0) + 1, label: live.length ? "โพสต์ " + (live.length + 1) : "โพสต์หลัก", post_date: (last && last.post_date) || c.post_start || null, media_kind: (last && last.media_kind) || "photo" };
+    try {
+      const [x] = await prepInsert("campaign_posts", [row]);
+      if (S.prepEdit) S.prepEdit.postOpen = String(x.id);
+      prepLog("post-add", "เพิ่มโพสต์ «" + x.label + "» ในแคมเปญ «" + c.name + "»", { added: [{ id: x.id, label: c.name + " · " + x.label }], addedCount: 1 });
+      render();
+    } catch (e) { prepFail(e); }
+  }
+  // render ใหม่หลังบันทึกช่องที่แก้ แล้วคืนโฟกัสไปช่องที่ผู้ใช้กำลังพิมพ์อยู่
+  function prepRenderKeep() {
+    const a = document.activeElement;
+    const keys = ["data-pof", "data-poc", "data-tf", "data-pc", "data-pl", "data-plink", "data-pf"];
+    let sel = "";
+    if (a && a.getAttribute) {
+      const k = keys.find((x) => a.hasAttribute(x));
+      if (k) {
+        sel = "[" + k + '="' + CSS.escape(a.getAttribute(k)) + '"]';
+        ["data-pid", "data-tid"].forEach((x) => { if (a.hasAttribute(x)) sel += "[" + x + '="' + CSS.escape(a.getAttribute(x)) + '"]'; });
+      }
+    }
+    const sc = document.querySelector(".pp-sheet");
+    const top = sc ? sc.scrollTop : 0;
+    render();
+    const sc2 = document.querySelector(".pp-sheet");
+    if (sc2) sc2.scrollTop = top;
+    if (sel) { const el = document.querySelector(".pp-sheet " + sel); if (el) { try { el.focus({ preventScroll: true }); } catch (e) {} } }
+  }
+  async function prepSetPost(id, patch, quiet) {
+    const x = P.posts.find((y) => String(y.id) === String(id));
+    if (!x) return;
+    const c = prepCampaign(x.campaign_id) || { name: "" };
+    const real = {};
+    Object.keys(patch).forEach((k) => { if (!prepSame(patch[k], x[k])) real[k] = patch[k]; });
+    if (!Object.keys(real).length) return;
+    try {
+      const row = await prepUpdate("campaign_posts", id, real);
+      const lb = c.name + " · " + ((row && row.label) || x.label || "โพสต์");
+      if ("deleted_at" in real) {
+        if (real.deleted_at) prepLog("post-trash", "ย้ายโพสต์ «" + lb + "» ไปถังขยะ", { trashed: [{ id: id, label: lb }] });
+        else prepLog("post-restore", "กู้คืนโพสต์ «" + lb + "»", { restored: [{ id: id, label: lb }] });
+      } else if ("post_id" in real && Object.keys(real).length === 1) {
+        prepLog("campaign-posted", "บันทึกการโพสต์จากแคมเปญ «" + lb + "»", { edited: [{ id: id, label: lb, fields: ["post_id"] }], editedCount: 1, postId: real.post_id });
+      } else {
+        prepLog("post-edit", "แก้โพสต์ «" + lb + "» (" + Object.keys(real).map((k) => PREP_FIELD_LABEL[k] || ACT_FIELD[k] || k).join(", ") + ")", { edited: [{ id: id, label: lb, fields: Object.keys(real) }], editedCount: 1 });
+      }
+      if (!quiet) prepRenderKeep();
+    } catch (e) { prepFail(e); }
+  }
+  window.__prepLinked = async (cid, postId, cpId) => {
     const c = prepCampaign(cid);
     if (!c) return;
     try {
-      await prepUpdate("campaigns", cid, { post_id: String(postId) });
-      prepLog("campaign-posted", "บันทึกการโพสต์จากแคมเปญ «" + c.name + "»", { edited: [{ id: cid, label: c.name, fields: ["post_id"] }], editedCount: 1, postId: String(postId) });
+      if (cpId && P.posts.some((x) => String(x.id) === String(cpId))) await prepSetPost(cpId, { post_id: String(postId) }, true);
+      if (!c.post_id) await prepUpdate("campaigns", cid, { post_id: String(postId) });
+      if (!cpId) prepLog("campaign-posted", "บันทึกการโพสต์จากแคมเปญ «" + c.name + "»", { edited: [{ id: cid, label: c.name, fields: ["post_id"] }], editedCount: 1, postId: String(postId) });
     } catch (e) { console.warn("prep link", e); }
   };
-  function prepOpenPostLog(cid) {
+  function prepOpenPostLog(cid, cpId) {
     const c = prepCampaign(cid);
     if (!c) return;
+    const posts = prepPostsOf(cid);
+    const post = (cpId && posts.find((x) => String(x.id) === String(cpId))) || posts.find((x) => !x.post_id) || posts[0] || null;
     const ids = (c.product_ids || []).map(String).filter((pid) => findProduct(pid));
     openPostForm("");
     const plats = {};
     CHANNELS.forEach((ch) => { plats[ch.id] = false; });
     (c.channels || []).forEach((n) => { if (PREP_CH_TO_PLAT[n]) plats[PREP_CH_TO_PLAT[n]] = true; });
     (c.shops || []).forEach((n) => { if (PREP_SHOP_TO_PLAT[n]) plats[PREP_SHOP_TO_PLAT[n]] = true; });
-    const note = ["แคมเปญ: " + c.name, c.media_url ? "สื่อ: " + c.media_url : ""].filter(Boolean).join(" · ");
+    const mk = (post && post.media_kind) || c.media_kind || "photo";
+    const media = (post && post.media_url) || c.media_url || "";
+    const note = ["แคมเปญ: " + c.name + (post && post.label ? " · " + post.label : ""),
+      post && post.post_time ? "เวลา " + post.post_time : "",
+      post && post.image_set ? "ชุดรูป " + post.image_set : "",
+      post && post.folder_path ? "โฟลเดอร์: " + post.folder_path : "",
+      post && post.image_order ? "ลำดับรูป: " + post.image_order : "",
+      media ? "สื่อ: " + media : "",
+      post && post.comment_link ? "คอมเมนต์ลิงก์: " + (post.comment_text || "ใช่") : ""].filter(Boolean).join(" · ");
+    const date = (post && post.post_date) || c.post_start || todayISO();
     Object.assign(S.postForm, {
       productIds: ids,
-      date: c.post_start || todayISO(),
-      photo: c.media_kind !== "video",
-      video: c.media_kind === "video" || c.media_kind === "both",
+      date: date,
+      photo: mk !== "video",
+      video: mk === "video" || mk === "both",
       platforms: plats,
-      caption: c.caption || "",
+      caption: prepCapsText(prepCapsFor(c, post)) || c.caption || "",
       note: note,
       socialOpen: SOCIAL.some((ch) => plats[ch.id]),
       campaignId: c.id,
+      campaignPostId: post ? post.id : "",
     });
     S.prepEdit = null;
     S.view = "cal";
-    S.calCursor = (c.post_start || todayISO()).slice(0, 7);
+    S.calCursor = date.slice(0, 7);
     S.calSheet = "";
     S.showPost = true;
   }
@@ -5888,6 +6058,11 @@ function startApp() {
   function prepBar(pr) {
     return `<div class="pp-prog"><div class="bar"><i style="width:${pr.pct}%;background:${pr.total && pr.done === pr.total ? "#5DB071" : "#2E6BB7"}"></i></div><span class="tiny">${pr.done}/${pr.total}</span></div>`;
   }
+  function prepPostsLine(c) {
+    const ps = prepPostsOf(c.id).filter((x) => x.post_date);
+    if (!ps.length) return prepRange(c);
+    return ps.map((x) => (ps.length > 1 && x.label ? x.label + " " : "") + prepDay(x.post_date) + (x.post_time ? " " + x.post_time : "") + (x.post_id ? " ✓" : "")).join(" · ");
+  }
   function prepCard(c, opts) {
     const o = opts || {};
     const pr = prepProgress(c.id);
@@ -5896,7 +6071,7 @@ function startApp() {
     return `<div class="pp-card t-${esc(c.product_type || "unset")}">
       <button class="pp-head" data-act="prep-open" data-id="${esc(c.id)}">
         <span class="pp-name">${esc(c.name)}</span>
-        <span class="pp-meta"><span class="pp-type">${esc(prepTypeLabel(c.product_type))}</span>${c.city ? `<span>🏡 ${esc(c.city)}</span>` : `<span class="pp-wait">เมืองรอเลือก</span>`}<span>📣 ${esc(prepRange(c))}</span>${o.showImg && c.image_date ? `<span>🎨 ทำรูป ${esc(prepDay(c.image_date))}</span>` : ""}${c.post_id ? `<span class="pp-posted">✓ บันทึกโพสต์แล้ว</span>` : ""}</span>
+        <span class="pp-meta"><span class="pp-type">${esc(prepTypeLabel(c.product_type))}</span>${c.city ? `<span>🏡 ${esc(c.city)}</span>` : `<span class="pp-wait">เมืองรอเลือก</span>`}<span>📣 ${esc(prepPostsLine(c))}</span>${o.showImg && c.image_date ? `<span>🎨 ทำรูป ${esc(prepDay(c.image_date))}</span>` : ""}${c.post_id ? `<span class="pp-posted">✓ บันทึกโพสต์แล้ว</span>` : ""}</span>
       </button>
       ${prepBar(pr)}
       ${o.tasks === false ? "" : (ts.length ? `<div class="pp-tasks">${ts.map((t) => prepTaskLine(t, true)).join("")}</div>` : (pr.total ? `<div class="tiny" style="padding:4px 2px">ไม่มีงานที่ตรงตัวกรอง</div>` : `<div class="tiny" style="padding:4px 2px">ยังไม่มีงานย่อย — แตะชื่อแคมเปญเพื่อเพิ่มหรือใช้เทมเพลต</div>`))}
@@ -5959,6 +6134,53 @@ function startApp() {
       ${body}
     </div>`;
   }
+  function prepCp(inner, text) {
+    return `<div class="pp-fw">${inner}<button type="button" class="pp-copy" data-act="prep-copy"${text != null ? ` data-text="${esc(text)}"` : ""} title="คัดลอก" aria-label="คัดลอก">คัดลอก</button></div>`;
+  }
+  function prepPostsEditor(ed, c) {
+    const posts = prepPostsOf(ed.id);
+    const canLog = prepScheduleDone(ed.id);
+    const cp = prepCp;
+    return `<div class="pp-sec">
+      <div class="pp-sh"><b>โพสต์ในแคมเปญ ${posts.length ? `<span class="tiny">${posts.length} โพสต์</span>` : ""}</b><button class="ghost" data-act="prep-post-add">+ เพิ่มโพสต์</button></div>
+      ${posts.length ? "" : `<div class="tiny">ยังไม่มีโพสต์ — กด «+ เพิ่มโพสต์» (เช่น ทีเซอร์ 17 พ.ย. + โพสต์หลัก 18 พ.ย.)</div>`}
+      <div class="tiny" style="margin:2px 0 6px">ช่องในโพสต์บันทึกทันทีที่แก้</div>
+      ${posts.map((x) => {
+        const open = String(ed.postOpen) === String(x.id);
+        const ov = x.captions || {};
+        const nOv = Object.keys(ov).filter((k) => Array.isArray(ov[k]) ? ov[k].length : String(ov[k] || "").trim()).length;
+        const pid = esc(x.id);
+        return `<div class="pp-pe ${open ? "open" : ""}" data-poid="${pid}">
+          <button class="pp-pe-h" data-act="prep-post-toggle" data-id="${pid}" aria-expanded="${open}">
+            <span class="pp-pe-l">${esc(x.label || "โพสต์")}</span>
+            <span class="tiny">${x.post_date ? esc(prepDay(x.post_date)) : "ยังไม่กำหนดวัน"}${x.post_time ? " · " + esc(x.post_time) : ""}${x.image_set ? " · ชุด " + esc(x.image_set) : ""}${x.comment_link ? " · 💬 ลิงก์" : ""}${x.post_id ? ` · <b style="color:#25623A">✓ บันทึกโพสต์แล้ว</b>` : ""}</span>
+            <span class="pp-pe-x">${open ? "▴" : "▾"}</span>
+          </button>
+          ${open ? `<div class="pp-pe-b">
+            <div class="pp-grid2"><div><div class="lbl">ชื่อโพสต์</div>${cp(`<input class="field" data-pof="label" data-pid="${pid}" value="${esc(x.label)}" placeholder="เช่น ทีเซอร์ / โพสต์หลัก" aria-label="ชื่อโพสต์" />`)}</div>
+            <div><div class="lbl">ชนิดสื่อ</div><select class="field" data-pof="media_kind" data-pid="${pid}" aria-label="ชนิดสื่อ">${[["photo", "📷 รูป"], ["video", "🎥 วิดีโอ"], ["both", "📷🎥 ทั้งคู่"]].map(([v, lb]) => `<option value="${v}" ${x.media_kind === v ? "selected" : ""}>${lb}</option>`).join("")}</select></div></div>
+            <div class="pp-grid2"><div><div class="lbl">วันโพสต์</div>${cp(`<input class="field" type="date" data-pof="post_date" data-pid="${pid}" value="${esc(x.post_date || "")}" aria-label="วันโพสต์" />`)}</div>
+            <div><div class="lbl">เวลา</div>${cp(`<input class="field" type="time" data-pof="post_time" data-pid="${pid}" value="${esc(x.post_time || "")}" aria-label="เวลาโพสต์" />`)}</div></div>
+            <div class="pp-grid2"><div><div class="lbl">เลขชุดรูป</div>${cp(`<input class="field" data-pof="image_set" data-pid="${pid}" value="${esc(x.image_set)}" placeholder="เช่น 12" aria-label="เลขชุดรูป" />`)}</div>
+            <div><div class="lbl">ลำดับรูป</div>${cp(`<input class="field" data-pof="image_order" data-pid="${pid}" value="${esc(x.image_order)}" placeholder="เช่น 3,1,2,5" aria-label="ลำดับรูป" />`)}</div></div>
+            <div class="lbl">พาธโฟลเดอร์</div>${cp(`<input class="field" data-pof="folder_path" data-pid="${pid}" value="${esc(x.folder_path)}" placeholder="เช่น Drive/REALLYCUTE/2026-11/ชุด 12" aria-label="พาธโฟลเดอร์" />`)}
+            <div class="lbl">ลิงก์รูป/วิดีโอ (ถ้ามี)</div>${cp(`<input class="field" data-pof="media_url" data-pid="${pid}" value="${esc(x.media_url)}" aria-label="ลิงก์รูปหรือวิดีโอ" />`)}
+            <label class="pp-cl"><input type="checkbox" data-pof="comment_link" data-pid="${pid}" ${x.comment_link ? "checked" : ""} /> คอมเมนต์ลิงก์ใต้โพสต์</label>
+            ${x.comment_link ? `<div class="lbl">ข้อความ/ลิงก์ที่จะคอมเมนต์</div>${cp(`<textarea class="field" data-pof="comment_text" data-pid="${pid}" rows="2" aria-label="ข้อความคอมเมนต์ลิงก์">${esc(x.comment_text)}</textarea>`)}` : ""}
+            <details class="pp-ov" ${nOv ? "open" : ""}><summary>แคปชั่นเฉพาะโพสต์นี้ ${nOv ? `(${nOv} ช่อง)` : "(ว่าง = ใช้แคปชั่นของแคมเปญ)"}</summary>
+              ${PREP_CAPS.map(([k, lb]) => `<div class="lbl">${esc(lb)}</div>${cp(`<textarea class="field" data-poc="${k}" data-pid="${pid}" rows="2" placeholder="ใช้ของแคมเปญ" aria-label="แคปชั่นโพสต์ ${esc(lb)}">${esc(ov[k] || "")}</textarea>`)}`).join("")}
+              <div class="lbl">ตัวเลือกโพล YouTube</div>${cp(`<textarea class="field" data-poc="yt_poll" data-pid="${pid}" rows="2" placeholder="ใช้ของแคมเปญ" aria-label="ตัวเลือกโพลของโพสต์">${esc(prepPollList(ov.yt_poll).join("\n"))}</textarea>`)}
+            </details>
+            <div class="rowbtns" style="margin-top:8px">
+              <button type="button" class="ghost pp-copy" data-act="prep-copy" data-text="${esc(prepCapsText(prepCapsFor(c, x)))}">คัดลอกแคปชั่นที่ใช้จริง</button>
+              ${canLog ? `<button class="ghost" data-act="prep-log-post" data-id="${esc(ed.id)}" data-v="${pid}">📝 บันทึกการโพสต์</button>` : ""}
+              <button class="ghost" style="color:#C0525A" data-act="prep-post-del" data-id="${pid}">🗑 ลบโพสต์</button>
+            </div>
+          </div>` : ""}
+        </div>`;
+      }).join("")}
+    </div>`;
+  }
   function prepSheet() {
     const ed = S.prepEdit;
     const f = ed.form;
@@ -5969,13 +6191,14 @@ function startApp() {
     const matches = q ? products().filter((p) => !p.ex && ((p.n || "").toLowerCase().includes(q) || (p.v || "").toLowerCase().includes(q) || groupOf(p).toLowerCase().includes(q))).slice(0, 10) : [];
     const tplKey = prepTplKey(f.product_type);
     const pill = (act, val, on, lb) => `<button type="button" class="pill ${on ? "on" : ""}" data-act="${act}" data-v="${esc(val)}" aria-pressed="${on}">${esc(lb)}</button>`;
+    const cp = prepCp;
     return `<div class="overlay" data-act="prep-close"><div class="sheet pp-sheet" data-stop="1" role="dialog" aria-modal="true" aria-label="แคมเปญ">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px">
         <div style="font-size:17px;font-weight:700;color:#2E6BB7">${ed.id ? "แคมเปญ: " + esc(c ? c.name : f.name) : "แคมเปญใหม่"}</div>
         <button class="iconbtn" data-act="prep-close" aria-label="ปิด">✕</button>
       </div>
       <div class="lbl">ชื่อแคมเปญ</div>
-      <input class="field" data-pf="name" id="ppName" placeholder="เช่น Mickey &amp; Friends" value="${esc(f.name)}" />
+      ${cp(`<input class="field" data-pf="name" id="ppName" placeholder="เช่น Mickey &amp; Friends" value="${esc(f.name)}" />`)}
       <div class="pp-grid3">
         <div><div class="lbl">วันโพสต์ (เริ่ม)</div><input class="field" type="date" data-pf="post_start" value="${esc(f.post_start)}" /></div>
         <div><div class="lbl">วันโพสต์ (จบ)</div><input class="field" type="date" data-pf="post_end" value="${esc(f.post_end)}" /></div>
@@ -5998,21 +6221,28 @@ function startApp() {
       <input class="field" id="ppQ" placeholder="พิมพ์ชื่อสินค้าแล้วกดเพิ่ม…" value="${esc(ed.q)}" />
       ${picked.length ? `<div class="pp-picked">${picked.map((p) => `<span class="pp-chip">${esc(labelOf(p))}<button class="iconbtn" data-act="prep-f-prod" data-id="${esc(p.id)}" aria-label="เอาออก">✕</button></span>`).join("")}</div>` : ""}
       ${matches.length ? `<div style="max-height:160px;overflow:auto;margin-bottom:10px">${matches.map((p) => { const on = (f.product_ids || []).includes(String(p.id)); return `<button class="ghost ${on ? "on" : ""}" style="width:100%;margin-bottom:4px;justify-content:flex-start" data-act="prep-f-prod" data-id="${esc(p.id)}">${on ? "✓ " : "+ "}${esc(labelOf(p))}</button>`; }).join("")}</div>` : ""}
-      <div class="lbl">รูป/วิดีโอสำหรับบันทึกการโพสต์</div>
-      <div class="pills">${pill("prep-f-media", "photo", f.media_kind === "photo", "📷 รูป")}${pill("prep-f-media", "video", f.media_kind === "video", "🎥 วิดีโอ")}${pill("prep-f-media", "both", f.media_kind === "both", "📷🎥 ทั้งคู่")}</div>
-      <input class="field" data-pf="media_url" placeholder="ลิงก์/ที่เก็บไฟล์รูปหรือวิดีโอ (ถ้ามี)" value="${esc(f.media_url)}" />
-      <div class="lbl">แคปชั่น (ถ้ามี — ใช้กรอกฟอร์มบันทึกการโพสต์)</div>
-      <textarea class="field" data-pf="caption" rows="4" placeholder="วางแคปชั่นจาก Claude ได้ที่นี่">${esc(f.caption)}</textarea>
       <div class="lbl">หมายเหตุ</div>
-      <textarea class="field" data-pf="note" rows="2">${esc(f.note)}</textarea>
+      ${cp(`<textarea class="field" data-pf="note" rows="2">${esc(f.note)}</textarea>`)}
+      <div class="pp-sec">
+        <div class="pp-sh"><b>แคปชั่นแยกช่อง</b><button type="button" class="ghost pp-copy" data-act="prep-copy" data-v="caps">คัดลอกทั้งหมด</button></div>
+        ${PREP_CAPS.map(([k, lb]) => `<div class="lbl">${esc(lb)}</div>${cp(`<textarea class="field" data-pc="${k}" rows="${k === "fb_ig_tt" ? 4 : 3}" aria-label="แคปชั่น ${esc(lb)}">${esc(f.captions[k])}</textarea>`)}${k === "yt_community" ? `<div class="lbl">ตัวเลือกโพล YouTube <span class="tiny">(บรรทัดละ 1 ตัวเลือก)</span></div>${cp(`<textarea class="field" data-pc="yt_poll" rows="3" placeholder="ตัวเลือก 1&#10;ตัวเลือก 2" aria-label="ตัวเลือกโพล YouTube">${esc(f.captions.yt_poll)}</textarea>`)}` : ""}`).join("")}
+      </div>
+      <div class="pp-sec">
+        <div class="pp-sh"><b>ข้อมูลลงร้าน</b> <span class="tiny">(ข้อมูลวางแผน ไม่แก้สินค้าในแท็บสินค้า)</span><button type="button" class="ghost pp-copy" data-act="prep-copy" data-v="listing">คัดลอกทั้งหมด</button></div>
+        ${PREP_LIST_F.map(([k, lb, rows]) => `<div class="lbl">${esc(lb)}</div>${cp(rows > 1 ? `<textarea class="field" data-pl="${k}" rows="${rows}" aria-label="${esc(lb)}">${esc(f.listing[k])}</textarea>` : `<input class="field" data-pl="${k}" value="${esc(f.listing[k])}" aria-label="${esc(lb)}" />`)}`).join("")}
+        <div class="lbl">ร้านที่ลง</div>
+        <div class="pp-fw"><div class="pills pp-wrapp">${SALE_SHOPS.map((n) => pill("prep-f-lshop", n, (f.listing.shops || []).includes(n), n)).join("")}</div><button type="button" class="pp-copy" data-act="prep-copy" data-v="shops" aria-label="คัดลอกร้านที่ลง">คัดลอก</button></div>
+        ${(f.listing.shops || []).length ? `<div class="lbl">ลิงก์ร้านหลังลงเสร็จ <span class="tiny">(พนักงานลงสินค้ากรอกกลับ)</span></div>${(f.listing.shops || []).map((n) => `<div class="pp-link"><span class="tiny">${esc(n)}</span>${cp(`<input class="field" data-plink="${esc(n)}" value="${esc(f.listing.links[n] || "")}" placeholder="https://…" aria-label="ลิงก์ ${esc(n)}" />`)}</div>`).join("")}` : ""}
+      </div>
       ${ed.msg ? `<div class="warn" role="status">${esc(ed.msg)}</div>` : ""}
       <button class="btn on" data-act="prep-save">${ed.id ? "บันทึกการแก้ไขแคมเปญ" : "สร้างแคมเปญ"}</button>
       ${ed.id ? `
+      ${prepPostsEditor(ed, c)}
       <div class="pp-sec">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
           <div style="font-weight:700;color:#1C3554">งานย่อย ${tasks.length ? `<span class="tiny">${prepProgress(ed.id).done}/${tasks.length} เสร็จ</span>` : ""}</div>
           <div class="rowbtns">
-            ${tplKey ? `<button class="ghost" data-act="prep-tpl" data-v="${tplKey}">ใช้เทมเพลต (${PREP_TPL[tplKey].length} งาน)</button>` : `<button class="ghost" data-act="prep-tpl" data-v="licensed">ใช้เทมเพลตลิขสิทธิ์/ออริจินอล (11)</button><button class="ghost" data-act="prep-tpl" data-v="unlicensed">ใช้เทมเพลตไม่มีลิขสิทธิ์ (3)</button>`}
+            ${tplKey ? `<button class="ghost" data-act="prep-tpl" data-v="${tplKey}">ใช้เทมเพลต (${prepTplList(tplKey, (c && c.channels) || f.channels).length} งาน)</button>` : `<button class="ghost" data-act="prep-tpl" data-v="licensed">ใช้เทมเพลตลิขสิทธิ์/ออริจินอล (11)</button><button class="ghost" data-act="prep-tpl" data-v="unlicensed">ใช้เทมเพลตไม่มีลิขสิทธิ์ (3)</button>`}
             <button class="ghost" data-act="prep-task-add">+ เพิ่มงาน</button>
           </div>
         </div>
@@ -6031,24 +6261,33 @@ function startApp() {
             <select class="field pp-in" data-tf="status" data-tid="${esc(t.id)}" aria-label="สถานะ">${PREP_STATUS.map((s) => `<option value="${s.id}" ${t.status === s.id ? "selected" : ""}>${s.label}</option>`).join("")}</select>
           </div>
         </div>`).join("")}
-        ${prepScheduleDone(ed.id) ? `<button class="btn on" style="margin-top:10px" data-act="prep-log-post" data-id="${esc(ed.id)}">📝 บันทึกการโพสต์ (เปิดฟอร์มในปฏิทิน)</button>` : `<div class="tiny" style="margin-top:8px">ปุ่ม «บันทึกการโพสต์» จะขึ้นเมื่องาน «ตั้งเวลาโพสต์» เสร็จ</div>`}
+        ${prepScheduleDone(ed.id) ? (prepPostsOf(ed.id).length > 1 ? `<div class="tiny" style="margin-top:8px">กด «📝 บันทึกการโพสต์» ที่โพสต์แต่ละโพสต์ด้านบน</div>` : `<button class="btn on" style="margin-top:10px" data-act="prep-log-post" data-id="${esc(ed.id)}">📝 บันทึกการโพสต์ (เปิดฟอร์มในปฏิทิน)</button>`) : `<div class="tiny" style="margin-top:8px">ปุ่ม «บันทึกการโพสต์» จะขึ้นเมื่องาน «ตั้งเวลาโพสต์» เสร็จ</div>`}
         ${c && c.post_id ? `<div class="tiny" style="margin-top:6px">✓ บันทึกการโพสต์แล้ว</div>` : ""}
       </div>
       ${ed.askDel === "c" ? `<div class="cx-ask" style="margin-top:12px"><button class="yes" data-act="prep-del" data-id="${esc(ed.id)}">ย้ายแคมเปญไปถังขยะ</button><button data-act="prep-del-no">ยกเลิก</button></div>` : `<button class="ghost" style="width:100%;margin-top:12px;justify-content:center;color:#C0525A;border-color:#EED9D6" data-act="prep-del-ask">ลบแคมเปญนี้ (ไปถังขยะ)</button>`}` : `<div class="tiny" style="margin-top:8px">สร้างแคมเปญก่อน แล้วค่อยเพิ่มงานย่อยหรือใช้เทมเพลต</div>`}
     </div></div>`;
   }
   // ปฏิทิน: แคมเปญที่วางแผนไว้ตามวันโพสต์ (ยังไม่ใช่โพสต์จริง)
+  // ถ้าแคมเปญมีโพสต์ที่กำหนดวันแล้ว ใช้วันของโพสต์ ไม่งั้นใช้ช่วงวันโพสต์ของแคมเปญ
   function prepPlannedOn(iso) {
     if (!P.ready) return [];
-    return prepLive().filter((c) => c.post_start && iso >= c.post_start && iso <= (c.post_end || c.post_start));
+    return prepLive().filter((c) => {
+      const ps = prepPostsOf(c.id).filter((x) => x.post_date);
+      if (ps.length) return ps.some((x) => x.post_date === iso);
+      return c.post_start && iso >= c.post_start && iso <= (c.post_end || c.post_start);
+    });
+  }
+  function prepPlanLabel(c, iso) {
+    const ps = prepPostsOf(c.id).filter((x) => x.post_date === iso);
+    return c.name + (ps.length && prepPostsOf(c.id).length > 1 ? " · " + ps.map((x) => x.label || "โพสต์").join(", ") : "");
   }
   function prepCalChips(iso) {
-    return prepPlannedOn(iso).map((c) => `<span class="cx-chip plan" title="แคมเปญที่วางแผน: ${esc(c.name)}"><span class="g">🗓</span><span class="t">${esc(c.name)}</span></span>`).join("");
+    return prepPlannedOn(iso).map((c) => `<span class="cx-chip plan" title="แคมเปญที่วางแผน: ${esc(prepPlanLabel(c, iso))}"><span class="g">🗓</span><span class="t">${esc(prepPlanLabel(c, iso))}</span></span>`).join("");
   }
   function prepCalSheetHTML(iso) {
     const cs = prepPlannedOn(iso);
     if (!cs.length) return "";
-    return `<div class="pp-calplan"><div class="tiny" style="margin-bottom:6px">แคมเปญที่วางแผนไว้ (เส้นประ = ยังไม่ใช่โพสต์จริง)</div>${cs.map((c) => `<button class="cx-chip plan pp-calbtn" data-act="prep-open" data-id="${esc(c.id)}"><span class="g">🗓</span><span class="t">${esc(c.name)} · ${esc(prepTypeLabel(c.product_type))} · งาน ${prepProgress(c.id).done}/${prepProgress(c.id).total}</span></button>`).join("")}</div>`;
+    return `<div class="pp-calplan"><div class="tiny" style="margin-bottom:6px">แคมเปญที่วางแผนไว้ (เส้นประ = ยังไม่ใช่โพสต์จริง)</div>${cs.map((c) => `<button class="cx-chip plan pp-calbtn" data-act="prep-open" data-id="${esc(c.id)}"><span class="g">🗓</span><span class="t">${esc(prepPlanLabel(c, iso))} · ${esc(prepTypeLabel(c.product_type))} · งาน ${prepProgress(c.id).done}/${prepProgress(c.id).total}</span></button>`).join("")}</div>`;
   }
   function prepTrashHTML() {
     if (!P.ready) return "";
@@ -6056,14 +6295,38 @@ function startApp() {
     const recent = (x) => x.deleted_at && now - new Date(x.deleted_at).getTime() < TRASH_MS;
     const cs = P.campaigns.filter(recent);
     const ts = P.tasks.filter((t) => recent(t) && !(prepCampaign(t.campaign_id) || {}).deleted_at);
-    if (!cs.length && !ts.length) return "";
+    const pss = P.posts.filter((x) => recent(x) && !(prepCampaign(x.campaign_id) || {}).deleted_at);
+    if (!cs.length && !ts.length && !pss.length) return "";
     const left = (x) => Math.max(0, Math.ceil((TRASH_MS - (now - new Date(x.deleted_at).getTime())) / 86400000));
-    return `<div class="card" style="margin-top:14px"><div style="font-weight:700;color:#1C3554">งานเตรียมที่ลบ</div><div class="tiny">แคมเปญ ${cs.length} · งานย่อย ${ts.length} · กู้คืนได้ (แสดง 7 วัน ข้อมูลไม่ถูกลบถาวร)</div></div>
+    return `<div class="card" style="margin-top:14px"><div style="font-weight:700;color:#1C3554">งานเตรียมที่ลบ</div><div class="tiny">แคมเปญ ${cs.length} · งานย่อย ${ts.length} · โพสต์ ${pss.length} · กู้คืนได้ (แสดง 7 วัน ข้อมูลไม่ถูกลบถาวร)</div></div>
       ${cs.map((c) => `<div class="postrow" style="cursor:default"><div style="font-size:13px;font-weight:500">🗓 แคมเปญ: ${esc(c.name)}</div><div class="tiny">ลบโดย ${esc(c.deleted_by || "ไม่ระบุชื่อ")} · งานย่อย ${prepTasksOf(c.id).length} งานติดไปด้วย · เหลือ ${left(c)} วัน</div><div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="prep-restore-c" data-id="${esc(c.id)}">กู้คืน</button></div></div>`).join("")}
-      ${ts.map((t) => `<div class="postrow" style="cursor:default"><div style="font-size:13px;font-weight:500">☑ งาน: ${esc(t.title || "(ไม่มีชื่องาน)")}</div><div class="tiny">แคมเปญ ${esc((prepCampaign(t.campaign_id) || {}).name || "")} · ลบโดย ${esc(t.deleted_by || "ไม่ระบุชื่อ")} · เหลือ ${left(t)} วัน</div><div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="prep-restore-t" data-id="${esc(t.id)}">กู้คืน</button></div></div>`).join("")}`;
+      ${ts.map((t) => `<div class="postrow" style="cursor:default"><div style="font-size:13px;font-weight:500">☑ งาน: ${esc(t.title || "(ไม่มีชื่องาน)")}</div><div class="tiny">แคมเปญ ${esc((prepCampaign(t.campaign_id) || {}).name || "")} · ลบโดย ${esc(t.deleted_by || "ไม่ระบุชื่อ")} · เหลือ ${left(t)} วัน</div><div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="prep-restore-t" data-id="${esc(t.id)}">กู้คืน</button></div></div>`).join("")}
+      ${pss.map((x) => `<div class="postrow" style="cursor:default"><div style="font-size:13px;font-weight:500">📣 โพสต์: ${esc(x.label || "โพสต์")}${x.post_date ? " · " + esc(prepDay(x.post_date)) : ""}</div><div class="tiny">แคมเปญ ${esc((prepCampaign(x.campaign_id) || {}).name || "")} · ลบโดย ${esc(x.deleted_by || "ไม่ระบุชื่อ")} · เหลือ ${left(x)} วัน</div><div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="prep-restore-p" data-id="${esc(x.id)}">กู้คืน</button></div></div>`).join("")}`;
   }
   // ปุ่มทั้งหมดของงานเตรียม: คืน false = ไม่ต้อง render ซ้ำ (ฟังก์ชัน async จะ render เอง)
-  function prepClick(act, id, v) {
+  function prepCopyText(text, btn) {
+    const done = (ok) => {
+      if (!btn) return;
+      const t0 = btn.getAttribute("data-t0") || btn.textContent;
+      btn.setAttribute("data-t0", t0);
+      btn.textContent = ok ? "✓ คัดลอกแล้ว" : "คัดลอกไม่ได้";
+      btn.classList.add("ok");
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => { btn.textContent = t0; btn.classList.remove("ok"); }, 1400);
+    };
+    const fallback = () => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:-1000px;opacity:0";
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand("copy");
+        ta.remove(); done(ok);
+      } catch (e) { done(false); }
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(() => done(true), fallback);
+    else fallback();
+  }
+  function prepClick(act, id, v, btn) {
     const ed = S.prepEdit;
     const f = ed && ed.form;
     if (act === "prep-mode") { S.prepMode = v === "list" ? "list" : "week"; }
@@ -6076,10 +6339,24 @@ function startApp() {
     else if (act === "prep-open") prepOpen(id);
     else if (act === "prep-close") prepClose();
     else if (act === "prep-save") { prepSaveCampaign(); return false; }
-    else if (act === "prep-f-type" && f) { f.product_type = v || ""; const d = prepDefaults(f.product_type); f.channels = d.channels; f.shops = d.shops; }
+    else if (act === "prep-f-type" && f) { f.product_type = v || ""; const d = prepDefaults(f.product_type); const sync = prepSame(f.listing.shops, f.shops); f.channels = d.channels; f.shops = d.shops; if (sync) f.listing.shops = d.shops.slice(); }
     else if (act === "prep-f-ch" && f) { f.channels = f.channels.includes(v) ? f.channels.filter((x) => x !== v) : f.channels.concat(v); }
-    else if (act === "prep-f-shop" && f) { f.shops = f.shops.includes(v) ? f.shops.filter((x) => x !== v) : SALE_SHOPS.filter((x) => x === v || f.shops.includes(x)); }
-    else if (act === "prep-f-media" && f) f.media_kind = v;
+    else if (act === "prep-f-shop" && f) { const sync = prepSame(f.listing.shops, f.shops); f.shops = f.shops.includes(v) ? f.shops.filter((x) => x !== v) : SALE_SHOPS.filter((x) => x === v || f.shops.includes(x)); if (sync) f.listing.shops = f.shops.slice(); }
+    else if (act === "prep-f-lshop" && f) { const L = f.listing; L.shops = L.shops.includes(v) ? L.shops.filter((x) => x !== v) : SALE_SHOPS.filter((x) => x === v || L.shops.includes(x)); }
+    else if (act === "prep-copy") {
+      let text;
+      if (v === "caps" && f) text = prepCapsText(f.captions);
+      else if (v === "listing" && f) text = prepListingText(prepListingRow(f.listing));
+      else if (v === "shops" && f) text = (f.listing.shops || []).join(", ");
+      else if (btn && btn.hasAttribute("data-text")) text = btn.getAttribute("data-text");
+      else { const w = btn && btn.closest(".pp-fw"); const el = w && w.querySelector("input,textarea,select"); text = el ? el.value : ""; }
+      prepCopyText(String(text || ""), btn);
+      return false;
+    }
+    else if (act === "prep-post-add" && ed && ed.id) { prepAddPost(ed.id); return false; }
+    else if (act === "prep-post-toggle" && ed) ed.postOpen = String(ed.postOpen) === String(id) ? "" : String(id);
+    else if (act === "prep-post-del") { prepSetPost(id, { deleted_at: new Date().toISOString(), deleted_by: prepActor() }); return false; }
+    else if (act === "prep-restore-p") { prepSetPost(id, { deleted_at: null, deleted_by: null }); return false; }
     else if (act === "prep-f-prod" && f) { const s = String(id); f.product_ids = f.product_ids.includes(s) ? f.product_ids.filter((x) => x !== s) : f.product_ids.concat(s); }
     else if (act === "prep-tpl" && ed && ed.id) { prepTemplateTasks(ed.id, v); return false; }
     else if (act === "prep-task-add" && ed && ed.id) { prepAddTasks(ed.id, [{ title: "งานใหม่" }], "manual"); return false; }
@@ -6090,7 +6367,7 @@ function startApp() {
     else if (act === "prep-del") { prepTrashCampaign(id); return false; }
     else if (act === "prep-restore-c") { prepRestoreCampaign(id); return false; }
     else if (act === "prep-restore-t") { prepSetTask(id, { deleted_at: null, deleted_by: null }); return false; }
-    else if (act === "prep-log-post") prepOpenPostLog(id);
+    else if (act === "prep-log-post") prepOpenPostLog(id, v);
     return true;
   }
   function prepBind() {
@@ -6103,9 +6380,33 @@ function startApp() {
         S.prepEdit.form[k] = el.value;
         if (k === "city") render();
       }
+      if (!S.prepEdit || !el.getAttribute) return;
+      const f = S.prepEdit.form;
+      const pc = el.getAttribute("data-pc"), pl = el.getAttribute("data-pl"), lk = el.getAttribute("data-plink");
+      if (pc) f.captions[pc] = el.value;
+      if (pl) f.listing[pl] = el.value;
+      if (lk) f.listing.links[lk] = el.value;
     };
     sheet.onchange = (e) => {
       const el = e.target;
+      const pof = el && el.getAttribute && el.getAttribute("data-pof");
+      const poc = el && el.getAttribute && el.getAttribute("data-poc");
+      if (pof || poc) {
+        const pid = el.getAttribute("data-pid");
+        const x = P.posts.find((y) => String(y.id) === String(pid));
+        if (!x) return;
+        if (poc) {
+          const caps = Object.assign({}, x.captions || {});
+          if (poc === "yt_poll") { const l = prepPollList(el.value); if (l.length) caps.yt_poll = l; else delete caps.yt_poll; }
+          else if (String(el.value).trim()) caps[poc] = el.value; else delete caps[poc];
+          prepSetPost(pid, { captions: caps });
+          return;
+        }
+        let val = pof === "comment_link" ? !!el.checked : el.value;
+        if (pof === "post_date") val = val || null;
+        prepSetPost(pid, { [pof]: val });
+        return;
+      }
       const k = el && el.getAttribute && el.getAttribute("data-tf");
       if (!k) return;
       const tid = el.getAttribute("data-tid");
@@ -6134,6 +6435,7 @@ function startApp() {
   try {
     const sb = prepSb();
     if (sb) sb.channel("tracker-prep").on("postgres_changes", { event: "*", schema: "public", table: "campaigns" }, () => { clearTimeout(prepRtT); prepRtT = setTimeout(() => prepLoad(), 300); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "campaign_posts" }, () => { clearTimeout(prepRtT); prepRtT = setTimeout(() => prepLoad(), 300); })
       .on("postgres_changes", { event: "*", schema: "public", table: "campaign_tasks" }, () => { clearTimeout(prepRtT); prepRtT = setTimeout(() => prepLoad(), 300); })
       .subscribe(() => {});
   } catch (e) { console.warn("prep realtime", e); }

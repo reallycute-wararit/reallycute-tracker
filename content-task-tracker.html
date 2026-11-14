@@ -4348,6 +4348,59 @@ function startApp() {
         })() : ""}
       </div>` : ""}`;
   }
+  // ==== โพสต์ในปฏิทินที่ผูกกับแคมเปญ: แคมเปญเป็นที่เก็บแคปชั่นที่เดียว ที่นี่ดู/คัดลอกได้อย่างเดียว ====
+  // ผูกจริง = campaign_posts.post_id หรือ campaigns.post_id ตรงกับ id โพสต์ · ถ้ายังไม่ผูก จับคู่จากวันโพสต์ (อ่านอย่างเดียว ไม่เขียนข้อมูล)
+  function postCampLink(f) {
+    if (!f || f.ownCap || typeof P === "undefined" || !P.ready) return null;
+    const live = (c) => c && !c.deleted_at;
+    if (f.campaignId) {
+      const c = prepCampaign(f.campaignId);
+      if (!live(c)) return null;
+      const cp = f.campaignPostId ? P.posts.find((x) => String(x.id) === String(f.campaignPostId) && !x.deleted_at) : null;
+      return { c: c, cp: cp || null, auto: false };
+    }
+    const pid = f.editId ? String(f.editId) : "";
+    if (pid) {
+      const cp = P.posts.find((x) => !x.deleted_at && String(x.post_id || "") === pid && live(prepCampaign(x.campaign_id)));
+      if (cp) return { c: prepCampaign(cp.campaign_id), cp: cp, auto: false };
+      const c = P.campaigns.find((x) => live(x) && String(x.post_id || "") === pid);
+      if (c) return { c: c, cp: null, auto: false };
+    }
+    if (!f.date || !pid) return null; // จับคู่อัตโนมัติเฉพาะโพสต์ที่บันทึกแล้ว — โพสต์ใหม่ที่ไม่ได้มาจากแคมเปญยังเขียนแคปชั่นเองได้
+    let cands = P.posts.filter((x) => !x.deleted_at && x.post_date === f.date && !x.post_id && live(prepCampaign(x.campaign_id)));
+    if (cands.length > 1) {
+      const po = pid ? (S.posts || []).find((x) => String(x.id) === pid) : null;
+      const txt = [po && po.label, f.caption, f.note].join(" ").toLowerCase();
+      cands = cands.filter((x) => { const n = String((prepCampaign(x.campaign_id) || {}).name || "").trim().toLowerCase(); return n && txt.includes(n); });
+    }
+    if (cands.length !== 1) return null;
+    return { c: prepCampaign(cands[0].campaign_id), cp: cands[0], auto: true };
+  }
+  function postCampHTML(f) {
+    const L = postCampLink(f);
+    if (!L) return "";
+    const c = L.c, cp = L.cp;
+    const caps = prepCapsFor(c, cp);
+    const rows = PREP_CAPS.map(([k, lb]) => {
+      const v = String(caps[k] || "").trim();
+      const poll = k === "yt_community" ? prepPollList(caps.yt_poll) : [];
+      if (!v && !poll.length) return "";
+      return `<div class="lbl">${esc(lb)}</div>${v ? prepCp(`<textarea class="field" readonly rows="${k === "fb_ig_tt" ? 5 : 3}" aria-label="แคปชั่นแคมเปญ ${esc(lb)} (อ่านอย่างเดียว)">${esc(v)}</textarea>`) : ""}${poll.length ? `<div class="lbl">ตัวเลือกโพล YouTube</div>${prepCp(`<textarea class="field" readonly rows="${Math.min(poll.length, 4)}" aria-label="ตัวเลือกโพล YouTube (อ่านอย่างเดียว)">${esc(poll.join("\n"))}</textarea>`)}` : ""}`;
+    }).join("");
+    const all = prepCapsText(caps);
+    const old = String(f.caption || "").trim();
+    return `<div class="pc-link" data-camp="${esc(c.id)}">
+      <div class="pp-sh"><b>แคปชั่นจากแคมเปญ «${esc(c.name)}»${cp && cp.label ? " · " + esc(cp.label) : ""}</b></div>
+      <div class="tiny" style="margin:-2px 0 8px">แก้แคปชั่นที่แคมเปญที่เดียว · ตรงนี้ดูและคัดลอกได้อย่างเดียว${L.auto ? " · จับคู่อัตโนมัติจากวันโพสต์" : ""}</div>
+      ${rows || `<div class="warn" style="margin-bottom:8px">แคมเปญนี้ยังไม่มีแคปชั่น — กด «เปิดแคมเปญ» เพื่อเขียน</div>`}
+      <div class="rowbtns" style="margin:4px 0 12px;flex-wrap:wrap;gap:6px">
+        ${all ? `<button type="button" class="ghost pp-copy" data-act="prep-copy" data-text="${esc(all)}">คัดลอกแคปชั่นทั้งหมด</button>` : ""}
+        <button type="button" class="ghost" data-act="post-open-camp" data-id="${esc(c.id)}">เปิดแคมเปญ ›</button>
+      </div>
+      ${old ? `<div class="lbl">แคปชั่นเดิม <span class="tiny">(ของโพสต์นี้ก่อนย้ายมาใช้แคมเปญ · อ่านอย่างเดียว)</span></div>${prepCp(`<textarea class="field capbox" id="postCaptionOld" readonly rows="8" aria-label="แคปชั่นเดิม (อ่านอย่างเดียว)">${esc(old)}</textarea>`)}` : ""}
+      ${L.auto ? `<button type="button" class="ghost" style="margin:4px 0 12px" data-act="post-own-cap">ไม่ใช่แคมเปญนี้ — ใช้แคปชั่นของโพสต์เอง</button>` : ""}
+    </div>`;
+  }
   function postSheet() {
     const f = S.postForm;
     const q = (f.q || "").trim().toLowerCase();
@@ -4407,9 +4460,9 @@ function startApp() {
           ? `<div class="pills plat-pills">${social.map((c) => `<button class="pill ch-${c.id} ${f.platforms[c.id] ? "on" : ""}" data-act="post-plat" data-v="${c.id}">${c.label}</button>`).join("")}</div>`
           : (socN ? `<div class="social-sum">เลือกแล้ว: ${esc(socNames)}</div>` : "")}`;
       })()}
-      <div class="lbl">แคปชันรวม</div>
+      ${postCampHTML(f) || `<div class="lbl">แคปชันรวม</div>
       <textarea class="field capbox" id="postCaption" rows="18" placeholder="1. Caption Facebook / Instagram&#10;&#10;2. ชื่อหัวข้อคลิป YouTube / Reels&#10;&#10;3. ชื่อสินค้า Shopee / Lazada / TikTok Shop&#10;&#10;4. Caption Lemon8">${esc(f.caption || "")}</textarea>
-      <button class="ghost" style="margin-bottom:12px" data-act="copy-caption">คัดลอกแคปชัน</button>
+      <button class="ghost" style="margin-bottom:12px" data-act="copy-caption">คัดลอกแคปชัน</button>`}
       <div class="lbl">โน้ตภายใน (ไม่โพสต์)</div>
       <input class="field" id="postNote" placeholder="เช่น รีวิว / โปร 9.9" value="${esc(f.note)}" />
       <button class="btn ${picked.length && (f.photo || f.video) ? "on" : "off"}" data-act="save-post">${f.editId ? "บันทึกการแก้ไข" : "บันทึกโพสต์"}${picked.length ? " (" + picked.length + " สินค้า)" : ""}</button>
@@ -5080,6 +5133,11 @@ function startApp() {
       else if (act === "open-post") openPostForm(id);
       else if (act === "edit-post") openEditPost(id);
       else if (act === "close-post") S.showPost = false;
+      else if (act === "post-own-cap") { grabPostForm(); S.postForm.ownCap = true; }
+      else if (act === "post-open-camp") {
+        grabPostForm();
+        if (typeof prepCampaign === "function" && prepCampaign(id)) { S.showPost = false; planGo("week"); prepOpen(id); prepLoad(); }
+      }
       else if (act === "copy-caption") {
         grabPostForm();
         const t = S.postForm.caption || "";
@@ -6181,7 +6239,7 @@ function startApp() {
       photo: mk !== "video",
       video: mk === "video" || mk === "both",
       platforms: plats,
-      caption: prepCapsText(prepCapsFor(c, post)) || c.caption || "",
+      caption: "", // แคปชั่นอยู่ที่แคมเปญที่เดียว — ฟอร์มโพสต์แสดงจากแคมเปญแบบอ่านอย่างเดียว
       note: note,
       socialOpen: SOCIAL.some((ch) => plats[ch.id]),
       campaignId: c.id,

@@ -89,6 +89,53 @@
     .tabs::-webkit-scrollbar { display: none; }
     .tab { flex: 1 0 auto; height: 40px; padding: 0 10px; border-radius: 11px; border: none; font-size: 13px; font-weight: 600; background: transparent; color: #5B6F86; white-space: nowrap; }
     .tab.on { background: #fff; color: #2E6BB7; box-shadow: 0 1px 5px rgba(0,0,0,.08); }
+    /* ==== เมนูหลัก 4 แท็บ + หัวหน้า (ผู้ใช้ / ⋯ มุมขวาบน) ==== */
+    .tab { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; }
+    .tab-ic { font-size: 15px; line-height: 1; }
+    .hd-row { display: flex; align-items: center; gap: 8px; }
+    .hd-row .title { flex: 1; min-width: 0; }
+    .hd-sync { display: inline-flex; }
+    .hd-sync #syncBadge { position: static !important; box-shadow: none !important; white-space: nowrap; }
+    .hd-user { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #CFE0F2; background: #2E6BB7; color: #fff; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; flex: none; cursor: pointer; font-family: inherit; padding: 0; }
+    .hd-user.none { background: #fff; color: #5B6F86; }
+    .hd-more { width: 38px; height: 34px; border-radius: 10px; border: 1px solid #CFE0F2; background: #fff; color: #2E6BB7; font-size: 20px; line-height: 1; cursor: pointer; font-family: inherit; padding: 0 0 6px; }
+    .hd-more.on { background: #E8F0FA; }
+    .hd-menu .menupop { top: 40px; z-index: 160; max-height: calc(100vh - 80px); overflow: auto; }
+    .mp-who { padding: 4px 8px 8px; }
+    .mp-sep { height: 1px; background: #E3ECF6; margin: 4px 0 8px; }
+    .sub-back { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; color: #1C3554; }
+    .plan-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 10px; }
+    .plan-seg button { min-height: 36px; }
+    .plan-sub { margin: 0; }
+    .dash-sec { font-weight: 700; color: #1C3554; margin: 4px 2px 8px; }
+    .td-wrap { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 14px; }
+    @media (min-width: 900px) { .td-wrap { grid-template-columns: 3fr 2fr; align-items: start; } }
+    .td-card { margin: 0; }
+    .td-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; color: #1C3554; }
+    .td-h > b { margin-right: auto; }
+    .td-camp { margin-bottom: 8px; }
+    .td-cn { background: none; border: 0; padding: 4px 0; font-weight: 700; color: #2E6BB7; cursor: pointer; font-family: inherit; font-size: 14px; }
+    .td-late { color: #C0525A; }
+    .td-empty { color: #5B6F86; font-size: 14px; padding: 6px 0; }
+    .td-post { width: 100%; display: flex; align-items: center; gap: 8px; text-align: left; background: #FBFDFF; border: 1px solid #E3ECF6; border-radius: 10px; padding: 9px 10px; margin-bottom: 6px; cursor: pointer; font-family: inherit; font-size: 14px; }
+    .td-post > span:nth-child(2) { flex: 1; min-width: 0; }
+    .td-ok { color: #25623A; font-size: 12px; font-weight: 700; }
+    .ck-city { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-size: 14px; color: #1C3554; }
+    .ck-city .field { width: auto; min-width: 200px; margin: 0; padding: 8px 10px; }
+    @media (max-width: 699px) {
+      .hd-row .title { font-size: 18px; }
+      .hd-sync #syncBadge { font-size: 11px !important; padding: 4px 7px !important; max-width: 128px; overflow: hidden; text-overflow: ellipsis; }
+      .header-sticky .sub { display: none; }
+      /* มือถือ: แท็บหลักเป็นแถบล่าง */
+      .header-sticky .tabs { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; height: calc(62px + env(safe-area-inset-bottom)); padding: 4px 6px calc(4px + env(safe-area-inset-bottom)); border-radius: 0; background: #fff; box-shadow: 0 -4px 16px rgba(28,53,84,.12); z-index: 150; gap: 2px; overflow: visible; }
+      .header-sticky .tab { flex: 1 1 0; flex-direction: column; gap: 2px; height: 54px; padding: 0 2px; font-size: 12px; border-radius: 12px; }
+      .header-sticky .tab-ic { font-size: 20px; }
+      .header-sticky .tab.on { background: #E8F0FA; box-shadow: none; }
+      .toolbar { bottom: calc(62px + env(safe-area-inset-bottom)) !important; }
+      .wrap { padding-bottom: calc(240px + env(safe-area-inset-bottom)); }
+      .ck-city .field { min-width: 0; flex: 1; }
+      .ck-city .tiny { flex-basis: 100%; }
+    }
     .bars { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
     .barbit { height: 7px; border-radius: 4px; width: 100%; display: block; }
     .barbit.ph { background: #F0C53A; }
@@ -1940,7 +1987,7 @@ function startApp() {
     showRights: false,
     renameTarget: "",
     textInput: "",
-    view: "list",
+    view: "dash",
     showActor: false,
     activity: { entries: [], source: "", ready: false, tableReady: true, error: "" },
     actLimit: 40,
@@ -3060,6 +3107,7 @@ function startApp() {
   }
   function grouped(only) {
     const q = S.search.trim().toLowerCase();
+    const cityIds = S.cityF && window.__cityIds ? window.__cityIds(S.cityF) : null;
     const gm = groupMap();
     const last = (S.filter === "never" || S.filter === "stale") ? lastPostMap() : null;
     return (only != null ? [only] : groupOrder()).map((name) => {
@@ -3099,8 +3147,9 @@ function startApp() {
         items = items.filter(hit);
         skipped = skipped.filter(hit);
       }
+      if (cityIds) { items = items.filter((i) => cityIds.has(String(i.id))); skipped = skipped.filter((i) => cityIds.has(String(i.id))); }
       return { name, items, skipped, total: all.length, photo, video, upload, full };
-    }).filter((c) => (S.search || S.filter !== "all") ? (c.items.length > 0 || (S.filter === "excluded" && c.skipped.length > 0)) : true);
+    }).filter((c) => (S.search || S.filter !== "all" || cityIds) ? (c.items.length > 0 || (S.filter === "excluded" && c.skipped.length > 0)) : true);
   }
 
   // ==== แถวสินค้าในเช็คลิสต์ (ดีไซน์ใหม่) ====
@@ -3357,6 +3406,20 @@ function startApp() {
         <button class="ck-pill alt" data-act="toggle-more-filters" aria-expanded="${moreOpen}" title="ตัวกรองอื่น ๆ เช่น ยังไม่เคยโพสต์ ลิขสิทธิ์ คัดออก">${moreOpen ? "ซ่อนตัวกรองอื่น ▴" : "ตัวกรองอื่น ▾"}</button>
       </div>
       ${moreOpen ? `<div class="ck-pills more" role="group" aria-label="ตัวกรองอื่น ๆ">${MORE_FILTERS.map(pill).join("")}</div>` : ""}
+      ${window.__cityOptions ? cityFilterHTML() : ""}
+    </div>`;
+  }
+  // กรองตามเมือง Reallycuteland — สินค้าไม่มีช่องเมือง จึงดูจาก «สินค้าที่ใช้» ในแคมเปญของเมืองนั้น (อ่านอย่างเดียว)
+  function cityFilterHTML() {
+    const opts = window.__cityOptions();
+    const cur = S.cityF || "";
+    return `<div class="ck-city">
+      <label for="cityF">🏡 เมือง</label>
+      <select class="field" id="cityF" aria-label="กรองตามเมือง">
+        <option value="" ${!cur ? "selected" : ""}>ทุกเมือง</option>
+        ${opts.map((o) => `<option value="${esc(o.city)}" ${cur === o.city ? "selected" : ""} ${o.n ? "" : "disabled"}>${esc(o.city)} (${o.n})</option>`).join("")}
+      </select>
+      <span class="tiny">${cur ? "สินค้าที่ผูกในแคมเปญของเมืองนี้" : "นับจากสินค้าที่ผูกไว้ในแคมเปญ (งานเตรียม)"}</span>
     </div>`;
   }
   // ==== รายการหมวด + สินค้า (ส่วนที่เปลี่ยนตอนค้นหา) ====
@@ -3432,7 +3495,7 @@ function startApp() {
   }
   function listBodyHTML() {
     const cats = grouped();
-    const filtering = !!S.search.trim() || S.filter !== "all";
+    const filtering = !!S.search.trim() || S.filter !== "all" || !!S.cityF;
     let html = "";
     if (filtering) {
       const nItems = cats.reduce((n, c) => n + c.items.length + (S.filter === "excluded" ? c.skipped.length : 0), 0);
@@ -3527,41 +3590,77 @@ function startApp() {
     };
     requestAnimationFrame(tick);
   }
+  // ==== เมนูหลัก 4 แท็บ: วันนี้ · แผนงาน · สินค้า · ยอดขาย (ถังขยะ/กิจกรรมอยู่ในเมนู ⋯) ====
+  const NAV_TABS = [["dash", "☀️", "วันนี้"], ["plan", "🗓", "แผนงาน"], ["list", "📦", "สินค้า"], ["sales", "💰", "ยอดขาย"]];
+  function navTabOf(view) { return view === "prep" || view === "cal" ? "plan" : view; }
+  function navInitial(name) { const t = String(name || "").trim(); return t ? Array.from(t)[0].toUpperCase() : "👤"; }
+  // แผนงาน = งานเตรียม (สัปดาห์ / รายการแคมเปญ) + ปฏิทิน (เดือน / รายการโพสต์ที่บันทึก)
+  function planModeOf() {
+    if (S.view === "prep") return S.prepMode === "list" ? "list" : "week";
+    return S.calMode === "list" ? "list" : "month";
+  }
+  function planGo(mode, sub) {
+    if (mode === "week") { S.view = "prep"; S.prepMode = "week"; }
+    else if (mode === "month") { S.view = "cal"; S.calMode = "month"; }
+    else {
+      const ls = sub || S.planList || "camp";
+      S.planList = ls;
+      if (ls === "posts") { S.view = "cal"; S.calMode = "list"; } else { S.view = "prep"; S.prepMode = "list"; }
+    }
+    S.planLast = mode;
+    S.calSheet = ""; S.calDelAsk = "";
+  }
+  function planBarHTML() {
+    const m = planModeOf();
+    const b = (v, lb) => `<button class="${m === v ? "on" : ""}" data-act="plan-mode" data-v="${v}" aria-pressed="${m === v}">${lb}</button>`;
+    const ls = S.view === "cal" ? "posts" : "camp";
+    const sb = (v, lb) => `<button class="pill ${ls === v ? "on" : ""}" data-act="plan-list" data-v="${v}" aria-pressed="${ls === v}">${lb}</button>`;
+    return `<div class="plan-bar">
+      <div class="cx-seg plan-seg" role="group" aria-label="มุมมองแผนงาน">${b("week", "🗓 สัปดาห์")}${b("month", "📅 เดือน")}${b("list", "☰ รายการ")}</div>
+      ${m === "list" ? `<div class="pills plan-sub" role="group" aria-label="รายการของ">${sb("camp", "แคมเปญ (งานเตรียม)")}${sb("posts", "โพสต์ที่บันทึกแล้ว")}</div>` : `<span class="tiny plan-hint">${m === "week" ? "แคมเปญตามวันทำรูป + งานย่อย" : "โพสต์จริง + แคมเปญที่วางแผน (เส้นประ)"}</span>`}
+    </div>`;
+  }
   function render() {
     const app = document.getElementById("app");
+    // ป้ายสถานะคลาวด์ถูกย้ายมาไว้ในหัวหน้า — เอาออกก่อนวาดใหม่ ไม่ให้หายไปกับ innerHTML
+    const sbg = document.getElementById("syncBadge");
+    if (sbg && app && app.contains(sbg)) document.body.appendChild(sbg);
     const list = products();
     const st = stats();
     const selN = selectedIds().length;
 
     let html = `
       <div class="header-sticky">
-        <div class="title">📌 ติดตามงาน reallyCute</div>
-        <div class="sub">เช็คลิสต์งาน + บันทึกว่าสินค้าชิ้นไหนโพสต์รูป/วิดีโอวันไหน เพื่อรีมาร์เก็ตติ้ง</div>
-        <div class="tabs">
-          <button class="tab ${S.view === "dash" ? "on" : ""}" data-act="view" data-v="dash">ภาพรวม</button>
-          <button class="tab ${S.view === "list" ? "on" : ""}" data-act="view" data-v="list">เช็คลิสต์</button>
-          <button class="tab ${S.view === "cal" ? "on" : ""}" data-act="view" data-v="cal">ปฏิทิน</button>
-          <button class="tab ${S.view === "prep" ? "on" : ""}" data-act="view" data-v="prep">งานเตรียม</button>
-          <button class="tab ${S.view === "sales" ? "on" : ""}" data-act="view" data-v="sales">ยอดขาย</button>
-          <button class="tab ${S.view === "trash" ? "on" : ""}" data-act="view" data-v="trash">ถังขยะ</button>
-          <button class="tab ${S.view === "activity" ? "on" : ""}" data-act="view" data-v="activity">กิจกรรม</button>
+        <div class="hd-row">
+          <div class="title">📌 ติดตามงาน reallyCute</div>
+          <span id="syncSlot" class="hd-sync"></span>
+          <button class="hd-user ${currentActor() === "ไม่ระบุชื่อ" ? "none" : ""}" data-act="actor-open" title="${currentActor() === "ไม่ระบุชื่อ" ? "ยังไม่ได้ตั้งชื่อผู้ใช้ — แตะเพื่อตั้งชื่อ" : "ผู้ใช้: " + esc(currentActor()) + " — แตะเพื่อเปลี่ยน"}" aria-label="${currentActor() === "ไม่ระบุชื่อ" ? "ตั้งชื่อผู้ใช้" : "ผู้ใช้ " + esc(currentActor())}">${currentActor() === "ไม่ระบุชื่อ" ? "👤" : esc(navInitial(currentActor()))}</button>
+          <div class="menu hd-menu">
+            <button class="hd-more ${S.showMenu ? "on" : ""}" data-act="toggle-menu" aria-label="เมนูเพิ่มเติม" aria-expanded="${S.showMenu}" title="เมนูเพิ่มเติม">⋯</button>
+            ${S.showMenu ? `<div class="menupop" role="menu">
+              <div class="mp-who tiny">${currentActor() === "ไม่ระบุชื่อ" ? "ยังไม่ได้ตั้งชื่อผู้ใช้" : "ผู้ใช้: " + esc(currentActor())}</div>
+              <button class="ghost ${S.view === "trash" ? "on" : ""}" data-act="view" data-v="trash">🗑 ถังขยะ</button>
+              <button class="ghost ${S.view === "activity" ? "on" : ""}" data-act="view" data-v="activity">🕘 กิจกรรม</button>
+              <button class="ghost" data-act="open-import">📥 นำเข้า/อัปเดต</button>
+              <button class="ghost" data-act="actor-open">👤 ตั้งชื่อผู้ใช้</button>
+              <div class="mp-sep"></div>
+              <button class="ghost" data-act="export-all">ส่งออก CSV</button>
+              <button class="ghost" data-act="export-json">ส่งไฟล์ให้พนักงาน</button>
+              <button class="ghost" data-act="open-guide">คู่มือส่งต่อ</button>
+              <button class="ghost" data-act="open-costcfg">ตั้งค่ากำไร (ค่าธรรมเนียม/ค่าส่ง)</button>
+              <button class="ghost ${S.backupOn && backupHandle ? "on" : ""}" data-act="pick-backup">${S.backupOn && backupHandle ? "โฟลเดอร์สำรองพร้อม" : "ตั้งโฟลเดอร์สำรองอัตโนมัติ"}</button>
+              <div class="mp-sep"></div>
+              <button class="ghost" data-act="logout" style="color:#C0525A;border-color:#EED9D6">ออกจากระบบ</button>
+            </div>` : ""}
+          </div>
         </div>
+        <div class="sub">เช็คลิสต์งาน + บันทึกว่าสินค้าชิ้นไหนโพสต์รูป/วิดีโอวันไหน เพื่อรีมาร์เก็ตติ้ง${S.pack.updatedAt ? " · อัปเดต " + new Date(S.pack.updatedAt).toLocaleDateString("th-TH") : ""}${S.backupStatus ? " · " + esc(S.backupStatus) : ""}</div>
+        <nav class="tabs" aria-label="แท็บหลัก">
+          ${NAV_TABS.map(([v, ic, lb]) => { const on = navTabOf(S.view) === v; return `<button class="tab ${on ? "on" : ""}" data-act="view" data-v="${v}" aria-current="${on ? "page" : "false"}"><span class="tab-ic" aria-hidden="true">${ic}</span><span class="tab-lb">${lb}</span></button>`; }).join("")}
+        </nav>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap">
-        <div class="tiny">${S.pack.updatedAt ? "อัปเดต " + new Date(S.pack.updatedAt).toLocaleDateString("th-TH") : ""}${S.backupStatus ? " · " + S.backupStatus : ""} <button class="ghost" data-act="actor-open">${esc(currentActor() === "ไม่ระบุชื่อ" ? "ตั้งชื่อผู้ใช้" : "ผู้ใช้: " + currentActor())}</button></div>
-        <div class="rowbtns menu">
-          <button class="ghost" data-act="open-import">นำเข้า/อัปเดต</button>
-          <button class="ghost ${S.showMenu ? "on" : ""}" data-act="toggle-menu" aria-label="เมนูเพิ่มเติม" title="เมนูเพิ่มเติม">⋯ เพิ่มเติม</button>
-          ${S.showMenu ? `<div class="menupop">
-            <button class="ghost" data-act="export-all">ส่งออก CSV</button>
-            <button class="ghost" data-act="export-json">ส่งไฟล์ให้พนักงาน</button>
-            <button class="ghost" data-act="open-guide">คู่มือส่งต่อ</button>
-            <button class="ghost" data-act="open-costcfg">ตั้งค่ากำไร (ค่าธรรมเนียม/ค่าส่ง)</button>
-            <button class="ghost" data-act="logout" style="color:#C0525A;border-color:#EED9D6">ออกจากระบบ</button>
-            <button class="ghost ${S.backupOn && backupHandle ? "on" : ""}" data-act="pick-backup">${S.backupOn && backupHandle ? "โฟลเดอร์สำรองพร้อม" : "ตั้งโฟลเดอร์สำรองอัตโนมัติ"}</button>
-          </div>` : ""}
-        </div>
-      </div>`;
+      ${S.view === "trash" || S.view === "activity" ? `<div class="sub-back"><button class="ghost" data-act="view" data-v="${esc(S.navBack || "dash")}">‹ กลับ</button><b>${S.view === "trash" ? "🗑 ถังขยะ" : "🕘 กิจกรรม"}</b></div>` : ""}
+      ${S.view === "prep" || S.view === "cal" ? planBarHTML() : ""}`;
 
     if (S.view === "dash") {
       html += dashHTML();
@@ -3719,6 +3818,7 @@ function startApp() {
     const csOld = app.querySelector(".cx-sheet");
     const csTop = csOld ? csOld.scrollTop : 0, csKey = csOld ? csOld.getAttribute("data-day") : "";
     app.innerHTML = html;
+    { const slot = document.getElementById("syncSlot"), b = document.getElementById("syncBadge"); if (slot && b) slot.appendChild(b); }
     if (csTop) { const csNew = app.querySelector(".cx-sheet"); if (csNew && csNew.getAttribute("data-day") === csKey) csNew.scrollTop = csTop; }
     bind();
     lastSearchKey = S.search.trim().toLowerCase();
@@ -3843,7 +3943,8 @@ function startApp() {
       ["excluded", "คัดออก", st.skipped],
       ["done", "อัปโหลดแล้ว", st.upload],
     ];
-    return `
+    return `${window.__todayHTML ? window.__todayHTML() : ""}
+      <div class="dash-sec">ภาพรวมสินค้า</div>
       <div class="dashgrid">
         ${cards.map(([id, lb, n]) => `<button class="dashcard" data-act="dash-go" data-v="${id}"><span class="tiny">${lb}</span><b>${n.toLocaleString()}</b></button>`).join("")}
       </div>
@@ -4047,10 +4148,6 @@ function startApp() {
           <button class="cx-today" data-act="cal-today" ${S.calCursor === today.slice(0, 7) ? "disabled" : ""}>วันนี้</button>
         </div>
         <div class="cx-right">
-          <div class="cx-seg" role="group" aria-label="มุมมอง">
-            <button class="${isList ? "" : "on"}" data-act="cal-mode" data-v="month" aria-pressed="${!isList}">📅 เดือน</button>
-            <button class="${isList ? "on" : ""}" data-act="cal-mode" data-v="list" aria-pressed="${isList}">☰ รายการ</button>
-          </div>
           <button class="cx-add" data-act="cal-add" data-v="">+ บันทึกการโพสต์</button>
         </div>
       </div>
@@ -4909,8 +5006,12 @@ function startApp() {
       grabPostForm();
       let skipRender = false;
       if (act !== "row-menu" && act !== "cat-menu") closeRowMenu();
+      if (act !== "toggle-menu" && btn.closest(".menupop")) S.showMenu = false;
 
-      if (act === "view") { S.view = v; S.showMenu = false; S.calSheet = ""; S.calDelAsk = ""; if (v === "activity" && window.__loadActivity) window.__loadActivity(); if (v === "prep" || v === "cal" || v === "trash") prepLoad(); }
+      if (act === "view" && v === "plan") { planGo(S.planLast || "week"); S.showMenu = false; prepLoad(); }
+      else if (act === "plan-mode") { planGo(v); prepLoad(); }
+      else if (act === "plan-list") { planGo("list", v === "posts" ? "posts" : "camp"); }
+      else if (act === "view") { if ((v === "trash" || v === "activity") && S.view !== "trash" && S.view !== "activity") S.navBack = S.view; S.view = v; S.showMenu = false; S.calSheet = ""; S.calDelAsk = ""; if (v === "activity" && window.__loadActivity) window.__loadActivity(); if (v === "prep" || v === "cal" || v === "trash") prepLoad(); }
       else if (act.indexOf("prep-") === 0) { if (prepClick(act, id, v, btn) === false) skipRender = true; }
       else if (act === "row-menu") { openRowMenu(btn); return; }
       else if (act === "cat-menu") { openCatMenu(btn); return; }
@@ -5267,6 +5368,8 @@ function startApp() {
       if (!skipRender && !renderCatOnly(act, v, btn)) render();
     };
 
+    const cityF = document.getElementById("cityF");
+    if (cityF) cityF.onchange = () => { S.cityF = cityF.value; render(); };
     const searchBox = document.getElementById("searchBox");
     if (searchBox) {
       searchBox.oninput = () => {
@@ -5763,9 +5866,10 @@ function startApp() {
       if (a.error || b.error || pp.error) throw (a.error || b.error || pp.error);
       const sig = JSON.stringify([a.data, b.data, pp.data]);
       const changed = sig !== P.sig;
+      const first = !P.ready;
       P.campaigns = a.data || []; P.tasks = b.data || []; P.posts = pp.data || []; P.sig = sig; P.error = ""; P.ready = true;
       if (changed || force) {
-        if (S.view === "prep" || S.view === "cal" || S.view === "trash") {
+        if (S.view === "prep" || S.view === "cal" || S.view === "trash" || S.view === "dash" || (S.view === "list" && (first || S.cityF))) {
           if (!overlayOpen()) render(); else P.dirtyWhileOpen = true;
         }
       }
@@ -6164,10 +6268,6 @@ function startApp() {
           <button class="cx-today" data-act="prep-week" data-v="0" ${start === prepWeekStart(today) ? "disabled" : ""}>สัปดาห์นี้</button>
         </div>` : `<div class="cx-title">แคมเปญทั้งหมด ${nAll} · เรียงตามวันโพสต์</div>`}
         <div class="cx-right">
-          <div class="cx-seg" role="group" aria-label="มุมมอง">
-            <button class="${isWeek ? "on" : ""}" data-act="prep-mode" data-v="week" aria-pressed="${isWeek}">🗓 สัปดาห์</button>
-            <button class="${isWeek ? "" : "on"}" data-act="prep-mode" data-v="list" aria-pressed="${!isWeek}">☰ รายการ</button>
-          </div>
           <button class="cx-add" data-act="prep-new" data-v="">+ แคมเปญใหม่</button>
         </div>
       </div>
@@ -6470,6 +6570,45 @@ function startApp() {
       }, 150);
     };
   }
+  // ---- แท็บ «วันนี้»: งานของวันนี้ (รวมงานเลยกำหนด) + โพสต์วันนี้ ----
+  window.__todayHTML = () => {
+    const today = todayISO();
+    const liveIds = new Set(prepLive().map((c) => String(c.id)));
+    const tasks = P.tasks.filter((t) => !t.deleted_at && liveIds.has(String(t.campaign_id)) && t.due_date && t.due_date <= today && t.status !== "done")
+      .sort((a, b) => String(a.due_date).localeCompare(String(b.due_date)) || (a.sort || 0) - (b.sort || 0));
+    const doneToday = P.tasks.filter((t) => !t.deleted_at && liveIds.has(String(t.campaign_id)) && t.due_date === today && t.status === "done").length;
+    const byC = {};
+    tasks.forEach((t) => { (byC[t.campaign_id] = byC[t.campaign_id] || []).push(t); });
+    const planned = [];
+    prepLive().forEach((c) => {
+      const ps = prepPostsOf(c.id).filter((x) => x.post_date);
+      if (ps.length) ps.filter((x) => x.post_date === today).forEach((x) => planned.push({ c, x }));
+      else if (c.post_start && today >= c.post_start && today <= (c.post_end || c.post_start)) planned.push({ c, x: null });
+    });
+    const logged = (S.posts || []).filter((po) => po.date === today);
+    const taskHTML = !P.ready ? `<div class="tiny">กำลังโหลดงานเตรียม…</div>` : tasks.length ? Object.keys(byC).map((cid) => {
+      const c = prepCampaign(cid) || { name: "" };
+      return `<div class="td-camp"><button class="td-cn" data-act="prep-open" data-id="${esc(cid)}">${esc(c.name)} ›</button>${byC[cid].map((t) => prepTaskLine(t, true).replace('<div class="tiny">', `<div class="tiny">${t.due_date < today ? `<b class="td-late">เลยกำหนด</b> · ` : ""}`)).join("")}</div>`;
+    }).join("") : `<div class="td-empty">ไม่มีงานค้างของวันนี้ 🎉${doneToday ? ` (เสร็จแล้ว ${doneToday} งาน)` : ""}</div>`;
+    const postHTML = !P.ready ? "" : (planned.length ? planned.map(({ c, x }) => `<button class="td-post" data-act="prep-open" data-id="${esc(c.id)}"><span class="cx-dot plan"></span><span><b>${esc(c.name)}</b>${x ? " · " + esc(x.label || "โพสต์") + (x.post_time ? " · " + esc(x.post_time) : "") : ""}</span>${x && x.post_id ? `<span class="td-ok">✓ บันทึกแล้ว</span>` : `<span class="tiny">วางแผน</span>`}</button>`).join("") : "")
+      + (logged.length ? `<button class="td-post" data-act="plan-mode" data-v="month"><span class="cx-dot ph"></span><span>บันทึกการโพสต์วันนี้แล้ว <b>${logged.length}</b> โพสต์</span><span class="tiny">ดูในปฏิทิน ›</span></button>` : "")
+      || `<div class="td-empty">ไม่มีโพสต์ที่วางแผนไว้วันนี้</div>`;
+    return `<div class="td-wrap">
+      <div class="card td-card"><div class="td-h"><b>☑ งานของวันนี้</b><span class="tiny">${esc(calDayLabel(today, false))}${tasks.length ? " · ค้าง " + tasks.length + " งาน" : ""}</span><button class="ghost" data-act="plan-mode" data-v="week">เปิดแผนงาน ›</button></div>${taskHTML}</div>
+      <div class="card td-card"><div class="td-h"><b>📣 โพสต์วันนี้</b><button class="ghost" data-act="cal-add" data-v="${today}">+ บันทึกการโพสต์</button></div>${postHTML}</div>
+    </div>`;
+  };
+  // ---- กรองสินค้าตามเมือง: สินค้าไม่มีช่องเมือง → ใช้ product_ids ของแคมเปญในเมืองนั้น (อ่านอย่างเดียว) ----
+  window.__cityIds = (city) => {
+    const set = new Set();
+    prepLive().filter((c) => c.city === city).forEach((c) => (c.product_ids || []).forEach((id) => set.add(String(id))));
+    return set;
+  };
+  window.__cityOptions = () => {
+    const cities = PREP_CITIES.slice();
+    prepLive().forEach((c) => { if (c.city && !cities.includes(c.city)) cities.push(c.city); });
+    return cities.map((city) => ({ city, n: window.__cityIds(city).size }));
+  };
   // โหลดครั้งแรก + โพลทุก ~8 วินาที + realtime
   let prepPollT = 0, prepRtT = 0;
   function prepArm() { clearInterval(prepPollT); prepPollT = setInterval(() => prepLoad(), document.hidden ? 20000 : 8000); }

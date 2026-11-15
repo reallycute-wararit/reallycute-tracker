@@ -4544,7 +4544,8 @@ function startApp() {
     const rows = S.sales || [];
     const monthRows = S.saleMonth && S.saleMonth !== "all" ? rows.filter((s) => saleMonthOf(s) === S.saleMonth) : rows;
     const shopOf = S.saleViewShop && S.saleViewShop !== "all" ? monthRows.filter((s) => normShop(s.shop) === S.saleViewShop) : monthRows;
-    const open = shopOf.filter((s) => !s.productId);
+    const open = shopOf.filter((s) => !s.productId && s.noMatch !== "missing");
+    const missingRows = shopOf.filter((s) => !s.productId && s.noMatch === "missing"); // แยกออกจากรอผูก (ริตา 15 พ.ย.)
     const linked = shopOf.filter((s) => s.productId);
     const q = (S.saleQ || "").trim().toLowerCase();
     const matchQ = (s) => !q || (s.name + " " + s.variant + " " + s.shop).toLowerCase().includes(q);
@@ -4631,11 +4632,11 @@ function startApp() {
         </div></div>
         <input class="field" id="saleSearch" placeholder="ค้นชื่อในยอดขาย..." value="${esc(S.saleQ)}" style="margin-top:14px;margin-bottom:0" />
         <div class="sx-summary">
-          <div id="saleSummary"><b>${shopOf.length}</b> รายการ · ${qty} ชิ้น · ~${rev.toLocaleString()} บ. · รอผูก ${open.length} · ผูกแล้ว ${linked.length}</div>
+          <div id="saleSummary"><b>${shopOf.length}</b> รายการ · ${qty} ชิ้น · ~${rev.toLocaleString()} บ. · รอผูก ${open.length} · ผูกแล้ว ${linked.length}${missingRows.length ? " · ไม่มีใน tracker " + missingRows.length : ""}</div>
           <button class="ghost" data-act="ask-sale" data-v="inherit">คัดลอกการผูกจากเดือนอื่นที่ชื่อหรือ SKU ตรงกัน</button>
         </div>
       </div>
-      <div class="tiny" style="margin-bottom:8px">รอผูก ${open.length} รายการ</div>
+      <div class="tiny" style="margin-bottom:8px">รอผูก ${open.length} รายการ${missingRows.length ? ` · <button class="ghost" style="padding:2px 8px" data-act="sm-goto-missing" id="saleMissingBtn">📋 ไม่มีใน tracker ${missingRows.length} แถว (แยกไว้รอตรวจ) ›</button>` : ""}</div>
       ${list.length ? list.slice(0, 80).map((s) => {
         const p = s.productId ? findProduct(s.productId) : null;
         const editing = String(S.saleEditId) === String(s.id);
@@ -5572,6 +5573,7 @@ function startApp() {
         smSave(m); S.smNote = ""; S.smConfirm = false;
         if (act !== "sm-undo") { delete S.smOld[v]; delete S.smOpen[v]; delete S.smQ[v]; }
       }
+      else if (act === "sm-goto-missing") { S.view = "salematch"; if (S.saleViewShop && S.saleViewShop !== "all") S.smShop = S.saleViewShop; S.smFilter = "none"; S.smLimit = 20; }
       else if (act === "sm-old") { S.smOld[v] = !S.smOld[v]; }
       else if (act === "sm-reopen") { S.smOpen[v] = !S.smOpen[v]; }
       else if (act === "sm-confirm") { S.smConfirm = v === "1"; S.smNote = ""; }

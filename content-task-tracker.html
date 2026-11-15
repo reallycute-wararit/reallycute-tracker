@@ -198,6 +198,15 @@
     .sm-choose { border: none; border-radius: 10px; background: #2E6BB7; color: #fff; font-size: 13px; font-weight: 600; padding: 8px; cursor: pointer; }
     .sm-choose:hover { background: #24599C; }
     .sm-q { margin: 10px 0 0; }
+    .sm-oldbar { margin-top: 10px; background: #EAF2FC; color: #24599C; border-radius: 10px; padding: 8px 10px; font-size: 12.5px; }
+    .sm-card.oldmode { border: 1.5px solid #9CC0EA; }
+    .sm-oldbtn { color: #24599C; }
+    .sm-save { border: none; border-radius: 10px; background: #2E7D4F; color: #fff; font-size: 13px; font-weight: 600; padding: 8px 14px; cursor: pointer; }
+    .sm-save:hover { background: #256943; }
+    .sm-save[disabled] { opacity: .45; cursor: not-allowed; }
+    .sm-confirm { margin-top: 10px; border: 1.5px solid #BFE3CC; background: #F3FBF6; border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+    .sm-confirm ul { margin: 6px 0; padding-left: 18px; color: #3F5670; }
+    .sm-confirm li { margin: 2px 0; overflow-wrap: anywhere; }
     .sm-plan { margin-top: 10px; background: #F3FBF6; border-radius: 12px; padding: 10px; }
     .sm-plan.none { background: #FDF3F3; color: #A0444C; font-size: 13px; }
     .sm-pick { display: flex; gap: 10px; align-items: center; }
@@ -2052,6 +2061,9 @@ function startApp() {
     smQ: {},
     smLimit: 20,
     smNote: "",
+    smOld: {},
+    smOpen: {},
+    smConfirm: false,
     saleNote: "",
     showPost: false,
     postForm: { productIds: [], q: "", date: "", photo: true, video: false, platforms: {}, caption: "", note: "", editId: null, socialOpen: null },
@@ -2824,7 +2836,13 @@ function startApp() {
     _smMemo.set(mk, out);
     return out.slice(0, limit || 3);
   }
-  function smLoad() { try { return JSON.parse(localStorage.getItem(SM_KEY) || "{}") || {}; } catch (e) { return {}; } }
+  function smLoad() {
+    try {
+      const m = JSON.parse(localStorage.getItem(SM_KEY) || "{}") || {};
+      Object.keys(m).forEach((k) => { if (m[k] && m[k].none === true) m[k].none = "missing"; }); // รูปแบบเก่าของหน้าทดลอง
+      return m;
+    } catch (e) { return {}; }
+  }
   function smSave(m) { try { localStorage.setItem(SM_KEY, JSON.stringify(m)); } catch (e) {} }
   // รวมแถวยอดขายที่ยังไม่ผูก (ทุกเดือน) ตามร้าน+ชื่อ+ตัวเลือก เรียงจำนวนชิ้น > ยอดเงิน
   function smGroups(shop) {
@@ -2833,56 +2851,132 @@ function startApp() {
       if (s.productId) return;
       if (shop && shop !== "all" && normShop(s.shop) !== shop) return;
       const k = salePairKey(s);
-      if (!bag[k]) bag[k] = { key: k, shop: normShop(s.shop), name: s.name || "", variant: s.variant || "", sku: "", qty: 0, rev: 0, rows: [], months: new Set() };
+      if (!bag[k]) bag[k] = { key: k, shop: normShop(s.shop), name: s.name || "", variant: s.variant || "", sku: "", qty: 0, rev: 0, rows: [], months: new Set(), missing: 0, missingBy: "", missingAt: "" };
       const g = bag[k];
       g.qty += s.qty || 0; g.rev += s.rev || 0; g.rows.push(s.id); g.months.add(saleMonthOf(s));
       if (s.sku && !g.sku) g.sku = s.sku;
+      if (s.noMatch === "missing") { g.missing += 1; g.missingBy = s.noMatchBy || g.missingBy; g.missingAt = s.noMatchAt || g.missingAt; }
     });
-    return Object.values(bag).sort((a, b) => b.qty - a.qty || b.rev - a.rev);
+    return Object.values(bag).map((g) => { g.savedMissing = g.missing > 0 && g.missing === g.rows.length; return g; }).sort((a, b) => b.qty - a.qty || b.rev - a.rev);
   }
-  // เคยผูกชื่อเดียวกันไว้ในร้าน/เดือนอื่น -> เสนอเป็นตัวแรก
+  function smAkaLine(g) { return g.shop + ": " + g.name + (g.variant ? " / " + g.variant : ""); }
+  // บรรทัด aka -> สินค้า (ชื่อเก่าที่เคยผูกไว้จะจับคู่ได้เองครั้งหน้า)
+  let _smAka = null, _smAkaRef = null, _smAkaN = -1;
+  function smAkaIndex() {
+    const list = products();
+    if (_smAka && _smAkaRef === list && _smAkaN === list.length) return _smAka;
+    _smAka = new Map(); _smAkaRef = list; _smAkaN = list.length;
+    list.forEach((p) => String(p.aka || "").split(/\n/).forEach((l) => { const t = l.trim(); if (t && !_smAka.has(t)) _smAka.set(t, p); }));
+    return _smAka;
+  }
+  // เคยผูกชื่อเดียวกันไว้ (ในยอดขายร้าน/เดือนอื่น หรือมีบรรทัดนี้ใน aka แล้ว) -> เสนอเป็นตัวแรก
   function smKnown(g) {
     const hit = (S.sales || []).find((s) => s.productId && s.name === g.name && (s.variant || "") === g.variant && findProduct(s.productId));
-    return hit ? findProduct(hit.productId) : null;
+    if (hit) return { p: findProduct(hit.productId), why: "เคยผูกชื่อนี้แล้ว" };
+    const p = smAkaIndex().get(smAkaLine(g));
+    return p && findProduct(p.id) ? { p, why: "ชื่อนี้อยู่ใน aka แล้ว" } : null;
   }
   function smTxt(s) { return String(s || "").replace(/&#0*38;|&amp;/g, "&"); }
-  function smAkaLine(g) { return g.shop + ": " + g.name + (g.variant ? " / " + g.variant : ""); }
   function smConf(sc) { return sc >= 80 ? ["น่าจะใช่", "hi"] : sc >= 50 ? ["อาจใช่", "mid"] : ["ไม่แน่ใจ", "lo"]; }
   function smThumb(p, big) {
     const u = p && typeof p.img === "string" && p.img ? imgSrcOf(p.img) : "";
     const cls = "sm-img" + (big ? " big" : "");
     return u ? `<a class="${cls}" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="เปิดรูปเต็ม"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('broken');this.remove()"></a>` : `<span class="${cls} none">ไม่มีรูป</span>`;
   }
-  function smPlanText(groups, picks) {
-    const lines = [];
-    groups.forEach((g) => {
+  // แผนที่จะบันทึก: เฉพาะร้านที่ดูอยู่ และเฉพาะแถวที่ยังไม่ผูก ณ ตอนนี้
+  function smPlan(shop) {
+    const picks = smLoad();
+    const plan = { link: [], missing: [], skip: [] };
+    smGroups(shop).forEach((g) => {
       const pk = picks[g.key];
       if (!pk) return;
-      if (pk.none) { lines.push("ไม่มีคู่\t" + g.shop + "\t" + g.name + (g.variant ? " / " + g.variant : "") + "\t" + g.qty + " ชิ้น"); return; }
-      const p = findProduct(pk.productId);
-      lines.push("ผูก\t" + g.shop + "\t" + g.name + (g.variant ? " / " + g.variant : "") + "\t" + g.qty + " ชิ้น\t→\t" + (p ? labelOf(p) + (p.csku ? " (" + p.csku + ")" : "") + "\tid " + p.id : "id " + pk.productId) + "\tแถวยอดขาย " + g.rows.join(","));
+      if (pk.productId) {
+        const p = findProduct(pk.productId);
+        if (!p) { plan.skip.push({ g, why: "ไม่พบสินค้าที่เลือก (อาจถูกลบ)" }); return; }
+        plan.link.push({ g, p, old: !!pk.old, aka: smAkaLine(g) });
+      } else if (pk.none) {
+        if (g.savedMissing) return;
+        plan.missing.push({ g });
+      }
     });
-    return lines.join("\n");
+    return plan;
+  }
+  function smPlanText(plan) {
+    return plan.link.map((x) => "ผูก\t" + x.g.shop + "\t" + x.g.name + (x.g.variant ? " / " + x.g.variant : "") + "\t" + x.g.qty + " ชิ้น\t→\t" + labelOf(x.p) + (x.p.csku ? " (" + x.p.csku + ")" : "") + (x.old ? "\tชื่อเก่า" : ""))
+      .concat(plan.missing.map((x) => "ไม่มีใน tracker\t" + x.g.shop + "\t" + x.g.name + (x.g.variant ? " / " + x.g.variant : "") + "\t" + x.g.qty + " ชิ้น")).join("\n");
+  }
+  // บันทึกจริง: แก้ S.sales / สินค้าในเครื่อง แล้วส่งผ่านระบบซิงก์เดิม (อ่านแถวล่าสุด -> รวม -> PATCH เงื่อนไข updated_at) + activity_log
+  function smApply(shop) {
+    const actor = currentActor();
+    if (actor === "ไม่ระบุชื่อ") return { ok: false, msg: "ตั้งชื่อผู้ใช้ก่อนบันทึก" };
+    const plan = smPlan(shop);
+    const picks = smLoad();
+    const at = new Date().toISOString();
+    const linked = [], missing = [], skipped = plan.skip.map((x) => ({ name: x.g.name, variant: x.g.variant, why: x.why }));
+    let rowsLinked = 0, rowsMissing = 0, akaAdded = 0;
+    plan.link.forEach((x) => {
+      const rows = (S.sales || []).filter((s) => x.g.rows.includes(s.id) && !s.productId);
+      if (!rows.length) { skipped.push({ name: x.g.name, variant: x.g.variant, why: "ถูกผูกไปแล้ว" }); return; }
+      rows.forEach((s) => { s.productId = String(x.p.id); if (s.noMatch) { s.noMatch = ""; s.noMatchBy = ""; s.noMatchAt = ""; } });
+      const aka = String(x.p.aka || "").split(/\n/).map((l) => l.trim()).filter(Boolean);
+      if (!aka.includes(x.aka)) { aka.push(x.aka); x.p.aka = aka.join("\n"); akaAdded++; }
+      if (x.g.sku && !x.p.sku) x.p.sku = x.g.sku;
+      rowsLinked += rows.length;
+      linked.push({ name: x.g.name, variant: x.g.variant, productId: String(x.p.id), label: labelOf(x.p), csku: x.p.csku || "", rows: rows.length, qty: x.g.qty, old: x.old, aka: x.aka });
+      delete picks[x.g.key];
+    });
+    plan.missing.forEach((x) => {
+      const rows = (S.sales || []).filter((s) => x.g.rows.includes(s.id) && !s.productId);
+      rows.forEach((s) => { s.noMatch = "missing"; s.noMatchBy = actor; s.noMatchAt = at; });
+      rowsMissing += rows.length;
+      missing.push({ name: x.g.name, variant: x.g.variant, rows: rows.length, qty: x.g.qty });
+      delete picks[x.g.key];
+    });
+    if (!linked.length && !missing.length) return { ok: false, msg: "ไม่มีรายการที่บันทึกได้" + (skipped.length ? " (ข้าม " + skipped.length + ")" : "") };
+    if (akaAdded) persist(true);
+    persistSales();
+    smSave(picks);
+    const nOld = linked.filter((x) => x.old).length;
+    const summary = "จับคู่ยอดขาย " + shop.replace("Shopee ", "") + ": ผูก " + linked.length + " รายการ (" + rowsLinked + " แถว)" + (nOld ? " · ชื่อเก่า " + nOld : "") + (missing.length ? " · ไม่มีใน tracker " + missing.length : "") + (skipped.length ? " · ข้าม " + skipped.length : "");
+    const entry = { actor, action: "sale-match", summary, detail: { key: "sales", shop, linked, missing, skipped, rowsLinked, rowsMissing, akaAdded } };
+    if (window.__logActivity) window.__logActivity(entry);
+    window.__smLastApply = entry; // ไว้ให้การทดสอบตรวจ
+    return { ok: true, msg: "✓ บันทึกแล้ว: " + summary + " · กำลังส่งขึ้นคลาวด์" };
   }
   function saleMatchHTML() {
     const shop = S.smShop || "Shopee ployririta";
     const picks = smLoad();
     const groups = smGroups(shop);
-    const nPick = groups.filter((g) => picks[g.key] && !picks[g.key].none).length;
-    const nNone = groups.filter((g) => picks[g.key] && picks[g.key].none).length;
+    const isPick = (g) => picks[g.key] && picks[g.key].productId;
+    const isMissing = (g) => (picks[g.key] && picks[g.key].none) || (!picks[g.key] && g.savedMissing);
+    const nPick = groups.filter(isPick).length;
+    const nMiss = groups.filter(isMissing).length;
+    const nSavedMiss = groups.filter((g) => g.savedMissing).length;
+    const nTodo = groups.filter((g) => !picks[g.key] && !g.savedMissing).length;
     const f = S.smFilter || "todo";
-    const shown = groups.filter((g) => f === "all" ? true : f === "todo" ? !picks[g.key] : f === "picked" ? picks[g.key] && !picks[g.key].none : picks[g.key] && picks[g.key].none);
+    const shown = groups.filter((g) => f === "all" ? true : f === "todo" ? !picks[g.key] && !g.savedMissing : f === "picked" ? isPick(g) : isMissing(g));
     const totQ = groups.reduce((n, g) => n + g.qty, 0), totR = groups.reduce((n, g) => n + g.rev, 0);
     const nRows = groups.reduce((n, g) => n + g.rows.length, 0);
     const limit = S.smLimit || 20;
+    const plan = smPlan(shop);
+    const nPlan = plan.link.length + plan.missing.length;
+    const actor = currentActor();
     const chip = (v, lb, n) => `<button class="pill ${f === v ? "on" : ""}" data-act="sm-filter" data-v="${v}">${lb} ${n}</button>`;
+    const candHTML = (g, c, oldMode) => {
+      const [cl, ck] = c.known ? [c.known, "hi"] : smConf(c.sc);
+      return `<div class="sm-cand">
+        ${smThumb(c.p, true)}
+        <div class="sm-cinfo">
+          <span class="sm-conf ${ck}">${cl}</span>
+          <div class="sm-pname">${esc(smTxt(labelOf(c.p)))}</div>
+          <div class="tiny">${esc(smTxt(groupOf(c.p)))}${c.p.v && c.p.v !== c.p.n ? " · " + esc(smTxt(c.p.n)) : ""}</div>
+          <div class="tiny">${c.p.csku ? esc(c.p.csku) + " · " : ""}${c.p.s === "out" ? "หมด/ปิด" : "มีสินค้า"}</div>
+        </div>
+        <button class="sm-choose" data-act="${oldMode ? "sm-pick-old" : "sm-pick"}" data-v="${esc(g.key)}" data-id="${esc(c.p.id)}">${oldMode ? "✓ ผูก (ชื่อเก่า)" : "✓ ตัวนี้"}</button>
+      </div>`;
+    };
     const card = (g, i) => {
       const pk = picks[g.key];
-      const known = smKnown(g);
-      const q = (S.smQ[g.key] || "").trim();
-      let cands = q ? smSuggest({ name: q, variant: "" }, 6) : smSuggest(g, 3);
-      if (known && !q) cands = [{ p: known, sc: 999, known: true }].concat(cands.filter((c) => String(c.p.id) !== String(known.id))).slice(0, 3);
-      const chosen = pk && !pk.none ? findProduct(pk.productId) : null;
       const months = Array.from(g.months).sort().map(monthLabel).join(", ");
       const head = `<div class="sm-sale">
           <div class="sm-shopimg" title="ไฟล์ยอดขายไม่มีรูปหรือเลขสินค้าของร้าน จึงยังแสดงรูปจาก Shopee ไม่ได้"><span>🛍</span><span>ไม่มีรูปร้าน</span></div>
@@ -2893,52 +2987,82 @@ function startApp() {
             <div class="tiny">${g.qty} ชิ้น · ${Math.round(g.rev).toLocaleString()} บ. · ${g.rows.length} แถว (${esc(months)})${g.sku ? " · SKU " + esc(g.sku) : ""}</div>
           </div>
         </div>`;
-      if (pk) {
-        return `<div class="sx-card sm-card ${pk.none ? "none" : "done"}" data-sm-key="${esc(g.key)}">${head}
-          ${pk.none ? `<div class="sm-plan none">✕ ทำเครื่องหมาย "ไม่มีคู่" ไว้ (ในเครื่องนี้) — ไม่มีสินค้าตัวนี้ใน tracker</div>`
-          : `<div class="sm-plan">
-              <div class="sm-pick">${smThumb(chosen, true)}<div style="min-width:0">
-                <div class="tiny" style="color:#2E7D4F;font-weight:600">✓ เลือกแล้ว (ทดลอง ยังไม่บันทึกจริง)</div>
-                <div class="sm-pname">${chosen ? esc(smTxt(labelOf(chosen))) : "ไม่พบสินค้า id " + esc(pk.productId)}</div>
-                <div class="tiny">${chosen ? esc(groupOf(chosen)) + (chosen.csku ? " · " + esc(chosen.csku) : "") : ""}</div>
-              </div></div>
-              <div class="sm-will"><b>ถ้าใช้จริงจะทำ:</b><br>• ผูกยอดขาย ${g.rows.length} แถว (${g.qty} ชิ้น) กับสินค้านี้<br>• เพิ่มชื่อที่ใช้ขาย (aka) ในสินค้า: <code>${esc(smAkaLine(g))}</code>${g.sku && chosen && !chosen.sku ? `<br>• ใส่ SKU ร้าน <code>${esc(g.sku)}</code>` : ""}<br>• ครั้งหน้ายอดขายชื่อนี้จะผูกเองได้</div>
-            </div>`}
+      if (pk && pk.productId) {
+        const chosen = findProduct(pk.productId);
+        return `<div class="sx-card sm-card done" data-sm-key="${esc(g.key)}">${head}
+          <div class="sm-plan">
+            <div class="sm-pick">${smThumb(chosen, true)}<div style="min-width:0">
+              <div class="tiny" style="color:#2E7D4F;font-weight:600">✓ เลือกแล้ว${pk.old ? ` <span class="sm-conf mid">ชื่อเก่า</span>` : ""} · รอกด "บันทึกจริง"</div>
+              <div class="sm-pname">${chosen ? esc(smTxt(labelOf(chosen))) : "ไม่พบสินค้า id " + esc(pk.productId)}</div>
+              <div class="tiny">${chosen ? esc(smTxt(groupOf(chosen))) + (chosen.csku ? " · " + esc(chosen.csku) : "") : ""}</div>
+            </div></div>
+            <div class="sm-will"><b>เมื่อบันทึกจริงจะทำ:</b><br>• ผูกยอดขาย ${g.rows.length} แถว (${g.qty} ชิ้น) กับสินค้านี้<br>• เพิ่มชื่อที่ใช้ขาย (aka)${pk.old ? " = ชื่อเก่า" : ""}: <code>${esc(smAkaLine(g))}</code>${g.sku && chosen && !chosen.sku ? `<br>• ใส่ SKU ร้าน <code>${esc(g.sku)}</code>` : ""}<br>• ครั้งหน้าชื่อนี้จะขึ้นเป็นตัวแรกเอง</div>
+          </div>
           <div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="sm-undo" data-v="${esc(g.key)}">↺ เปลี่ยน</button></div>
         </div>`;
       }
-      return `<div class="sx-card sm-card" data-sm-key="${esc(g.key)}">${head}
-        <div class="sm-lbl">สินค้าใน tracker ที่น่าจะตรง${q ? " (ค้นหา: " + esc(q) + ")" : ""}</div>
+      if (pk && pk.none) {
+        return `<div class="sx-card sm-card none" data-sm-key="${esc(g.key)}">${head}
+          <div class="sm-plan none">✕ ไม่มีใน tracker — เมื่อบันทึกจริงจะเก็บไว้ในรายการ "ไม่มีใน tracker" ให้ตรวจทีหลัง (ไม่สร้างสินค้าใหม่)</div>
+          <div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="sm-undo" data-v="${esc(g.key)}">↺ เปลี่ยน</button></div>
+        </div>`;
+      }
+      if (g.savedMissing && !S.smOpen[g.key]) {
+        return `<div class="sx-card sm-card none saved" data-sm-key="${esc(g.key)}">${head}
+          <div class="sm-plan none">📋 บันทึกไว้แล้วว่าไม่มีใน tracker${g.missingBy ? " โดย " + esc(g.missingBy) : ""}${g.missingAt ? " · " + esc(new Date(g.missingAt).toLocaleDateString("th-TH")) : ""} — รอตรวจ</div>
+          <div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="sm-reopen" data-v="${esc(g.key)}">🔎 จับคู่ใหม่ (มีสินค้าแล้ว)</button></div>
+        </div>`;
+      }
+      const oldMode = !!S.smOld[g.key];
+      const q = (S.smQ[g.key] || "").trim();
+      const known = smKnown(g);
+      let cands = q ? smSuggest({ name: q, variant: "" }, 6) : smSuggest(g, 3);
+      if (known && !q) cands = [{ p: known.p, sc: 999, known: known.why }].concat(cands.filter((c) => String(c.p.id) !== String(known.p.id))).slice(0, 3);
+      return `<div class="sx-card sm-card ${oldMode ? "oldmode" : ""}" data-sm-key="${esc(g.key)}">${head}
+        ${oldMode ? `<div class="sm-oldbar">🔁 ชื่อเก่า — ค้นหาสินค้าปัจจุบันที่เป็นตัวเดียวกัน แล้วกดผูก ระบบจะเก็บชื่อเก่านี้ไว้ใน aka ของสินค้านั้น ครั้งหน้าชื่อนี้จะจับคู่ได้เอง</div>` : ""}
+        <div class="sm-lbl">${oldMode ? (q ? "ผลค้นหา: " + esc(q) : "สินค้าปัจจุบันที่อาจเป็นตัวเดียวกัน — พิมพ์ชื่อใหม่ด้านล่างเพื่อค้น") : "สินค้าใน tracker ที่น่าจะตรง" + (q ? " (ค้นหา: " + esc(q) + ")" : "")}</div>
         <div class="sm-cands">
-          ${cands.length ? cands.map((c) => {
-            const [cl, ck] = c.known ? ["เคยผูกชื่อนี้แล้ว", "hi"] : smConf(c.sc);
-            return `<div class="sm-cand">
-              ${smThumb(c.p, true)}
-              <div class="sm-cinfo">
-                <span class="sm-conf ${ck}">${cl}</span>
-                <div class="sm-pname">${esc(smTxt(labelOf(c.p)))}</div>
-                <div class="tiny">${esc(smTxt(groupOf(c.p)))}${c.p.v && c.p.v !== c.p.n ? " · " + esc(smTxt(c.p.n)) : ""}</div>
-                <div class="tiny">${c.p.csku ? esc(c.p.csku) + " · " : ""}${c.p.s === "out" ? "หมด/ปิด" : "มีสินค้า"}</div>
-              </div>
-              <button class="sm-choose" data-act="sm-pick" data-v="${esc(g.key)}" data-id="${esc(c.p.id)}">✓ ตัวนี้</button>
-            </div>`;
-          }).join("") : `<div class="tiny" style="padding:8px">ไม่พบสินค้าที่ชื่อใกล้กัน — ลองพิมพ์ค้นเอง หรือกด "ไม่มีคู่"</div>`}
+          ${cands.length ? cands.map((c) => candHTML(g, c, oldMode)).join("") : `<div class="tiny" style="padding:8px">ไม่พบสินค้าที่ชื่อใกล้กัน — ลองพิมพ์ค้นเอง</div>`}
         </div>
-        <input class="field sm-q" data-sm-q="${esc(g.key)}" placeholder="ไม่ใช่ทั้งหมด? พิมพ์ค้นเอง เช่น มูมิน / หมีพูห์ 50" value="${esc(S.smQ[g.key] || "")}" />
-        <div class="rowbtns" style="margin-top:8px"><button class="ghost sm-nomatch" data-act="sm-none" data-v="${esc(g.key)}">✕ ไม่มีคู่</button></div>
+        <input class="field sm-q" data-sm-q="${esc(g.key)}" placeholder="${oldMode ? "พิมพ์ชื่อใหม่ของสินค้า เช่น หมีพูห์ 50" : "ไม่ใช่ทั้งหมด? พิมพ์ค้นเอง เช่น มูมิน / หมีพูห์ 50"}" value="${esc(S.smQ[g.key] || "")}" />
+        <div class="rowbtns" style="margin-top:8px">
+          ${oldMode ? `<button class="ghost" data-act="sm-old" data-v="${esc(g.key)}">‹ ยกเลิกโหมดชื่อเก่า</button>` : `
+          <button class="ghost sm-nomatch" data-act="sm-none" data-v="${esc(g.key)}">✕ ไม่มีใน tracker</button>
+          <button class="ghost sm-oldbtn" data-act="sm-old" data-v="${esc(g.key)}">🔁 ชื่อเก่า (เปลี่ยนชื่อ/รูปแล้ว)</button>`}
+          ${S.smOpen[g.key] ? `<button class="ghost" data-act="sm-reopen" data-v="${esc(g.key)}">ปิด</button>` : ""}
+        </div>
       </div>`;
     };
+    const confirmHTML = S.smConfirm && nPlan ? `<div class="sm-confirm" id="smConfirm">
+        <div style="font-weight:600;color:#1C3554">ยืนยันบันทึกจริง — ${esc(shop.replace("Shopee ", ""))}</div>
+        <ul>
+          ${plan.link.map((x) => `<li>ผูก <b>${esc(x.g.name)}${x.g.variant ? " / " + esc(x.g.variant) : ""}</b> (${x.g.rows.length} แถว, ${x.g.qty} ชิ้น) → ${esc(smTxt(labelOf(x.p)))}${x.p.csku ? " · " + esc(x.p.csku) : ""}${x.old ? " · <i>ชื่อเก่า</i>" : ""}</li>`).join("")}
+          ${plan.missing.map((x) => `<li>ไม่มีใน tracker: <b>${esc(x.g.name)}${x.g.variant ? " / " + esc(x.g.variant) : ""}</b> (${x.g.rows.length} แถว)</li>`).join("")}
+        </ul>
+        <div class="tiny">จะเพิ่มบรรทัด aka ในสินค้า ${plan.link.length} ตัว · บันทึกขึ้นคลาวด์ผ่านระบบหลายคนแก้พร้อมกัน (รวมกับการแก้ของคนอื่น) · บันทึกกิจกรรมในชื่อ <b>${esc(actor)}</b></div>
+        ${plan.skip.length ? `<div class="warn" style="margin-top:6px">ข้าม ${plan.skip.length} รายการ: ${plan.skip.map((x) => esc(x.g.name) + " (" + esc(x.why) + ")").join(", ")}</div>` : ""}
+        ${actor === "ไม่ระบุชื่อ" ? `<div class="warn" style="margin-top:6px">ยังไม่ได้ตั้งชื่อผู้ใช้ — ตั้งชื่อก่อนบันทึก <button class="ghost" data-act="actor-open">👤 ตั้งชื่อผู้ใช้</button></div>` : ""}
+        <div class="rowbtns" style="margin-top:10px">
+          <button class="sm-save go" data-act="sm-save" ${actor === "ไม่ระบุชื่อ" ? "disabled" : ""}>✓ ยืนยันบันทึก ${nPlan} รายการ</button>
+          <button class="ghost" data-act="sm-confirm" data-v="0">ยกเลิก</button>
+        </div>
+      </div>` : "";
     return `
-      <div class="sub-back"><button class="ghost" data-act="view" data-v="sales">‹ กลับ</button><b>🧩 จับคู่ยอดขาย</b><span class="sm-beta">ทดลอง</span></div>
+      <div class="sub-back"><button class="ghost" data-act="view" data-v="sales">‹ กลับ</button><b>🧩 จับคู่ยอดขาย</b></div>
       <div class="sx-card">
-        <div class="sm-banner">หน้าทดลอง — กดเลือกแล้ว<b>ยังไม่บันทึกลงระบบ</b> เก็บไว้ในเครื่องนี้เท่านั้น เพื่อดูว่าจะผูกอะไร</div>
+        <div class="sm-banner">กดเลือกก่อน (เก็บไว้ในเครื่องนี้) แล้วกด <b>💾 บันทึกจริง</b> เพื่อผูกยอดขาย + เพิ่ม aka ขึ้นระบบ — มีขั้นยืนยันก่อนเสมอ</div>
         <div class="sx-lbl" style="margin-top:10px">ร้าน</div>
         <div class="pills sx-wrap">${SALE_SHOPS.map((n) => `<button class="pill ${shop === n ? "on" : ""}" data-act="sm-shop" data-v="${esc(n)}">${esc(n.replace("Shopee ", ""))}</button>`).join("")}</div>
-        <div class="sx-summary"><div id="smSummary">ยังไม่ผูก <b>${groups.length}</b> รายการ (${nRows} แถวยอดขาย) · ${totQ} ชิ้น · ~${Math.round(totR).toLocaleString()} บ. · เลือกแล้ว ${nPick} · ไม่มีคู่ ${nNone}</div></div>
-        <div class="pills sx-wrap" style="margin-top:10px">${chip("todo", "ยังไม่เลือก", groups.length - nPick - nNone)}${chip("picked", "เลือกแล้ว", nPick)}${chip("none", "ไม่มีคู่", nNone)}${chip("all", "ทั้งหมด", groups.length)}</div>
+        <div class="sx-summary"><div id="smSummary">ยังไม่ผูก <b>${groups.length}</b> รายการ (${nRows} แถวยอดขาย) · ${totQ} ชิ้น · ~${Math.round(totR).toLocaleString()} บ. · เลือกแล้ว ${nPick} · ไม่มีใน tracker ${nMiss}${nSavedMiss ? " (บันทึกแล้ว " + nSavedMiss + ")" : ""}</div></div>
+        <div class="pills sx-wrap" style="margin-top:10px">${chip("todo", "ยังไม่เลือก", nTodo)}${chip("picked", "เลือกแล้ว", nPick)}${chip("none", "ไม่มีใน tracker", nMiss)}${chip("all", "ทั้งหมด", groups.length)}</div>
         <div class="tiny" style="margin-top:8px">เรียงจากขายได้มากสุดก่อน · รูปซ้าย = รูปจากร้าน (ไฟล์ยอดขายยังไม่มีรูป/เลขสินค้า) · รูปในการ์ด = รูปสินค้าใน tracker</div>
-        ${nPick + nNone ? `<div class="rowbtns" style="margin-top:10px"><button class="ghost" data-act="sm-copy">📋 คัดลอกสรุปที่จะผูก</button><button class="ghost" style="color:#C0525A;border-color:#E8C4C4" data-act="sm-reset">ล้างที่เลือกในเครื่องนี้</button></div>` : ""}
-        ${S.smNote ? `<div class="sx-note ok" style="margin-top:8px">${esc(S.smNote)}</div>` : ""}
+        ${nPlan ? `<div class="rowbtns" style="margin-top:10px">
+          <button class="sm-save" data-act="sm-confirm" data-v="1">💾 บันทึกจริง ${nPlan} รายการ</button>
+          <button class="ghost" data-act="sm-copy">📋 คัดลอกสรุป</button>
+          <button class="ghost" style="color:#C0525A;border-color:#E8C4C4" data-act="sm-reset">ล้างที่เลือกในเครื่องนี้</button>
+        </div>` : ""}
+        ${confirmHTML}
+        ${S.smNote ? `<div class="sx-note ${/^✓/.test(S.smNote) ? "ok" : "info"}" id="smNote" style="margin-top:8px">${esc(S.smNote)}</div>` : ""}
       </div>
       ${shown.length ? shown.slice(0, limit).map((g) => card(g, groups.indexOf(g))).join("") : `<div class="empty">${groups.length ? "ไม่มีรายการในตัวกรองนี้" : "ร้านนี้ผูกครบแล้ว ไม่มียอดขายที่รอผูก"}</div>`}
       ${shown.length > limit ? `<button class="ghost" style="width:100%;justify-content:center" data-act="sm-more">แสดงเพิ่ม (${shown.length - limit} รายการ)</button>` : ""}`;
@@ -5440,16 +5564,25 @@ function startApp() {
       else if (act === "sm-shop") { S.smShop = v; S.smLimit = 20; S.smNote = ""; }
       else if (act === "sm-filter") { S.smFilter = v; S.smLimit = 20; }
       else if (act === "sm-more") S.smLimit = (S.smLimit || 20) + 20;
-      else if (act === "sm-pick" || act === "sm-none" || act === "sm-undo") {
+      else if (act === "sm-pick" || act === "sm-pick-old" || act === "sm-none" || act === "sm-undo") {
         const m = smLoad();
         if (act === "sm-undo") delete m[v];
-        else m[v] = act === "sm-none" ? { none: true, at: Date.now() } : { productId: String(id), at: Date.now() };
-        smSave(m); S.smNote = "";
+        else if (act === "sm-none") m[v] = { none: "missing", at: Date.now() };
+        else m[v] = act === "sm-pick-old" ? { productId: String(id), old: true, at: Date.now() } : { productId: String(id), at: Date.now() };
+        smSave(m); S.smNote = ""; S.smConfirm = false;
+        if (act !== "sm-undo") { delete S.smOld[v]; delete S.smOpen[v]; delete S.smQ[v]; }
       }
-      else if (act === "sm-reset") { smSave({}); S.smNote = "ล้างที่เลือกในเครื่องนี้แล้ว"; }
+      else if (act === "sm-old") { S.smOld[v] = !S.smOld[v]; }
+      else if (act === "sm-reopen") { S.smOpen[v] = !S.smOpen[v]; }
+      else if (act === "sm-confirm") { S.smConfirm = v === "1"; S.smNote = ""; }
+      else if (act === "sm-save") {
+        const r = smApply(S.smShop || "Shopee ployririta");
+        S.smNote = r.msg; if (r.ok) S.smConfirm = false;
+      }
+      else if (act === "sm-reset") { smSave({}); S.smConfirm = false; S.smNote = "ล้างที่เลือกในเครื่องนี้แล้ว"; }
       else if (act === "sm-copy") {
-        const txt = smPlanText(smGroups(S.smShop || "Shopee ployririta"), smLoad());
-        try { navigator.clipboard.writeText(txt); S.smNote = "คัดลอกสรุปแล้ว — ส่งให้ PROGRAMMER ตรวจก่อนผูกจริง"; } catch (e) { S.smNote = "คัดลอกไม่ได้ในเบราว์เซอร์นี้"; }
+        const txt = smPlanText(smPlan(S.smShop || "Shopee ployririta"));
+        try { navigator.clipboard.writeText(txt); S.smNote = "คัดลอกสรุปแล้ว"; } catch (e) { S.smNote = "คัดลอกไม่ได้ในเบราว์เซอร์นี้"; }
       }
       else if (act === "sale-edit") S.saleEditId = String(id);
       else if (act === "sale-edit-close") S.saleEditId = "";

@@ -168,6 +168,42 @@
     .act-sub { font-size: 12.5px; color: #5B6F86; margin-top: 3px; line-height: 1.45; }
     #listArea, #listArea * { overflow-anchor: none; }
     /* ==== Sales tab layout (sx-*) ==== */
+    .sm-entry { display: flex; align-items: center; gap: 12px; width: 100%; border: 1.5px solid #C5D8EE; cursor: pointer; color: #1C3554; font-size: 14px; }
+    .sm-entry:hover { border-color: #2E6BB7; }
+    .sm-beta { display: inline-block; font-size: 10.5px; font-weight: 600; color: #B26A00; background: #FFF3DC; border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
+    .sm-banner { background: #FFF8E6; border: 1px solid #F3DDA6; color: #7A5600; border-radius: 12px; padding: 9px 12px; font-size: 13px; }
+    .sm-card.done { border: 1.5px solid #BFE3CC; }
+    .sm-card.none { border: 1.5px solid #E8C4C4; opacity: .85; }
+    .sm-sale { display: flex; gap: 12px; align-items: flex-start; }
+    .sm-shopimg { flex: 0 0 auto; width: 72px; height: 72px; border-radius: 12px; border: 1.5px dashed #C5D8EE; background: #F7FBFF; color: #8AA0B5; font-size: 10.5px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; }
+    .sm-shopimg span:first-child { font-size: 20px; }
+    .sm-rank { font-size: 11.5px; color: #8AA0B5; font-weight: 600; }
+    .sm-name { font-size: 14px; font-weight: 600; color: #1C3554; overflow-wrap: anywhere; }
+    .sm-var { font-size: 13px; color: #2E6BB7; margin: 2px 0; }
+    .sm-lbl { font-size: 12px; font-weight: 600; color: #5B6F86; margin: 12px 0 6px; }
+    .sm-cands { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .sm-cand { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 8px; align-items: start; border: 1px solid #E1ECF8; border-radius: 12px; padding: 8px; background: #FBFDFF; min-width: 0; }
+    .sm-cand .sm-choose { grid-column: 1 / -1; }
+    .sm-cinfo { min-width: 0; flex: 1; }
+    .sm-img { display: block; width: 100%; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: #EEF4FB; line-height: 0; }
+    .sm-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .sm-img.none, .sm-img.broken { display: flex; align-items: center; justify-content: center; color: #8AA0B5; font-size: 11px; line-height: 1.2; }
+    .sm-img.broken::after { content: "รูปเสีย"; }
+    .sm-pick .sm-img.big { width: 84px; flex: 0 0 auto; }
+    .sm-pname { font-size: 13px; font-weight: 600; color: #1C3554; overflow-wrap: anywhere; }
+    .sm-conf { display: inline-block; font-size: 10.5px; font-weight: 600; border-radius: 999px; padding: 1px 8px; margin-bottom: 3px; }
+    .sm-conf.hi { background: #E3F4EA; color: #2E7D4F; }
+    .sm-conf.mid { background: #EAF2FC; color: #2E6BB7; }
+    .sm-conf.lo { background: #F2F4F7; color: #8AA0B5; }
+    .sm-choose { border: none; border-radius: 10px; background: #2E6BB7; color: #fff; font-size: 13px; font-weight: 600; padding: 8px; cursor: pointer; }
+    .sm-choose:hover { background: #24599C; }
+    .sm-q { margin: 10px 0 0; }
+    .sm-plan { margin-top: 10px; background: #F3FBF6; border-radius: 12px; padding: 10px; }
+    .sm-plan.none { background: #FDF3F3; color: #A0444C; font-size: 13px; }
+    .sm-pick { display: flex; gap: 10px; align-items: center; }
+    .sm-will { margin-top: 8px; font-size: 12.5px; color: #3F5670; line-height: 1.6; }
+    .sm-will code { background: #fff; border: 1px solid #DDE8F4; border-radius: 6px; padding: 1px 5px; font-size: 12px; overflow-wrap: anywhere; }
+    @media (max-width: 760px) { .sm-cands { grid-template-columns: 1fr; } .sm-cand { grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; } .sm-cand .sm-choose { grid-column: auto; } }
     .sx-card { background: #fff; border-radius: 18px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(46,107,183,.10); margin-bottom: 14px; }
     .sx-head { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: none; padding: 0; text-align: left; color: #1C3554; font-size: 15.5px; font-weight: 700; min-height: 32px; }
     .sx-head .sx-tag { margin-left: auto; font-size: 11.5px; font-weight: 500; color: #5B6F86; }
@@ -2011,6 +2047,11 @@ function startApp() {
     saleEditId: "",
     saleQ: "",
     saleLinkQ: {},
+    smShop: "Shopee ployririta",
+    smFilter: "todo",
+    smQ: {},
+    smLimit: 20,
+    smNote: "",
     saleNote: "",
     showPost: false,
     postForm: { productIds: [], q: "", date: "", photo: true, video: false, platforms: {}, caption: "", note: "", editId: null, socialOpen: null },
@@ -2708,6 +2749,199 @@ function startApp() {
       words.forEach((w) => { if (hay.includes(w)) sc += w.length; });
       return { p, sc };
     }).filter((x) => x.sc >= 3).sort((a, b) => b.sc - a.sc).slice(0, limit || 5);
+  }
+  // ==== หน้าทดลอง: จับคู่ยอดขายเก่ากับสินค้าใน tracker ด้วยรูป (PREVIEW — ไม่บันทึกลงระบบจริง) ====
+  // การเลือกเก็บแค่ในเครื่องนี้ (localStorage "rc-salematch-preview-v1") ไม่แตะ S.sales / สินค้า / คลาวด์
+  const SM_KEY = "rc-salematch-preview-v1";
+  const SM_NOISE = /\[?ลิขสิทธิ์แท้\]?|reallycute|\(?พร้อมส่ง\)?|สินค้าขายดี|ของขวัญ(วันเกิด|เด็ก)?|ของเล่น|ของแต่งบ้าน|ของสะสม|ขนนุ่ม(ฟู|แน่น|พรีเมียม)?|นุ่มนิ่ม|น่ากอด|น่ารัก|งาน(คุณภาพ)?พรีเมียม|ทรงสวย|ปักเย็บละเอียด|เย็บละเอียด|งานนำเข้า|ตุ๊กตา|official|ลิขสิทธิ์/g;
+  // ชื่ออังกฤษ/สะกดต่าง -> คำที่ใช้ใน tracker
+  const SM_ALIAS = [[/moomin/g, "มูมิน"], [/snow ?white|สโนว์ไวท์/g, "สโนไวท์"], [/rilakkuma|ริลัคคุมะ|รีลัคคุมะ/g, "รีลัคคุมา"], [/korilakkuma|โคริลัคคุมะ/g, "โครีลัคคุมา"], [/hello ?kitty|kitty/g, "คิตตี้"], [/snoopy|สนู๊ปปี้/g, "สนูปปี้"], [/pikachu/g, "พิกะจู"], [/doraemon/g, "โดราเอมอน"], [/mickey/g, "มิกกี้"], [/minnie/g, "มินนี่"], [/buzz/g, "บัซ"], [/stitch|สติช(?!ท)/g, "สติทช์"], [/totoro|โตโตโร่/g, "โทโทโร่"], [/kuromi/g, "คุโรมิ"], [/my ?melody/g, "มายเมโลดี้"], [/cinnamoroll|ชินนาม่อนโรล/g, "ชินนาม่อน"], [/pompompurin/g, "ปอมปอมปูริน"], [/ariel/g, "แอเรียล"], [/belle/g, "เบลล์"], [/rapunzel/g, "ราพันเซล"], [/pooh/g, "หมีพูห์"], [/keroro/g, "เคโรโระ"], [/chi's|chis/g, "แมวจี้"]];
+  function smNorm(s) {
+    let t = String(s || "").toLowerCase();
+    SM_ALIAS.forEach(([re, to]) => { t = t.replace(re, " " + to + " "); });
+    return t.replace(SM_NOISE, " ").replace(/[^a-z0-9ก-๙]+/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function smGrams(s) {
+    const out = new Set();
+    String(s || "").split(" ").forEach((w) => {
+      if (!w) return;
+      if (w.length < 3) { if (!/^\d+$/.test(w)) out.add(w); return; }
+      for (let i = 0; i + 3 <= w.length; i++) out.add(w.slice(i, i + 3));
+    });
+    return out;
+  }
+  // ขนาดเป็นซม. (นิ้ว x 2.54) เพื่อเทียบ "71 CM" กับ "71 ซม" และไม่ให้ "40 CM" ตรงกับ "40 นิ้ว"
+  function smSizes(s) {
+    const out = [];
+    String(s || "").toLowerCase().replace(/(\d+(?:\.\d+)?)\s*(นิ้ว|inch|in\b|"|ซม|cm|เซน)?/g, (m, n, u) => {
+      const v = Number(n);
+      if (v < 5 || v > 400) return m;
+      out.push({ cm: u && /นิ้ว|inch|in|"/.test(u) ? v * 2.54 : v, unit: !!u });
+      return m;
+    });
+    return out;
+  }
+  function smSizeHit(a, b) { return a.some((x) => b.some((y) => Math.abs(x.cm - y.cm) <= Math.max(2, x.cm * 0.06) || (!x.unit || !y.unit) && Math.abs(x.cm - y.cm) < 0.5)); }
+  function smWords(s) { return (String(s || "").toLowerCase().match(/[a-z]{3,}/g) || []).filter((w) => !/^(cm|the|and|for|from|size|official|disney|sanrio|reallycute)$/.test(w)); }
+  function smContain(a, b) { if (!a.size) return 0; let n = 0; a.forEach((g) => { if (b.has(g)) n++; }); return n / a.size; }
+  let _smIdx = null, _smIdxRef = null, _smMemo = new Map();
+  function smIndex() {
+    const list = products();
+    if (_smIdx && _smIdxRef === list && _smIdx.n === list.length) return _smIdx;
+    const rows = list.map((p) => {
+      const nv = smGrams(smNorm((p.n || "") + " " + (p.v && p.v !== p.n ? p.v : "")));
+      return { p, nv, g: smGrams(smNorm(groupOf(p))), hay: ((p.n || "") + " " + (p.v || "") + " " + groupOf(p) + " " + (p.aka || "")).toLowerCase(), sizes: smSizes((p.n || "") + " " + (p.v || "")) };
+    });
+    const inv = new Map();
+    rows.forEach((r, i) => { new Set([...r.nv, ...r.g]).forEach((g) => { let a = inv.get(g); if (!a) inv.set(g, a = []); a.push(i); }); });
+    _smIdxRef = list; _smMemo = new Map();
+    _smIdx = { rows, inv, n: list.length };
+    return _smIdx;
+  }
+  function smScore(x, sn, sv, sale) {
+    if (!x.nv.size) return 0;
+    const all = new Set([...sn, ...sv]);
+    let sc = smContain(x.nv, all) * Math.min(1, x.nv.size / 6) * 60;   // ชื่อ+ตัวเลือกสินค้า อยู่ในชื่อที่ขายแค่ไหน
+    sc += smContain(sn, x.nv) * 25;                                       // ชื่อที่ขาย อยู่ในสินค้าแค่ไหน
+    if (x.g.size) sc += smContain(x.g, sn) * 10;                          // หมวด
+    if (sv.size) { const cv = smContain(sv, x.nv), w = Math.min(1, sv.size / 3); sc += cv * 35 * w + (cv === 1 && sv.size >= 3 ? 15 : 0); }  // ตัวเลือกสั้น เช่น "L" ให้น้ำหนักน้อย                          // ตัวเลือกตรง
+    smWords(sale.name + " " + sale.variant).forEach((w) => { if (x.hay.includes(w)) sc += 4; });
+    const vs = smSizes(sale.variant), ns = smSizes(sale.name);
+    const want = vs.length ? vs : ns;
+    if (want.length && x.sizes.length) sc += smSizeHit(want, x.sizes) ? 12 : -10;
+    if (x.p.ex) sc -= 5;
+    return sc;
+  }
+  function smSuggest(sale, limit) {
+    const idx = smIndex();
+    const mk = (sale.name || "") + "||" + (sale.variant || "");
+    if (_smMemo.has(mk)) return _smMemo.get(mk).slice(0, limit || 3);
+    const sn = smGrams(smNorm(sale.name)), sv = smGrams(smNorm(sale.variant));
+    const hits = new Map();
+    new Set([...sn, ...sv]).forEach((g) => { (idx.inv.get(g) || []).forEach((i) => hits.set(i, (hits.get(i) || 0) + 1)); });
+    const pool = Array.from(hits.entries()).sort((a, b) => b[1] - a[1]).slice(0, 400);
+    const out = pool.map(([i]) => ({ p: idx.rows[i].p, sc: smScore(idx.rows[i], sn, sv, sale) })).filter((r) => r.sc >= 15).sort((a, b) => b.sc - a.sc).slice(0, 8);
+    _smMemo.set(mk, out);
+    return out.slice(0, limit || 3);
+  }
+  function smLoad() { try { return JSON.parse(localStorage.getItem(SM_KEY) || "{}") || {}; } catch (e) { return {}; } }
+  function smSave(m) { try { localStorage.setItem(SM_KEY, JSON.stringify(m)); } catch (e) {} }
+  // รวมแถวยอดขายที่ยังไม่ผูก (ทุกเดือน) ตามร้าน+ชื่อ+ตัวเลือก เรียงจำนวนชิ้น > ยอดเงิน
+  function smGroups(shop) {
+    const bag = {};
+    (S.sales || []).forEach((s) => {
+      if (s.productId) return;
+      if (shop && shop !== "all" && normShop(s.shop) !== shop) return;
+      const k = salePairKey(s);
+      if (!bag[k]) bag[k] = { key: k, shop: normShop(s.shop), name: s.name || "", variant: s.variant || "", sku: "", qty: 0, rev: 0, rows: [], months: new Set() };
+      const g = bag[k];
+      g.qty += s.qty || 0; g.rev += s.rev || 0; g.rows.push(s.id); g.months.add(saleMonthOf(s));
+      if (s.sku && !g.sku) g.sku = s.sku;
+    });
+    return Object.values(bag).sort((a, b) => b.qty - a.qty || b.rev - a.rev);
+  }
+  // เคยผูกชื่อเดียวกันไว้ในร้าน/เดือนอื่น -> เสนอเป็นตัวแรก
+  function smKnown(g) {
+    const hit = (S.sales || []).find((s) => s.productId && s.name === g.name && (s.variant || "") === g.variant && findProduct(s.productId));
+    return hit ? findProduct(hit.productId) : null;
+  }
+  function smTxt(s) { return String(s || "").replace(/&#0*38;|&amp;/g, "&"); }
+  function smAkaLine(g) { return g.shop + ": " + g.name + (g.variant ? " / " + g.variant : ""); }
+  function smConf(sc) { return sc >= 80 ? ["น่าจะใช่", "hi"] : sc >= 50 ? ["อาจใช่", "mid"] : ["ไม่แน่ใจ", "lo"]; }
+  function smThumb(p, big) {
+    const u = p && typeof p.img === "string" && p.img ? imgSrcOf(p.img) : "";
+    const cls = "sm-img" + (big ? " big" : "");
+    return u ? `<a class="${cls}" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="เปิดรูปเต็ม"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('broken');this.remove()"></a>` : `<span class="${cls} none">ไม่มีรูป</span>`;
+  }
+  function smPlanText(groups, picks) {
+    const lines = [];
+    groups.forEach((g) => {
+      const pk = picks[g.key];
+      if (!pk) return;
+      if (pk.none) { lines.push("ไม่มีคู่\t" + g.shop + "\t" + g.name + (g.variant ? " / " + g.variant : "") + "\t" + g.qty + " ชิ้น"); return; }
+      const p = findProduct(pk.productId);
+      lines.push("ผูก\t" + g.shop + "\t" + g.name + (g.variant ? " / " + g.variant : "") + "\t" + g.qty + " ชิ้น\t→\t" + (p ? labelOf(p) + (p.csku ? " (" + p.csku + ")" : "") + "\tid " + p.id : "id " + pk.productId) + "\tแถวยอดขาย " + g.rows.join(","));
+    });
+    return lines.join("\n");
+  }
+  function saleMatchHTML() {
+    const shop = S.smShop || "Shopee ployririta";
+    const picks = smLoad();
+    const groups = smGroups(shop);
+    const nPick = groups.filter((g) => picks[g.key] && !picks[g.key].none).length;
+    const nNone = groups.filter((g) => picks[g.key] && picks[g.key].none).length;
+    const f = S.smFilter || "todo";
+    const shown = groups.filter((g) => f === "all" ? true : f === "todo" ? !picks[g.key] : f === "picked" ? picks[g.key] && !picks[g.key].none : picks[g.key] && picks[g.key].none);
+    const totQ = groups.reduce((n, g) => n + g.qty, 0), totR = groups.reduce((n, g) => n + g.rev, 0);
+    const nRows = groups.reduce((n, g) => n + g.rows.length, 0);
+    const limit = S.smLimit || 20;
+    const chip = (v, lb, n) => `<button class="pill ${f === v ? "on" : ""}" data-act="sm-filter" data-v="${v}">${lb} ${n}</button>`;
+    const card = (g, i) => {
+      const pk = picks[g.key];
+      const known = smKnown(g);
+      const q = (S.smQ[g.key] || "").trim();
+      let cands = q ? smSuggest({ name: q, variant: "" }, 6) : smSuggest(g, 3);
+      if (known && !q) cands = [{ p: known, sc: 999, known: true }].concat(cands.filter((c) => String(c.p.id) !== String(known.id))).slice(0, 3);
+      const chosen = pk && !pk.none ? findProduct(pk.productId) : null;
+      const months = Array.from(g.months).sort().map(monthLabel).join(", ");
+      const head = `<div class="sm-sale">
+          <div class="sm-shopimg" title="ไฟล์ยอดขายไม่มีรูปหรือเลขสินค้าของร้าน จึงยังแสดงรูปจาก Shopee ไม่ได้"><span>🛍</span><span>ไม่มีรูปร้าน</span></div>
+          <div style="min-width:0;flex:1">
+            <div class="sm-rank">#${i + 1} · ${esc(g.shop.replace("Shopee ", ""))}</div>
+            <div class="sm-name">${esc(g.name)}</div>
+            ${g.variant ? `<div class="sm-var">ตัวเลือก: <b>${esc(g.variant)}</b></div>` : `<div class="sm-var tiny">ไม่มีตัวเลือก</div>`}
+            <div class="tiny">${g.qty} ชิ้น · ${Math.round(g.rev).toLocaleString()} บ. · ${g.rows.length} แถว (${esc(months)})${g.sku ? " · SKU " + esc(g.sku) : ""}</div>
+          </div>
+        </div>`;
+      if (pk) {
+        return `<div class="sx-card sm-card ${pk.none ? "none" : "done"}" data-sm-key="${esc(g.key)}">${head}
+          ${pk.none ? `<div class="sm-plan none">✕ ทำเครื่องหมาย "ไม่มีคู่" ไว้ (ในเครื่องนี้) — ไม่มีสินค้าตัวนี้ใน tracker</div>`
+          : `<div class="sm-plan">
+              <div class="sm-pick">${smThumb(chosen, true)}<div style="min-width:0">
+                <div class="tiny" style="color:#2E7D4F;font-weight:600">✓ เลือกแล้ว (ทดลอง ยังไม่บันทึกจริง)</div>
+                <div class="sm-pname">${chosen ? esc(smTxt(labelOf(chosen))) : "ไม่พบสินค้า id " + esc(pk.productId)}</div>
+                <div class="tiny">${chosen ? esc(groupOf(chosen)) + (chosen.csku ? " · " + esc(chosen.csku) : "") : ""}</div>
+              </div></div>
+              <div class="sm-will"><b>ถ้าใช้จริงจะทำ:</b><br>• ผูกยอดขาย ${g.rows.length} แถว (${g.qty} ชิ้น) กับสินค้านี้<br>• เพิ่มชื่อที่ใช้ขาย (aka) ในสินค้า: <code>${esc(smAkaLine(g))}</code>${g.sku && chosen && !chosen.sku ? `<br>• ใส่ SKU ร้าน <code>${esc(g.sku)}</code>` : ""}<br>• ครั้งหน้ายอดขายชื่อนี้จะผูกเองได้</div>
+            </div>`}
+          <div class="rowbtns" style="margin-top:8px"><button class="ghost" data-act="sm-undo" data-v="${esc(g.key)}">↺ เปลี่ยน</button></div>
+        </div>`;
+      }
+      return `<div class="sx-card sm-card" data-sm-key="${esc(g.key)}">${head}
+        <div class="sm-lbl">สินค้าใน tracker ที่น่าจะตรง${q ? " (ค้นหา: " + esc(q) + ")" : ""}</div>
+        <div class="sm-cands">
+          ${cands.length ? cands.map((c) => {
+            const [cl, ck] = c.known ? ["เคยผูกชื่อนี้แล้ว", "hi"] : smConf(c.sc);
+            return `<div class="sm-cand">
+              ${smThumb(c.p, true)}
+              <div class="sm-cinfo">
+                <span class="sm-conf ${ck}">${cl}</span>
+                <div class="sm-pname">${esc(smTxt(labelOf(c.p)))}</div>
+                <div class="tiny">${esc(smTxt(groupOf(c.p)))}${c.p.v && c.p.v !== c.p.n ? " · " + esc(smTxt(c.p.n)) : ""}</div>
+                <div class="tiny">${c.p.csku ? esc(c.p.csku) + " · " : ""}${c.p.s === "out" ? "หมด/ปิด" : "มีสินค้า"}</div>
+              </div>
+              <button class="sm-choose" data-act="sm-pick" data-v="${esc(g.key)}" data-id="${esc(c.p.id)}">✓ ตัวนี้</button>
+            </div>`;
+          }).join("") : `<div class="tiny" style="padding:8px">ไม่พบสินค้าที่ชื่อใกล้กัน — ลองพิมพ์ค้นเอง หรือกด "ไม่มีคู่"</div>`}
+        </div>
+        <input class="field sm-q" data-sm-q="${esc(g.key)}" placeholder="ไม่ใช่ทั้งหมด? พิมพ์ค้นเอง เช่น มูมิน / หมีพูห์ 50" value="${esc(S.smQ[g.key] || "")}" />
+        <div class="rowbtns" style="margin-top:8px"><button class="ghost sm-nomatch" data-act="sm-none" data-v="${esc(g.key)}">✕ ไม่มีคู่</button></div>
+      </div>`;
+    };
+    return `
+      <div class="sub-back"><button class="ghost" data-act="view" data-v="sales">‹ กลับ</button><b>🧩 จับคู่ยอดขาย</b><span class="sm-beta">ทดลอง</span></div>
+      <div class="sx-card">
+        <div class="sm-banner">หน้าทดลอง — กดเลือกแล้ว<b>ยังไม่บันทึกลงระบบ</b> เก็บไว้ในเครื่องนี้เท่านั้น เพื่อดูว่าจะผูกอะไร</div>
+        <div class="sx-lbl" style="margin-top:10px">ร้าน</div>
+        <div class="pills sx-wrap">${SALE_SHOPS.map((n) => `<button class="pill ${shop === n ? "on" : ""}" data-act="sm-shop" data-v="${esc(n)}">${esc(n.replace("Shopee ", ""))}</button>`).join("")}</div>
+        <div class="sx-summary"><div id="smSummary">ยังไม่ผูก <b>${groups.length}</b> รายการ (${nRows} แถวยอดขาย) · ${totQ} ชิ้น · ~${Math.round(totR).toLocaleString()} บ. · เลือกแล้ว ${nPick} · ไม่มีคู่ ${nNone}</div></div>
+        <div class="pills sx-wrap" style="margin-top:10px">${chip("todo", "ยังไม่เลือก", groups.length - nPick - nNone)}${chip("picked", "เลือกแล้ว", nPick)}${chip("none", "ไม่มีคู่", nNone)}${chip("all", "ทั้งหมด", groups.length)}</div>
+        <div class="tiny" style="margin-top:8px">เรียงจากขายได้มากสุดก่อน · รูปซ้าย = รูปจากร้าน (ไฟล์ยอดขายยังไม่มีรูป/เลขสินค้า) · รูปในการ์ด = รูปสินค้าใน tracker</div>
+        ${nPick + nNone ? `<div class="rowbtns" style="margin-top:10px"><button class="ghost" data-act="sm-copy">📋 คัดลอกสรุปที่จะผูก</button><button class="ghost" style="color:#C0525A;border-color:#E8C4C4" data-act="sm-reset">ล้างที่เลือกในเครื่องนี้</button></div>` : ""}
+        ${S.smNote ? `<div class="sx-note ok" style="margin-top:8px">${esc(S.smNote)}</div>` : ""}
+      </div>
+      ${shown.length ? shown.slice(0, limit).map((g) => card(g, groups.indexOf(g))).join("") : `<div class="empty">${groups.length ? "ไม่มีรายการในตัวกรองนี้" : "ร้านนี้ผูกครบแล้ว ไม่มียอดขายที่รอผูก"}</div>`}
+      ${shown.length > limit ? `<button class="ghost" style="width:100%;justify-content:center" data-act="sm-more">แสดงเพิ่ม (${shown.length - limit} รายการ)</button>` : ""}`;
   }
   function linkSale(saleId, productId) {
     const sale = (S.sales || []).find((s) => String(s.id) === String(saleId));
@@ -3592,7 +3826,7 @@ function startApp() {
   }
   // ==== เมนูหลัก 4 แท็บ: วันนี้ · แผนงาน · สินค้า · ยอดขาย (ถังขยะ/กิจกรรมอยู่ในเมนู ⋯) ====
   const NAV_TABS = [["dash", "☀️", "วันนี้"], ["plan", "🗓", "แผนงาน"], ["list", "📦", "สินค้า"], ["sales", "💰", "ยอดขาย"]];
-  function navTabOf(view) { return view === "prep" || view === "cal" ? "plan" : view; }
+  function navTabOf(view) { return view === "prep" || view === "cal" ? "plan" : view === "salematch" ? "sales" : view; }
   function navInitial(name) { const t = String(name || "").trim(); return t ? Array.from(t)[0].toUpperCase() : "👤"; }
   // แผนงาน = งานเตรียม (สัปดาห์ / รายการแคมเปญ) + ปฏิทิน (เดือน / รายการโพสต์ที่บันทึก)
   function planModeOf() {
@@ -3670,6 +3904,8 @@ function startApp() {
       html += prepHTML();
     } else if (S.view === "sales") {
       html += salesHTML();
+    } else if (S.view === "salematch") {
+      html += saleMatchHTML();
     } else if (S.view === "trash") {
       html += trashHTML();
     } else if (S.view === "activity") {
@@ -4251,6 +4487,7 @@ function startApp() {
         </div>
       </div>
 
+      <button class="sx-card sm-entry" data-act="view" data-v="salematch"><span style="font-size:22px">🧩</span><span style="flex:1;text-align:left"><b>จับคู่ยอดขายด้วยรูป</b> <span class="sm-beta">ทดลอง</span><br><span class="tiny">ดูรายการที่ยังไม่ผูก เรียงขายดีก่อน พร้อมรูปสินค้าที่น่าจะตรง</span></span><span>›</span></button>
       <div class="sx-card" id="saleViewCard">
         <div class="sx-head" style="cursor:default">🔎 ดูยอดขาย / กรอง</div>
         <div class="sx-step" style="margin-top:10px"><div class="sx-body">
@@ -5200,6 +5437,20 @@ function startApp() {
       }
       else if (act === "linked-month") S.linkedMonth = S.linkedMonth === v ? "" : v;
       else if (act === "sale-view-shop") S.saleViewShop = v;
+      else if (act === "sm-shop") { S.smShop = v; S.smLimit = 20; S.smNote = ""; }
+      else if (act === "sm-filter") { S.smFilter = v; S.smLimit = 20; }
+      else if (act === "sm-more") S.smLimit = (S.smLimit || 20) + 20;
+      else if (act === "sm-pick" || act === "sm-none" || act === "sm-undo") {
+        const m = smLoad();
+        if (act === "sm-undo") delete m[v];
+        else m[v] = act === "sm-none" ? { none: true, at: Date.now() } : { productId: String(id), at: Date.now() };
+        smSave(m); S.smNote = "";
+      }
+      else if (act === "sm-reset") { smSave({}); S.smNote = "ล้างที่เลือกในเครื่องนี้แล้ว"; }
+      else if (act === "sm-copy") {
+        const txt = smPlanText(smGroups(S.smShop || "Shopee ployririta"), smLoad());
+        try { navigator.clipboard.writeText(txt); S.smNote = "คัดลอกสรุปแล้ว — ส่งให้ PROGRAMMER ตรวจก่อนผูกจริง"; } catch (e) { S.smNote = "คัดลอกไม่ได้ในเบราว์เซอร์นี้"; }
+      }
       else if (act === "sale-edit") S.saleEditId = String(id);
       else if (act === "sale-edit-close") S.saleEditId = "";
       else if (act === "sale-unlink") unlinkSale(id);
@@ -5472,6 +5723,18 @@ function startApp() {
       el.onchange = () => {
         const sale = (S.sales || []).find((x) => String(x.id) === el.getAttribute("data-sale-rev"));
         if (sale) { sale.rev = Number(el.value || 0); persistSales(); }
+      };
+    });
+    document.querySelectorAll("[data-sm-q]").forEach((inp) => {
+      inp.oninput = () => {
+        const keep = inp.getAttribute("data-sm-q");
+        S.smQ[keep] = inp.value;
+        clearTimeout(inp._t);
+        inp._t = setTimeout(() => {
+          render();
+          const el = Array.from(document.querySelectorAll("[data-sm-q]")).find((x) => x.getAttribute("data-sm-q") === keep);
+          if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+        }, 250);
       };
     });
     document.querySelectorAll("[data-sale-q]").forEach((inp) => {

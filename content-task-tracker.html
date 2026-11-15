@@ -198,6 +198,15 @@
     .sm-choose { border: none; border-radius: 10px; background: #2E6BB7; color: #fff; font-size: 13px; font-weight: 600; padding: 8px; cursor: pointer; }
     .sm-choose:hover { background: #24599C; }
     .sm-q { margin: 10px 0 0; }
+    .sl-row { align-items: center; }
+    .sl-thumb { flex: 0 0 auto; display: block; width: 40px; height: 40px; border-radius: 8px; overflow: hidden; background: #EEF4FB; line-height: 0; }
+    .sl-thumb img { width: 40px; height: 40px; object-fit: cover; display: block; }
+    .postrow.sl-linked { display: flex; gap: 10px; align-items: flex-start; }
+    .sl-linked .sl-thumb, .sl-linked .sl-thumb img { width: 48px; height: 48px; }
+    .sl-body { min-width: 0; flex: 1; }
+    .sl-thumb.none { background: #F2F5F9; border: 1px solid #E1E8F0; }
+    .sl-thumb { position: relative; }
+    .sl-thumb.broken::after { content: "🖼"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; color: #8AA0B5; }
     .sm-oldbar { margin-top: 10px; background: #EAF2FC; color: #24599C; border-radius: 10px; padding: 8px 10px; font-size: 12.5px; }
     .sm-card.oldmode { border: 1.5px solid #9CC0EA; }
     .sm-oldbtn { color: #24599C; }
@@ -2448,7 +2457,7 @@ function startApp() {
   }
   purgeTrash();
   rescueRenamedFromTrash();
-  backfillSaleLinks();
+  // ไม่ผูกยอดขายอัตโนมัติตอนเปิดหน้าแล้ว (เคยแอบบันทึกขึ้นคลาวด์เอง) — แค่นับเป็นคำแนะนำ ให้คนกดยืนยันเอง
   const SALE_SHOPS = ["Shopee wararit.th", "Shopee ployririta", "Shopee reallycute.th", "Lazada", "TikTok Shop", "ThaiMart", "Line My Shop"];
   // ชื่อร้านเก่า -> ชื่อใหม่ (riri.th เปลี่ยนชื่อเป็น ployririta 12 พ.ย. 2026) อ่านข้อมูล/ไฟล์เก่าได้เหมือนเดิม
   function normShop(n) { return n === "Shopee riri.th" ? "Shopee ployririta" : (n || ""); }
@@ -2633,7 +2642,7 @@ function startApp() {
     const hit = (rows || []).find((s) => s.productId && (salePairKey(s) === k || (sku && String(s.sku || "").trim() === sku)));
     return hit ? hit.productId : "";
   }
-  function backfillSaleLinks() {
+  function backfillSaleLinks(apply) {
     const rows = S.sales || [];
     const byKey = {};
     const bySku = {};
@@ -2644,13 +2653,15 @@ function startApp() {
       if (sku && !bySku[sku]) bySku[sku] = s.productId;
     });
     let n = 0;
-    S.sales = rows.map((s) => {
-      if (s.productId) return s;
+    const next = rows.map((s) => {
+      if (s.productId || s.noMatch) return s;
       const id = byKey[salePairKey(s)] || (String(s.sku || "").trim() && bySku[String(s.sku).trim()]);
       if (!id) return s;
       n += 1;
       return { ...s, productId: id };
     });
+    if (apply !== true) return n;
+    S.sales = next;
     if (n) persistSales();
     return n;
   }
@@ -3066,6 +3077,11 @@ function startApp() {
       </div>
       ${shown.length ? shown.slice(0, limit).map((g) => card(g, groups.indexOf(g))).join("") : `<div class="empty">${groups.length ? "ไม่มีรายการในตัวกรองนี้" : "ร้านนี้ผูกครบแล้ว ไม่มียอดขายที่รอผูก"}</div>`}
       ${shown.length > limit ? `<button class="ghost" style="width:100%;justify-content:center" data-act="sm-more">แสดงเพิ่ม (${shown.length - limit} รายการ)</button>` : ""}`;
+  }
+  // รูปเล็กข้างปุ่ม "ผูกกับ…" (โหลดเฉพาะตอนขึ้นจอ) · ไม่มีรูป = ช่องว่างเรียบๆ
+  function saleThumb(p) {
+    const u = p && typeof p.img === "string" && p.img ? imgSrcOf(p.img) : "";
+    return u ? `<a class="sl-thumb" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="เปิดรูปเต็ม"><img src="${esc(u)}" alt="" width="40" height="40" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none';this.parentNode.classList.add('broken');this.parentNode.title='โหลดรูปไม่ได้ (เว็บต้นทางของรูปไม่ตอบ)'"></a>` : `<span class="sl-thumb none" aria-hidden="true"></span>`;
   }
   function linkSale(saleId, productId) {
     const sale = (S.sales || []).find((s) => String(s.id) === String(saleId));
@@ -4131,7 +4147,7 @@ function startApp() {
     </div></div>`;
     if (S.confirmSale === "inherit") html += `<div class="overlay" data-act="cancel-sale-ask"><div class="sheet" data-stop="1">
       <div style="font-size:17px;font-weight:700;color:#1C3554;margin-bottom:8px">คัดลอกการผูกข้ามเดือน?</div>
-      <div class="muted" style="margin-bottom:14px">รายการที่ยังไม่ผูกจะรับสินค้าจากแถวอื่นที่ชื่อหรือ SKU ตรงกัน</div>
+      <div class="muted" style="margin-bottom:14px">รายการที่ยังไม่ผูกจะรับสินค้าจากแถวอื่นที่ชื่อหรือ SKU ตรงกัน — พบ ${backfillSaleLinks()} รายการ (ไม่รวมแถวที่ทำเครื่องหมายว่าไม่มีใน tracker)</div>
       <button class="btn on" data-act="inherit-links">ยืนยันคัดลอกการผูก</button>
       <button class="ghost" style="width:100%;justify-content:center;margin-top:8px" data-act="cancel-sale-ask">ยกเลิก</button>
     </div></div>`;
@@ -4546,6 +4562,7 @@ function startApp() {
     const shopOf = S.saleViewShop && S.saleViewShop !== "all" ? monthRows.filter((s) => normShop(s.shop) === S.saleViewShop) : monthRows;
     const open = shopOf.filter((s) => !s.productId && s.noMatch !== "missing");
     const missingRows = shopOf.filter((s) => !s.productId && s.noMatch === "missing"); // แยกออกจากรอผูก (ริตา 15 พ.ย.)
+    const inheritN = backfillSaleLinks(); // นับอย่างเดียว ไม่บันทึก
     const linked = shopOf.filter((s) => s.productId);
     const q = (S.saleQ || "").trim().toLowerCase();
     const matchQ = (s) => !q || (s.name + " " + s.variant + " " + s.shop).toLowerCase().includes(q);
@@ -4633,7 +4650,8 @@ function startApp() {
         <input class="field" id="saleSearch" placeholder="ค้นชื่อในยอดขาย..." value="${esc(S.saleQ)}" style="margin-top:14px;margin-bottom:0" />
         <div class="sx-summary">
           <div id="saleSummary"><b>${shopOf.length}</b> รายการ · ${qty} ชิ้น · ~${rev.toLocaleString()} บ. · รอผูก ${open.length} · ผูกแล้ว ${linked.length}${missingRows.length ? " · ไม่มีใน tracker " + missingRows.length : ""}</div>
-          <button class="ghost" data-act="ask-sale" data-v="inherit">คัดลอกการผูกจากเดือนอื่นที่ชื่อหรือ SKU ตรงกัน</button>
+          ${inheritN ? `<div class="warn" id="saleInheritHint" style="margin-top:6px">💡 แนะนำ: ${inheritN} รายการที่ยังไม่ผูก ชื่อหรือ SKU ตรงกับที่เคยผูกในเดือนอื่น — ระบบยังไม่ผูกให้ กดปุ่มด้านล่างเพื่อตรวจแล้วยืนยันเอง</div>` : ""}
+          <button class="ghost" data-act="ask-sale" data-v="inherit" id="saleInheritBtn">คัดลอกการผูกจากเดือนอื่นที่ชื่อหรือ SKU ตรงกัน${inheritN ? " (" + inheritN + ")" : ""}</button>
         </div>
       </div>
       <div class="tiny" style="margin-bottom:8px">รอผูก ${open.length} รายการ${missingRows.length ? ` · <button class="ghost" style="padding:2px 8px" data-act="sm-goto-missing" id="saleMissingBtn">📋 ไม่มีใน tracker ${missingRows.length} แถว (แยกไว้รอตรวจ) ›</button>` : ""}</div>
@@ -4658,7 +4676,8 @@ function startApp() {
             ${p ? `<button class="ghost" style="margin-top:6px" data-act="sale-unlink" data-id="${s.id}">ยกเลิกผูก</button>` : ""}
             <input class="field" data-sale-q="${s.id}" placeholder="พิมพ์คำสั้น เช่น เคโรโระ / มารี / เพลิงนวล" value="${esc(lq)}" style="margin-top:8px;margin-bottom:6px" />
             <div class="tiny" style="margin:0 0 6px">รายการด้านล่างเป็นคำแนะนำ ยังไม่ผูกจนกว่าจะกด</div>
-            ${sugg.map((x) => `<div class="rowbtns" style="margin-bottom:6px">
+            ${sugg.map((x) => `<div class="rowbtns sl-row" style="margin-bottom:6px">
+              ${saleThumb(x.p)}
               <button class="ghost" data-act="edit-item" data-id="${x.p.id}">แก้สินค้า</button>
               <button class="ghost" data-act="sale-link" data-id="${s.id}" data-v="${x.p.id}">ผูกกับ ${esc(labelOf(x.p))}</button>
             </div>`).join("")}
@@ -4695,7 +4714,8 @@ function startApp() {
               </button>
               ${openM ? pack.slice(0, 80).map((s) => {
                 const p = s.productId ? findProduct(s.productId) : null;
-                return `<div class="postrow" style="cursor:default;margin:6px 0">
+                return `<div class="postrow sl-linked" style="cursor:default;margin:6px 0">
+                  ${p ? saleThumb(p) : ""}<div class="sl-body">
                   <div style="font-size:13px;font-weight:500">${esc(s.name)}</div>
                   <div class="tiny">${esc((s.shop || "").replace("Shopee ",""))} · ${s.qty || 0} ชิ้น · ${(s.rev || 0).toLocaleString()} บ.</div>
                   <div class="tiny" style="color:#2E6BB7;margin-top:4px">${p ? "ผูกกับ " + esc(labelOf(p)) : ""}</div>
@@ -4703,7 +4723,7 @@ function startApp() {
                     <button class="ghost" data-act="sale-edit" data-id="${s.id}">แก้ผูก</button>
                     <button class="ghost" data-act="sale-unlink" data-id="${s.id}">ยกเลิกผูก</button>
                   </div>
-                </div>`;
+                </div></div>`;
               }).join("") : ""}
             </div>`;
           }).join("");
@@ -5556,7 +5576,7 @@ function startApp() {
       else if (act === "sale-filter") S.saleFilter = v;
       else if (act === "toggle-linked") S.showLinked = !S.showLinked;
       else if (act === "inherit-links") {
-        const n = backfillSaleLinks();
+        const n = backfillSaleLinks(true);
         S.saleNote = n ? "คัดลอกการผูกข้ามเดือนได้ " + n + " รายการ" : "ไม่มีรายการที่ชื่อหรือ SKU ตรงกับของที่ผูกแล้ว";
         S.confirmSale = "";
       }

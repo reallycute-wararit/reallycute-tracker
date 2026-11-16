@@ -3623,9 +3623,8 @@ function startApp() {
     }
     let thumb = "";
     if (item.img && typeof item.img === "string") {
-      let u = item.img;
-      const isData = /^data:/i.test(u);
-      try { if (!isData && !/%[0-9A-Fa-f]{2}/.test(item.img)) u = encodeURI(item.img); } catch (e) { u = item.img; }
+      const isData = /^data:/i.test(item.img);
+      const u = isData ? item.img : imgSrcOf(item.img);
       const ttl = item.imgGeneric ? "รูปหมู่ (อาจไม่ใช่แบบนี้เป๊ะ) — เปิดรูปใหญ่" : "เปิดรูปใหญ่";
       const inner = `<img src="${esc(u)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" onerror="this.style.display='none';this.parentNode.classList.add('broken')">${item.imgGeneric ? `<span class="igen">รูปหมู่</span>` : ""}`;
       thumb = isData
@@ -4881,12 +4880,62 @@ function startApp() {
   function isOkImgUrl(u) {
     return /^https?:\/\/\S+$/i.test(u) || /^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(u);
   }
-  function imgSrcOf(u) {
+  // ==== สำเนารูปสินค้าใน Supabase Storage (bucket product-images) ====
+  // ใช้รูปสำเนาก่อน → ถ้าโหลดไม่ได้ค่อยใช้ลิงก์เดิม (tukatacenter) → ถ้ายังไม่ได้ แสดง 🖼 ตามเดิม
+  // ชื่อไฟล์ = cyrb53(ลิงก์เดิมที่ decode + NFC) ฐาน 16 · สคริปต์ /workspace/img-mirror/mirror_images.py คำนวณแบบเดียวกัน
+  const IMG_MIRROR_BASE = "https://hcuqtpymbarurliqxmeh.supabase.co/storage/v1/object/public/product-images/";
+  let IMG_MIRROR = null; // Set ของชื่อไฟล์ที่มีสำเนาแล้ว (จาก _index.json)
+  const IMG_MIRROR_BACK = new Map(); // ลิงก์สำเนา -> ลิงก์เดิม (ใช้ตอนสำเนาโหลดไม่ได้)
+  function imgCyrb53(str) {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  }
+  function imgMirrorKey(u) {
+    let s = String(u).trim();
+    try { s = decodeURIComponent(s); } catch (e) {}
+    return imgCyrb53(s.normalize("NFC")).toString(16);
+  }
+  function imgOrigSrc(u) {
     if (!u) return "";
     if (/^data:/i.test(u)) return u;
     try { if (!/%[0-9A-Fa-f]{2}/.test(u)) return encodeURI(u); } catch (e) {}
     return u;
   }
+  function imgSrcOf(u) {
+    const orig = imgOrigSrc(u);
+    if (!orig || /^data:/i.test(orig) || !IMG_MIRROR || !IMG_MIRROR.size) return orig;
+    const k = imgMirrorKey(u);
+    if (!IMG_MIRROR.has(k)) return orig;
+    const m = IMG_MIRROR_BASE + "p/" + k + ".webp";
+    IMG_MIRROR_BACK.set(m, orig);
+    return m;
+  }
+  // สำเนาโหลดไม่ได้ → เปลี่ยนไปใช้ลิงก์เดิมก่อน ไม่ให้ onerror เดิม (ซ่อนรูป/🖼) ทำงานในรอบแรก
+  document.addEventListener("error", (e) => {
+    const im = e.target;
+    if (!im || im.tagName !== "IMG" || im.dataset.mfb) return;
+    const orig = IMG_MIRROR_BACK.get(im.currentSrc || im.src) || IMG_MIRROR_BACK.get(im.src);
+    if (!orig) return;
+    im.dataset.mfb = "1";
+    e.stopImmediatePropagation();
+    im.src = orig;
+    const a = im.closest && im.closest("a[href]");
+    if (a && IMG_MIRROR_BACK.has(a.href)) a.href = orig;
+  }, true);
+  (function loadImgMirror() {
+    const t = Math.floor(Date.now() / 300000); // แคชได้ 5 นาที
+    fetch(IMG_MIRROR_BASE + "_index.json?t=" + t, { cache: "default" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!j || !Array.isArray(j.keys) || !j.keys.length) return;
+        IMG_MIRROR = new Set(j.keys);
+        try { if (typeof render === "function") render(); } catch (e) { console.warn("img mirror rerender", e); }
+      })
+      .catch(() => {}); // โหลดรายการไม่ได้ = ใช้ลิงก์เดิมเหมือนก่อน
+  })();
   function openImgEdit(id) {
     const p = findProduct(id);
     if (!p) return;
